@@ -12,7 +12,7 @@ is potentially incompatible with Trusted Types, tsec emits compilation errors.
 tsec is based on the open source TypeScript static analyzer
 [Tsetse](https://tsetse.info/).
 
-## Build and run
+## Build and Run
 
 ### Build
 ```
@@ -20,15 +20,11 @@ tsec is based on the open source TypeScript static analyzer
   git clone https://github.com/googleinterns/tsec
   cd tsec
   
-  # Install gulp
-  npm install gulp
-  
   # Install dependencies
   npm install
-  
-  # Run a compile based on tsconfig.json
-  node_modules/typescript/bin/tsc 
-  
+
+  # Build
+  npm run build
 ```
 
 ### Run
@@ -37,4 +33,4 @@ To run a check for the compatibility with Trusted Types in the project containin
 ```
   {PATH_TO_TSEC}/bin/tsec -p tsconfig.json
 ```
-Add `--no-Emit` flag to skip the output from compilation.
+Add `--noEmit` flag to skip emitting JS code from compilation.
