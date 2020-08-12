@@ -37,14 +37,15 @@ function countErrors(diagnostics: readonly ts.Diagnostic[]): number {
 
 function reportDiagnosticsWithSummary(diagnostics: readonly ts.Diagnostic[]):
     number {
-  const newLine = FORMAT_DIAGNOSTIC_HOST.getNewLine();
-  ts.sys.write(
-      ts.formatDiagnosticsWithColorAndContext(
-          diagnostics, FORMAT_DIAGNOSTIC_HOST) +
-      newLine + newLine);
+  ts.sys.write(ts.formatDiagnosticsWithColorAndContext(
+      diagnostics, FORMAT_DIAGNOSTIC_HOST));
 
   const errorCount = countErrors(diagnostics);
   if (errorCount > 0) {
+    // Separate from the diagnostics with two line breaks.
+    const newLine = FORMAT_DIAGNOSTIC_HOST.getNewLine();
+    ts.sys.write(newLine + newLine);
+
     if (errorCount === 1) {
       ts.sys.write(`Found 1 error.${newLine}`);
     } else {
