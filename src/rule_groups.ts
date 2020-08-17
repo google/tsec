@@ -21,7 +21,6 @@ import {Rule as TTBanElementInnerHTMLAssignments} from './conformance_rules/ban_
 import {Rule as TTBanElementOuterHTMLAssignments} from './conformance_rules/ban_element_outerhtml_assignments';
 import {Rule as TTBanElementSrcdocAssignments} from './conformance_rules/ban_element_srcdoc_assignments';
 import {Rule as TTBanEvalCalls} from './conformance_rules/ban_eval_calls';
-import {Rule as TTBanLinkHrefRelAssignments} from './conformance_rules/ban_link_href_rel_assignments';
 import {Rule as TTBanScriptAppendChildCalls} from './conformance_rules/ban_script_appendchild_calls';
 import {Rule as TTBanScriptContentAssignments} from './conformance_rules/ban_script_content_assignments';
 import {Rule as TTBanScriptSrcAssignments} from './conformance_rules/ban_script_src_assignments';
@@ -44,7 +43,6 @@ const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanBaseHrefAssignments,  // https://github.com/w3c/webappsec-trusted-types/issues/172
   TTBanDocumentWriteCalls,
   TTBanEvalCalls,
-  TTBanLinkHrefRelAssignments,
   TTBanScriptAppendChildCalls,
   TTBanScriptContentAssignments,
   TTBanScriptSrcAssignments,
