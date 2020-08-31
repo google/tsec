@@ -30,7 +30,7 @@ export class Rule extends ConformancePatternRule {
         {
           errorCode: ErrorCode.CONFORMANCE_PATTERN,
           errorMessage: errMsg,
-          kind: PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE,
+          kind: PatternKind.BANNED_PROPERTY_WRITE,
           values: ['HTMLScriptElement.prototype.src'],
           allowlistEntries,
           name: Rule.RULE_NAME,
