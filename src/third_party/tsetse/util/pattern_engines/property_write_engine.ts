@@ -20,7 +20,12 @@ export function matchPropertyWrite(
   const assignment = n.parent;
 
   if (!ts.isBinaryExpression(assignment)) return;
-  if (assignment.operatorToken.kind !== ts.SyntaxKind.EqualsToken) return;
+  // All properties we track are of the string type, so we only look at
+  // `=` and `+=` operators.
+  if (assignment.operatorToken.kind !== ts.SyntaxKind.EqualsToken &&
+      assignment.operatorToken.kind !== ts.SyntaxKind.PlusEqualsToken) {
+    return;
+  }
   if (assignment.left !== n) return;
 
   return assignment;
