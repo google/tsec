@@ -1,4 +1,5 @@
 import {AllowlistEntry} from './allowlist';
+import {TrustedTypesConfig} from './trusted_types_configuration';
 
 /**
  * The list of supported patterns useable in ConformancePatternRule. The
@@ -42,6 +43,12 @@ export interface PatternEngineConfig {
 
   /** A list of allowlist blocks. */
   allowlistEntries?: AllowlistEntry[];
+
+  /**
+   * Type of the allowed Trusted value by the rule or custom
+   * `TrustedTypesConfig`.
+   */
+  allowedTrustedType?: TrustedTypesConfig;
 }
 
 /**
@@ -55,4 +62,14 @@ export interface PatternRuleConfig extends PatternEngineConfig {
    * Should be lower-dashed-case.
    */
   name?: string;
+}
+
+/**
+ * Internal function to override the rule config properties before passing to
+ * parent constructor.
+ */
+export function overridePatternConfig(config: PatternRuleConfig):
+    PatternRuleConfig {
+
+  return config;
 }
