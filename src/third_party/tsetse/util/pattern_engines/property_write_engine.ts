@@ -4,7 +4,9 @@ import {Checker} from '../../checker';
 import {ErrorCode} from '../../error_code';
 import {debugLog} from '../ast_tools';
 import {Fixer} from '../fixer';
+import {isExpressionOfAllowedTrustedType} from '../is_trusted_type';
 import {PropertyMatcher} from '../property_matcher';
+import {TrustedTypesConfig} from '../trusted_types_configuration';
 
 import {matchProperty, PropertyEngine} from './property_engine';
 
@@ -32,10 +34,38 @@ export function matchPropertyWrite(
 }
 
 /**
- * The engine for BANNED_PROPERTY_WRITE.
+ * Checks whether the access expression is part of an assignment (write) to the
+ * matched property and the type of the right hand side value is not of the
+ * an allowed type.
+ *
+ * Returns `undefined` if the property write is allowed and the assignment node
+ * if the assignment should trigger violation.
+ */
+function allowTrustedExpressionOnMatchedProperty(
+    allowedType: TrustedTypesConfig|undefined, tc: ts.TypeChecker,
+    n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
+    matcher: PropertyMatcher): ts.BinaryExpression|undefined {
+  const assignment = matchPropertyWrite(tc, n, matcher);
+  if (!assignment) return;
+
+  if (allowedType &&
+      isExpressionOfAllowedTrustedType(tc, assignment.right, allowedType)) {
+    return;
+  }
+
+  return assignment;
+}
+
+/**
+ * The engine for BANNED_PROPERTY_WRITE. Bans assignments to the restricted
+ * properties unless the right hand side of the assignment is of an allowed
+ * type.
  */
 export class PropertyWriteEngine extends PropertyEngine {
   register(checker: Checker) {
-    this.registerWith(checker, matchPropertyWrite);
+    this.registerWith(
+        checker,
+        (tc, n, m) => allowTrustedExpressionOnMatchedProperty(
+            this.config.allowedTrustedType, tc, n, m));
   }
 }
