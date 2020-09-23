@@ -14,6 +14,8 @@
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
 import {AllowlistEntry} from '../third_party/tsetse/util/allowlist';
+import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
+import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
 
 let errMsg =
     'Do not assign variables to HTMLScriptElement#text or HTMLScriptElement#textContent, as this can lead to XSS.';
@@ -26,7 +28,7 @@ export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-script-content-assignments';
 
   constructor(allowlistEntries?: AllowlistEntry[]) {
-    super({
+    super(overridePatternConfig({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_PROPERTY_WRITE,
@@ -36,6 +38,7 @@ export class Rule extends ConformancePatternRule {
       ],
       allowlistEntries,
       name: Rule.RULE_NAME,
-    });
+      allowedTrustedType: TRUSTED_SCRIPT
+    }));
   }
 }

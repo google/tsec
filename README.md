@@ -12,6 +12,63 @@ is potentially incompatible with Trusted Types, tsec emits compilation errors.
 tsec is based on the open source TypeScript static analyzer
 [Tsetse](https://tsetse.info/).
 
+## Trusted Type awareness in tsec rules
+
+Using Trusted Types in TypeScript has
+[a limitation](https://github.com/microsoft/TypeScript/issues/30024) and
+currently you must use workarounds to TS compiler to bypass its checks. We've
+implemented various patterns you can use in order to satisfy both `tsc` and
+`tsec` rules.
+
+#### Casting Trusted Type to unknown to string
+
+For example:
+
+```typescript
+declare const trustedHTML: TrustedHTML;
+// the next line will be allowed by both tsc and tsec
+document.body.innerHTML = trustedHTML as unknown as string;
+```
+
+#### Using Trusted Type union with string and casting to string
+
+For example:
+
+```typescript
+// such value can be created if application uses string as a fallback when
+// Trusted Types are not enabled/supported
+declare const trustedHTML: TrustedHTML | string;
+// the next line will be allowed by both tsc and tsec
+document.body.innerHTML = trustedHTML as string;
+```
+
+#### Using unwrapper function
+
+The first argument to the unwrapper function must be the Trusted Type that is
+required by the specific sink and must return value accepted by the sink
+(string). The unwrapper function can have additional arguments or even accept TS
+union of values for the first parameter.
+
+For example:
+
+```typescript
+declare const trustedHTML: TrustedHTML;
+declare const unwrapHTML: (html: TrustedHTML, ...other: any[]) => string;
+// the next line will be allowed by both tsc and tsec
+document.body.innerHTML = unwrapHTML(trustedHTML);
+```
+
+Note: All of these variants must be at the assignment/call of the particular
+sink and not before. For example:
+
+```typescript
+declare const trustedHTML: TrustedHTML;
+// cast before the actual usage in sink
+const castedTrustedHTML = trustedHTML as unknown as string;
+// tsec is flow insensitive and treats `castedTrustedHTML` as a regular string
+document.body.innerHTML = castedTrustedHTML; // tsec violation!
+```
+
 ## Language service plugin
 
 Tsec can be integrated as a plugin to your TypeScript project allowing you to
