@@ -53,3 +53,18 @@ locally. If you are using VSCode follow these steps:
 4.  Find `tsserver.log` inside the folder _(you can use `find` command line
     utility)_ and open the file(s). There should be an error somewhere in the
     logs which should get you started.
+
+## Developing locally
+
+We recommend developing using [VS Code](https://code.visualstudio.com/). We have
+preconfigured the project such that debugging works out of the box. If you press
+F5 _(Debug: Start debugging)_ `tsec` will be freshly built and executed on the
+project files _(files included in tsconfig)_. Currently, we have tests only
+internally at Google, but you can create a `test.ts` file with some violationg
+code anywhere in the project to get started. You can then add breakpoints in any
+tsec source file.
+
+## Contributing
+
+See
+[CONTRIBUTING.md](https://github.com/googleinterns/tsec/blob/master/CONTRIBUTING.md).
