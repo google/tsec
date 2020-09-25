@@ -68,6 +68,15 @@ function isCalledWithNonStrArg(n: ts.Node, tc: ts.TypeChecker) {
            ts.TypeFlags.StringLiteral)) === 0;
 }
 
+function isBannedStringLiteralAccess(
+    n: ts.ElementAccessExpression, tc: ts.TypeChecker,
+    propMatcher: PropertyMatcher) {
+  const argExp = n.argumentExpression;
+  return propMatcher.typeMatches(tc.getTypeAtLocation(n.expression)) &&
+      ts.isStringLiteralLike(argExp) &&
+      argExp.text === propMatcher.bannedProperty;
+}
+
 /**
  * A type selector that resolves to AbsoluteMatcher or PropertyMatcher based on
  * the type of AST node to be matched.
@@ -76,6 +85,8 @@ type NodeMatcher<T extends ts.Node> = T extends ts.Identifier ?
     AbsoluteMatcher :
     T extends ts.PropertyAccessExpression ?
     PropertyMatcher :
+    T extends ts.ElementAccessExpression ?
+    {matches: (n: ts.ElementAccessExpression, tc: ts.TypeChecker) => boolean} :
     {matches: (n: ts.Node, tc: ts.TypeChecker) => never};
 
 function checkNode<T extends ts.Node>(
@@ -139,6 +150,27 @@ export class Rule extends AbstractRule {
           propMatcher.bannedProperty,
           (c, n) => {
             const node = checkNode(c.typeChecker, n, propMatcher);
+            if (node) {
+              if (this.allowlist?.isAllowlisted(
+                      path.resolve(node.getSourceFile().fileName))) {
+                return;
+              }
+              checker.addFailureAtNode(
+                  node,
+                  errMsg(`${propMatcher.bannedType}#${
+                      propMatcher.bannedProperty}`));
+            }
+          },
+          this.code,
+      );
+
+      checker.onStringLiteralElementAccess(
+          propMatcher.bannedProperty,
+          (c, n) => {
+            const node = checkNode(c.typeChecker, n, {
+              matches: () =>
+                  isBannedStringLiteralAccess(n, c.typeChecker, propMatcher)
+            });
             if (node) {
               if (this.allowlist?.isAllowlisted(
                       path.resolve(node.getSourceFile().fileName))) {
