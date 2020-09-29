@@ -61,9 +61,6 @@ function isUnderlyingValueAStringLiteral(
   // Since we're best-effort, if a part of that operation failed due to lack
   // of support (for instance, the identifier was imported), then we fail
   // closed and don't consider the value a literal.
-
-  // TODO(rjamet): This doesn't follow imports, which is a feature that we need
-  // in a fair amount of cases.
   return getVariableDeclarationsInSameFile(identifier, tc)
       .filter(isConst)
       .some(d => d.initializer !== undefined && isLiteral(tc, d.initializer));

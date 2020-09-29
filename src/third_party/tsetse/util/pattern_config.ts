@@ -28,10 +28,8 @@ export enum PatternKind {
  */
 export interface PatternEngineConfig {
   /**
-   * Values have a pattern-specific syntax.
-   *
-   * TODO(rjamet): We'll document them, but for now see each patternKind's
-   * tests for examples.
+   * Values have a pattern-specific syntax. See each patternKind's tests for
+   * examples.
    */
   values: string[];
 
