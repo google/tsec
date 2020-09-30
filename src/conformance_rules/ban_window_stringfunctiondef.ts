@@ -29,7 +29,9 @@ import {AbstractRule} from '../third_party/tsetse/rule';
 import {AbsoluteMatcher} from '../third_party/tsetse/util/absolute_matcher';
 import {Allowlist, AllowlistEntry} from '../third_party/tsetse/util/allowlist';
 import {shouldExamineNode} from '../third_party/tsetse/util/ast_tools';
+import {isExpressionOfAllowedTrustedType} from '../third_party/tsetse/util/is_trusted_type';
 import {PropertyMatcher} from '../third_party/tsetse/util/property_matcher';
+import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
 
 import * as path from 'path';
 import * as ts from 'typescript';
@@ -51,21 +53,29 @@ function errMsg(bannedEntity: string): string {
 }
 
 /**
- * Checks if the APIs are called with staticly defined functions that
- * won't trigger an eval-like effect. This pattern is safe to use, so
- * we want to exclude it from the reported errors.
+ * Checks if the APIs are called with functions (that
+ * won't trigger an eval-like effect) or a TrustedScript value if Trusted Types
+ * are enabled (and it's up to the developer to make sure it
+ * the value can't be misused). These patterns are safe to use, so we want to
+ * exclude them from the reported errors.
  */
-function isCalledWithNonStrArg(n: ts.Node, tc: ts.TypeChecker) {
-  if (!ts.isCallExpression(n.parent) || n.parent.expression !== n) return false;
+function isUsedWithNonStrArg(n: ts.Node, tc: ts.TypeChecker) {
+  const par = n.parent;
+  // Early return on pattern like `const st = setTimeout`
+  if (!ts.isCallExpression(par) || par.expression !== n) return false;
   // Having zero arguments will trigger other compiler errors. We should not
   // bother emitting a Tsetse error.
-  if (n.parent.arguments.length === 0) return true;
+  if (par.arguments.length === 0) return true;
 
-  const firstArgType = tc.getTypeAtLocation(n.parent.arguments[0]);
+  const firstArgType = tc.getTypeAtLocation(par.arguments[0]);
 
-  return (firstArgType.flags &
-          (ts.TypeFlags.String | ts.TypeFlags.StringLike |
-           ts.TypeFlags.StringLiteral)) === 0;
+  const isFirstArgNonString = (firstArgType.flags &
+                               (ts.TypeFlags.String | ts.TypeFlags.StringLike |
+                                ts.TypeFlags.StringLiteral)) === 0;
+  if (isExpressionOfAllowedTrustedType(tc, par.arguments[0], TRUSTED_SCRIPT)) {
+    return true;
+  }
+  return isFirstArgNonString;
 }
 
 function isBannedStringLiteralAccess(
@@ -93,7 +103,7 @@ function checkNode<T extends ts.Node>(
     tc: ts.TypeChecker, n: T, matcher: NodeMatcher<T>): ts.Node|undefined {
   if (!shouldExamineNode(n)) return;
   if (!matcher.matches(n, tc)) return;
-  if (isCalledWithNonStrArg(n, tc)) return;
+  if (isUsedWithNonStrArg(n, tc)) return;
   return n;
 }
 
