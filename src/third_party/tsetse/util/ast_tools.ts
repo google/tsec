@@ -57,16 +57,10 @@ export function findInChildren(
 
 /**
  * Returns true if the pattern-based Rule should look at that node and consider
- * warning there. The goal is to make it easy to exclude on source files,
- * blocks, module declarations, JSDoc, lib.d.ts nodes, that kind of things.
+ * warning there.
  */
 export function shouldExamineNode(n: ts.Node) {
-  // TODO(b/154674207): Only `isInStockLibraries` seems to be effective here.
-  // Remove the others.
-  return !(
-      ts.isBlock(n) || ts.isModuleBlock(n) || ts.isModuleDeclaration(n) ||
-      ts.isSourceFile(n) || (n.parent && ts.isTypeNode(n.parent)) ||
-      ts.isJSDoc(n) || isInStockLibraries(n));
+  return !((n.parent && ts.isTypeNode(n.parent)) || isInStockLibraries(n));
 }
 
 /**
