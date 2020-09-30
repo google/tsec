@@ -106,14 +106,10 @@ export function isPartOfTypeDeclaration(n: ts.Node) {
 }
 
 /**
- * Returns whether `n` is under an import statement.
+ * Returns whether `n` is a declared name on which we do not intend to emit
+ * errors.
  */
-export function isPartOfImportStatement(n: ts.Node) {
-  return [n, ...parents(n)].some(
-      p => p.kind === ts.SyntaxKind.ImportDeclaration);
-}
-
-function isAllowlistedNamedDeclaration(n: ts.Node):
+export function isAllowlistedNamedDeclaration(n: ts.Node):
     n is ts.VariableDeclaration|ts.ClassDeclaration|ts.FunctionDeclaration|
     ts.MethodDeclaration|ts.PropertyDeclaration|ts.InterfaceDeclaration|
     ts.TypeAliasDeclaration|ts.EnumDeclaration|ts.ModuleDeclaration|
@@ -127,16 +123,6 @@ function isAllowlistedNamedDeclaration(n: ts.Node):
       ts.isExportDeclaration(n) || ts.isMissingDeclaration(n) ||
       ts.isImportClause(n) || ts.isExportSpecifier(n) ||
       ts.isImportSpecifier(n);
-}
-
-/** Returns whether `n` is being declared in a declaration statement. */
-export function isNameInDeclaration(n: ts.Node): boolean {
-  const p = n.parent;
-  if (p === undefined) return false;
-
-  return (isAllowlistedNamedDeclaration(p) && p.name === n) ||
-      // TODO(pwng) Double-check if these two cases are needed
-      ts.isVariableDeclarationList(p) || ts.isImportDeclaration(p);
 }
 
 /**
