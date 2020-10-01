@@ -66,8 +66,6 @@ function init(): ts.server.PluginModule {
         const checker = new Checker(program);
 
         // Register all of the rules for now.
-        // TODO: maybe make this configurable. See:
-        // https://github.com/bazelbuild/rules_typescript/blob/master/internal/tsetse/language_service_plugin.ts#L29
         for (const rule of ENABLED_RULES) {
           new rule().register(checker);
         }
@@ -76,8 +74,6 @@ function init(): ts.server.PluginModule {
             ...checker.execute(program.getSourceFile(fileName)!)
                 .map((failure) => {
                   // Show the diagnostic with stringigied fix (if there is any).
-                  // TODO: show only diagnostic when fixers are integrated in
-                  // the IDE
                   return failure.toDiagnosticWithStringifiedFix();
                 }),
         );
