@@ -18,7 +18,7 @@ import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
 
 let errMsg =
-    'Do not assign variables to HTMLScriptElement#text or HTMLScriptElement#textContent, as this can lead to XSS.';
+    'Do not assign values to HTMLScriptElement#text or HTMLScriptElement#textContent, as this can lead to XSS.';
 
 /**
  * A rule that bans writing to HTMLScriptElement#text and
