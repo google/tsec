@@ -17,7 +17,7 @@ import {AllowlistEntry} from '../third_party/tsetse/util/allowlist';
 import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
 
-let errMsg = 'Do not call eval(), as this can lead to XSS.';
+let errMsg = 'Do not use eval, as this can lead to XSS.';
 
 /**
  * A Rule that looks for refereces to the built-in eval() and window.eval()
