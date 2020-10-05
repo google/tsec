@@ -18,7 +18,7 @@ import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
 import {TRUSTED_HTML} from '../third_party/tsetse/util/trusted_types_configuration';
 
 let errMsg =
-    'Do not call Document#write or Document#writeln, as this can lead to XSS.';
+    'Do not use Document#write or Document#writeln, as this can lead to XSS.';
 
 /**
  * A Rule that looks for use of Document#write and Document#writeln properties.
