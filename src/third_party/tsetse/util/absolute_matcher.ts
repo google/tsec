@@ -66,7 +66,7 @@ const CLUTZ_SYM_PREFIX = 'ಠ_ಠ.clutz.';
  *
  * // in /path/to/file4
  * import {Foo} from /path/to/file1;
- * class Moo { static tar() {return "Moo.tar in file4";} }
+ * class Moo extends Foo { static tar() {return "Moo.tar in file4";} }
  * Moo.bar();
  *
  * An absolute matcher "/path/to/file1|Foo.bar" matches with "Moo.bar()" because
@@ -169,7 +169,7 @@ export class AbsoluteMatcher {
         return declarations.some((d) => {
           const srcFilePath = d.getSourceFile()?.fileName;
           return srcFilePath && srcFilePath.match(this.filePath);
-        })
+        });
       }
     } else {
       const last = fqn.indexOf('"', 1);

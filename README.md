@@ -132,10 +132,14 @@ see the violations directly in your IDE. For this to work you need to:
 
 3.  Restart the editor to reload TS initialization features.
 
+Make sure the LSP is using (requiring) the same workspace version of TS used by
+the IDE.
+
 ### Debugging
 
-If you do not see the violations in the IDE you can try debugging the issue
-locally. If you are using VSCode follow these steps:
+Language service plugin is experimental, if it doesn't work, you can create an
+issue or try to debug locally. If you are using VSCode you can do so by
+following these steps:
 
 1.  Turn on `verbose` tsserver logging in the settings.
 
