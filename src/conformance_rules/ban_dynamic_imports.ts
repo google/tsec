@@ -26,9 +26,6 @@ export class Rule extends AbstractRule {
   readonly ruleName = Rule.RULE_NAME;
   readonly code = ErrorCode.CONFORMANCE_PATTERN;
 
-  // Dynamic imports are not supported by JSCompiler, so there isn't any
-  // additional support we can offer. Leave the error message as simple
-  // as possible.
   static readonly errorMessage =
       'Do not use dynamic import since it can bypass CSP and lead to XSS.';
 

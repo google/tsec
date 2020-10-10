@@ -142,7 +142,7 @@ function main(args: string[]) {
 
   // Run all enabled conformance checks and collect errors.
   for (const sf of program.getSourceFiles()) {
-    // We don't emit errors for delcarations, so might as well skip checking
+    // We don't emit errors for declarations, so might as well skip checking
     // declaration files all together.
     if (sf.isDeclarationFile) continue;
     const conformanceDiagErr = conformanceChecker.execute(sf).map(

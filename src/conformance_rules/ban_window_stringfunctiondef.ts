@@ -58,8 +58,12 @@ function errMsg(bannedEntity: string): string {
  * are enabled (and it's up to the developer to make sure it
  * the value can't be misused). These patterns are safe to use, so we want to
  * exclude them from the reported errors.
+ *
+ * Also checks whether the unsafe API is not reassigned (e.g. `const st =
+ * setTimeout`) because we are not able to detect whether the usage is safe or
+ * not.
  */
-function isUsedWithNonStrArg(n: ts.Node, tc: ts.TypeChecker) {
+function isUsedWithNonStringArgument(n: ts.Node, tc: ts.TypeChecker) {
   const par = n.parent;
   // Early return on pattern like `const st = setTimeout`
   if (!ts.isCallExpression(par) || par.expression !== n) return false;
@@ -103,7 +107,7 @@ function checkNode<T extends ts.Node>(
     tc: ts.TypeChecker, n: T, matcher: NodeMatcher<T>): ts.Node|undefined {
   if (!shouldExamineNode(n)) return;
   if (!matcher.matches(n, tc)) return;
-  if (isUsedWithNonStrArg(n, tc)) return;
+  if (isUsedWithNonStringArgument(n, tc)) return;
   return n;
 }
 

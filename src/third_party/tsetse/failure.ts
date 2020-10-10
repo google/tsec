@@ -129,7 +129,7 @@ export interface Fix {
   /**
    * The individual text replacements composing that fix.
    */
-  changes: IndividualChange[],
+  changes: IndividualChange[];
 }
 
 /**
@@ -137,7 +137,10 @@ export interface Fix {
  * `Fix`.
  */
 export interface IndividualChange {
-  sourceFile: ts.SourceFile, start: number, end: number, replacement: string
+  sourceFile: ts.SourceFile;
+  start: number;
+  end: number;
+  replacement: string;
 }
 
 /**
@@ -163,5 +166,5 @@ export function fixToString(f?: Fix) {
       fileName: ic.sourceFile.fileName
     };
   })) +
-      '}'
+      '}';
 }
