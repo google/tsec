@@ -146,7 +146,7 @@ function main(args: string[]) {
     // declaration files all together.
     if (sf.isDeclarationFile) continue;
     const conformanceDiagErr = conformanceChecker.execute(sf).map(
-        failure => failure.toDiagnosticWithStringifiedFix());
+        failure => failure.toDiagnosticWithStringifiedFixes());
     diagnostics.push(...conformanceDiagErr);
   }
 

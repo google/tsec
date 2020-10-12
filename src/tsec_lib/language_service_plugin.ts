@@ -19,7 +19,7 @@
 
 import {Checker} from '../third_party/tsetse/checker';
 import {ErrorCode} from '../third_party/tsetse/error_code';
-import {DiagnosticWithFix} from '../third_party/tsetse/failure';
+import {DiagnosticWithFixes} from '../third_party/tsetse/failure';
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import {ENABLED_RULES} from '../rule_groups';
@@ -41,23 +41,24 @@ function createProxy<T>(delegate: T): T {
   return proxy;
 }
 
-function diagnosticToCodeFixAction(d: DiagnosticWithFix): ts.CodeFixAction|
-    undefined {
-  if (!d.fix) return undefined;
-
-  return {
-    fixName: 'Tsec fix',            // for TS telemetry use only
-    description: 'Apply tsec fix',  // display name of the code action shown
-                                    // in the IDE
-    changes:
-        d.fix.changes.map(c => ({
-                            fileName: c.sourceFile.fileName,
-                            textChanges: [{
-                              span: {start: c.start, length: c.end - c.start},
-                              newText: c.replacement
-                            }]
-                          }))
-  };
+function diagnosticToCodeFixActions(d: DiagnosticWithFixes):
+    ts.CodeFixAction[] {
+  const codeActions = [];
+  for (let i = 0; i < d.fixes?.length || 0; i++) {
+    codeActions.push({
+      fixName: 'Tsec fix',                     // for TS telemetry use only
+      description: `Apply tsec fix ${i + 1}`,  // display name of the code
+      changes: d.fixes[i].changes.map(
+          c => ({
+            fileName: c.sourceFile.fileName,
+            textChanges: [{
+              span: {start: c.start, length: c.end - c.start},
+              newText: c.replacement
+            }]
+          }))
+    });
+  }
+  return codeActions;
 }
 
 function computeKey(start: number, end: number): string {
@@ -115,15 +116,15 @@ class TsecLanguageServicePlugin {
         const codeActionsForCurrentFile = this.codeFixActions.get(fileName)!;
         for (const failure of failures) {
           const d = failure.toDiagnostic();
-          const codeAction = diagnosticToCodeFixAction(d);
-          if (codeAction) {
+          const codeActions = diagnosticToCodeFixActions(d);
+          if (codeActions.length) {
             // ts.Diagnostic#start is optional, but should always be defined
             // when used from failure.
             const key = computeKey(d.start!, d.end);
             if (!codeActionsForCurrentFile.has(key)) {
               codeActionsForCurrentFile.set(key, []);
             }
-            codeActionsForCurrentFile.get(key)!.push(codeAction);
+            codeActionsForCurrentFile.get(key)!.push(...codeActions);
           }
         }
 

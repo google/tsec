@@ -22,23 +22,23 @@ export class ConformancePatternRule implements AbstractRule {
   readonly code: number;
   private readonly engine: PatternEngine;
 
-  constructor(config: PatternRuleConfig, fixer?: Fixer) {
+  constructor(config: PatternRuleConfig, fixers?: Fixer[]) {
     this.code = config.errorCode;
     // Avoid empty rule names.
     this.ruleName = config.name || `conformance-pattern-${config.kind}`;
 
     switch (config.kind) {
       case PatternKind.BANNED_PROPERTY:
-        this.engine = new PropertyEngine(config, fixer);
+        this.engine = new PropertyEngine(config, fixers);
         break;
       case PatternKind.BANNED_PROPERTY_WRITE:
-        this.engine = new PropertyWriteEngine(config, fixer);
+        this.engine = new PropertyWriteEngine(config, fixers);
         break;
       case PatternKind.BANNED_PROPERTY_NON_CONSTANT_WRITE:
-        this.engine = new PropertyNonConstantWriteEngine(config, fixer);
+        this.engine = new PropertyNonConstantWriteEngine(config, fixers);
         break;
       case PatternKind.BANNED_NAME:
-        this.engine = new NameEngine(config, fixer);
+        this.engine = new NameEngine(config, fixers);
         break;
       default:
         throw new Error('Config type not recognized, or not implemented yet.');
