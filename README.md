@@ -139,7 +139,7 @@ see the violations directly in your IDE. For this to work you need to:
     in the tsconfig. If you are using tsec as a package then the path to the
     plugin might look like this:
 
-    ```json
+    ```jsonc
     {
       "compilerOptions": {
         "plugins": [
