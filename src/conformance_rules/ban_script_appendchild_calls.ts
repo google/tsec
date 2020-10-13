@@ -16,7 +16,7 @@ import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tse
 import {AllowlistEntry} from '../third_party/tsetse/util/allowlist';
 
 let errMsg =
-    'Appending children to script elements is similar to using eval and can cause code-injection security vulnerabilities.';
+    'Do not use HTMLScriptElement#appendChild because it is similar to eval and can cause code-injection security vulnerabilities.';
 
 /** A rule that bans the use of HTMLScriptElement#appendChild */
 export class Rule extends ConformancePatternRule {

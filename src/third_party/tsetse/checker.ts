@@ -135,7 +135,8 @@ export class Checker {
   /**
    * Add a failure with a span.
    */
-  addFailure(start: number, end: number, failureText: string, fix?: Fix) {
+  addFailure(
+      start: number, end: number, failureText: string, fixes: Fix[] = []) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
     }
@@ -147,15 +148,17 @@ export class Checker {
     }
 
     const failure = new Failure(
-        this.currentSourceFile, start, end, failureText, this.currentCode, fix);
+        this.currentSourceFile, start, end, failureText, this.currentCode,
+        fixes);
     this.failures.push(failure);
   }
 
-  addFailureAtNode(node: ts.Node, failureText: string, fix?: Fix) {
+  addFailureAtNode(node: ts.Node, failureText: string, fixes: Fix[] = []) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
     this.addFailure(
-        node.getStart(this.currentSourceFile), node.getEnd(), failureText, fix);
+        node.getStart(this.currentSourceFile), node.getEnd(), failureText,
+        fixes);
   }
 
   /** Dispatch general handlers registered via `on` */

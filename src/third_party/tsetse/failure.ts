@@ -6,20 +6,20 @@ import * as ts from 'typescript';
  * (1) The error code is defined by each individual Tsetse rule.
  * (2) The optional `source` property is set to `Tsetse` so the host (VS Code
  * for instance) would use that to indicate where the error comes from.
- * (3) There's an optional suggestedFix field.
+ * (3) There's an optional suggestedFixes field.
  */
 export class Failure {
   constructor(
       private readonly sourceFile: ts.SourceFile,
       private readonly start: number, private readonly end: number,
       private readonly failureText: string, private readonly code: number,
-      private readonly suggestedFix?: Fix) {}
+      private readonly suggestedFixes: Fix[] = []) {}
 
   /**
    * This returns a structure compatible with ts.Diagnostic, but with added
    * fields, for convenience and to support suggested fixes.
    */
-  toDiagnostic(): DiagnosticWithFix {
+  toDiagnostic(): DiagnosticWithFixes {
     return {
       file: this.sourceFile,
       start: this.start,
@@ -31,7 +31,7 @@ export class Failure {
       code: this.code,
       // source is the name of the plugin.
       source: 'Tsetse',
-      fix: this.suggestedFix
+      fixes: this.suggestedFixes
     };
   }
 
@@ -39,30 +39,48 @@ export class Failure {
    * Same as toDiagnostic, but include the fix in the message, so that systems
    * that don't support displaying suggested fixes can still surface that
    * information. This assumes the diagnostic message is going to be presented
-   * within the context of the problematic code
+   * within the context of the problematic code.
    */
-  toDiagnosticWithStringifiedFix(): DiagnosticWithFix {
+  toDiagnosticWithStringifiedFixes(): DiagnosticWithFixes {
     const diagnostic = this.toDiagnostic();
-    if (this.suggestedFix) {
-      diagnostic.messageText += ' ' + this.fixToReadableStringInContext();
+    if (this.suggestedFixes.length) {
+      // Add a space between the violation text and fix message.
+      diagnostic.messageText += ' ' + this.mapFixesToReadableString();
     }
     return diagnostic;
   }
 
   toString(): string {
     return `{ sourceFile:${
-        this.sourceFile ? this.sourceFile.fileName : 'unknown'}, start:${
-        this.start}, end:${this.end}, fix:${fixToString(this.suggestedFix)} }`;
+        this.sourceFile ?
+            this.sourceFile.fileName :
+            'unknown'}, start:${this.start}, end:${this.end}, fixes:${
+        JSON.stringify(this.suggestedFixes.map(fix => fixToString(fix)))} }`;
   }
 
+  /***
+   * Stringifies an array of `suggestedFixes` for this failure. This is just a
+   * heuristic and should be used in systems which do not support fixers
+   * integration (e.g. CLI tools).
+   */
+  mapFixesToReadableString(): string {
+    const stringifiedFixes =
+        this.suggestedFixes.map(fix => this.fixToReadableString(fix))
+            .join('\nOR\n');
+
+    if (!stringifiedFixes) return '';
+    else if (this.suggestedFixes.length === 1) {
+      return 'Suggested fix:\n' + stringifiedFixes;
+    } else {
+      return 'Suggested fixes:\n' + stringifiedFixes;
+    }
+  }
 
   /**
    * Stringifies a `Fix`, in a way that makes sense when presented alongside the
    * finding. This is a heuristic, obviously.
    */
-  fixToReadableStringInContext() {
-    if (!this.suggestedFix) return '';  // no changes, nothing to state.
-    const f: Fix = this.suggestedFix;
+  fixToReadableString(f: Fix) {
     let fixText = '';
 
     for (const c of f.changes) {
@@ -101,7 +119,7 @@ export class Failure {
       }
     }
 
-    return 'Suggested fix:\n' + fixText.trim();
+    return fixText.trim();
   }
 
   // TS indexes from 0 both ways, but tooling generally indexes from 1 for both
@@ -129,7 +147,7 @@ export interface Fix {
   /**
    * The individual text replacements composing that fix.
    */
-  changes: IndividualChange[],
+  changes: IndividualChange[];
 }
 
 /**
@@ -137,16 +155,29 @@ export interface Fix {
  * `Fix`.
  */
 export interface IndividualChange {
-  sourceFile: ts.SourceFile, start: number, end: number, replacement: string
+  sourceFile: ts.SourceFile;
+  start: number;
+  end: number;
+  replacement: string;
 }
 
 /**
- * A ts.Diagnostic that might include a `Fix`, and with an added `end` field for
- * convenience.
+ * A ts.Diagnostic that might include fixes, and with an added `end`
+ * field for convenience.
  */
-export interface DiagnosticWithFix extends ts.Diagnostic {
+export interface DiagnosticWithFixes extends ts.Diagnostic {
   end: number;
-  fix?: Fix;
+  /**
+   * An array of fixes for a given diagnostic.
+   *
+   * Each element (fix) of the array provides a different alternative on how to
+   * fix the diagnostic. Every fix is self contained and indepedent to other
+   * fixes in the array.
+   *
+   * These fixes can be integrated into IDEs and presented to the users who can
+   * choose the most suitable fix.
+   */
+  fixes: Fix[];
 }
 
 /**
@@ -163,5 +194,5 @@ export function fixToString(f?: Fix) {
       fileName: ic.sourceFile.fileName
     };
   })) +
-      '}'
+      '}';
 }

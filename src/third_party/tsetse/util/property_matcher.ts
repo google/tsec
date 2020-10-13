@@ -1,6 +1,5 @@
 import * as ts from 'typescript';
 
-// TODO: Export the matched node kinds here.
 /**
  * This class matches a property access node, based on a property holder type
  * (through its name), i.e. a class, and a property name.
@@ -43,8 +42,10 @@ export class PropertyMatcher {
     return typeSymbol && typeSymbol.getName() === this.bannedType;
   }
 
-  // TODO: Account for unknown types/ '?', and 'loose type matches', i.e. if the
-  // actual type is a supertype of the prohibited type.
+  /**
+   * Match types recursively in the lattice. This function over-approximates
+   * the result by considering union types and intersection types as the same.
+   */
   typeMatches(inspectedType: ts.Type): boolean {
     if (this.exactTypeMatches(inspectedType)) {
       return true;

@@ -16,7 +16,7 @@ export abstract class PatternEngine {
 
   constructor(
       protected readonly config: PatternEngineConfig,
-      protected readonly fixer?: Fixer) {
+      protected readonly fixers?: Fixer[]) {
     this.allowlist = new Allowlist(config.allowlistEntries);
   }
 
@@ -44,11 +44,15 @@ export abstract class PatternEngine {
       const matchedNode = checkFunction(c.typeChecker, n);
       if (matchedNode &&
           !this.allowlist.isAllowlisted(path.resolve(sf.fileName))) {
-        const fix: Fix|undefined = this.fixer ?
-            this.fixer.getFixForFlaggedNode(matchedNode) :
-            undefined;
-        c.addFailureAtNode(matchedNode, this.config.errorMessage, fix);
+        const fixes = [];
+        for (const fixer of (this.fixers ?? [])) {
+          const fix = fixer.getFixForFlaggedNode(matchedNode);
+          if (fix) {
+            fixes.push(fix);
+          }
+        }
+        c.addFailureAtNode(matchedNode, this.config.errorMessage, fixes);
       }
-    }
+    };
   }
 }

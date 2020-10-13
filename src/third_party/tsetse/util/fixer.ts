@@ -38,11 +38,6 @@ export function buildReplacementFixer(
   };
 }
 
-// TODO(rjamet): Both maybeAddNamedImport and maybeAddNamespacedImport are too
-// hard to read to my taste. This could probably be improved upon by being more
-// functionnal, to show the filter passes and get rid of the continues and
-// returns (which are confusing).
-
 /**
  * Builds an IndividualChange that imports the required symbol from the given
  * file under the given name. This might reimport the same thing twice in some

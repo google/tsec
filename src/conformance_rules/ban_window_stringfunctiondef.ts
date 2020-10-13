@@ -29,7 +29,9 @@ import {AbstractRule} from '../third_party/tsetse/rule';
 import {AbsoluteMatcher} from '../third_party/tsetse/util/absolute_matcher';
 import {Allowlist, AllowlistEntry} from '../third_party/tsetse/util/allowlist';
 import {shouldExamineNode} from '../third_party/tsetse/util/ast_tools';
+import {isExpressionOfAllowedTrustedType} from '../third_party/tsetse/util/is_trusted_type';
 import {PropertyMatcher} from '../third_party/tsetse/util/property_matcher';
+import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
 
 import * as path from 'path';
 import * as ts from 'typescript';
@@ -51,21 +53,42 @@ function errMsg(bannedEntity: string): string {
 }
 
 /**
- * Checks if the APIs are called with staticly defined functions that
- * won't trigger an eval-like effect. This pattern is safe to use, so
- * we want to exclude it from the reported errors.
+ * Checks if the APIs are called with functions (that
+ * won't trigger an eval-like effect) or a TrustedScript value if Trusted Types
+ * are enabled (and it's up to the developer to make sure it
+ * the value can't be misused). These patterns are safe to use, so we want to
+ * exclude them from the reported errors.
+ *
+ * Also checks whether the unsafe API is not reassigned (e.g. `const st =
+ * setTimeout`) because we are not able to detect whether the usage is safe or
+ * not.
  */
-function isCalledWithNonStrArg(n: ts.Node, tc: ts.TypeChecker) {
-  if (!ts.isCallExpression(n.parent) || n.parent.expression !== n) return false;
+function isUsedWithNonStringArgument(n: ts.Node, tc: ts.TypeChecker) {
+  const par = n.parent;
+  // Early return on pattern like `const st = setTimeout`
+  if (!ts.isCallExpression(par) || par.expression !== n) return false;
   // Having zero arguments will trigger other compiler errors. We should not
   // bother emitting a Tsetse error.
-  if (n.parent.arguments.length === 0) return true;
+  if (par.arguments.length === 0) return true;
 
-  const firstArgType = tc.getTypeAtLocation(n.parent.arguments[0]);
+  const firstArgType = tc.getTypeAtLocation(par.arguments[0]);
 
-  return (firstArgType.flags &
-          (ts.TypeFlags.String | ts.TypeFlags.StringLike |
-           ts.TypeFlags.StringLiteral)) === 0;
+  const isFirstArgNonString = (firstArgType.flags &
+                               (ts.TypeFlags.String | ts.TypeFlags.StringLike |
+                                ts.TypeFlags.StringLiteral)) === 0;
+  if (isExpressionOfAllowedTrustedType(tc, par.arguments[0], TRUSTED_SCRIPT)) {
+    return true;
+  }
+  return isFirstArgNonString;
+}
+
+function isBannedStringLiteralAccess(
+    n: ts.ElementAccessExpression, tc: ts.TypeChecker,
+    propMatcher: PropertyMatcher) {
+  const argExp = n.argumentExpression;
+  return propMatcher.typeMatches(tc.getTypeAtLocation(n.expression)) &&
+      ts.isStringLiteralLike(argExp) &&
+      argExp.text === propMatcher.bannedProperty;
 }
 
 /**
@@ -76,13 +99,15 @@ type NodeMatcher<T extends ts.Node> = T extends ts.Identifier ?
     AbsoluteMatcher :
     T extends ts.PropertyAccessExpression ?
     PropertyMatcher :
+    T extends ts.ElementAccessExpression ?
+    {matches: (n: ts.ElementAccessExpression, tc: ts.TypeChecker) => boolean} :
     {matches: (n: ts.Node, tc: ts.TypeChecker) => never};
 
 function checkNode<T extends ts.Node>(
     tc: ts.TypeChecker, n: T, matcher: NodeMatcher<T>): ts.Node|undefined {
   if (!shouldExamineNode(n)) return;
   if (!matcher.matches(n, tc)) return;
-  if (isCalledWithNonStrArg(n, tc)) return;
+  if (isUsedWithNonStringArgument(n, tc)) return;
   return n;
 }
 
@@ -139,6 +164,27 @@ export class Rule extends AbstractRule {
           propMatcher.bannedProperty,
           (c, n) => {
             const node = checkNode(c.typeChecker, n, propMatcher);
+            if (node) {
+              if (this.allowlist?.isAllowlisted(
+                      path.resolve(node.getSourceFile().fileName))) {
+                return;
+              }
+              checker.addFailureAtNode(
+                  node,
+                  errMsg(`${propMatcher.bannedType}#${
+                      propMatcher.bannedProperty}`));
+            }
+          },
+          this.code,
+      );
+
+      checker.onStringLiteralElementAccess(
+          propMatcher.bannedProperty,
+          (c, n) => {
+            const node = checkNode(c.typeChecker, n, {
+              matches: () =>
+                  isBannedStringLiteralAccess(n, c.typeChecker, propMatcher)
+            });
             if (node) {
               if (this.allowlist?.isAllowlisted(
                       path.resolve(node.getSourceFile().fileName))) {

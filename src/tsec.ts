@@ -58,7 +58,7 @@ function reportDiagnosticsWithSummary(diagnostics: readonly ts.Diagnostic[]):
 function getTsConfigFilePath(projectPath?: string): string {
   let tsConfigFilePath: string;
 
-  // TODO(pwng): To fully align with tsc, we should also search parent
+  // TODO(b/169605827): To fully align with tsc, we should also search parent
   // directories of pwd until a tsconfig.json file is found.
   if (projectPath === undefined) projectPath = '.';
 
@@ -127,7 +127,6 @@ function main(args: string[]) {
   // Create all enabled rules with corresponding exemption list entries.
   const conformanceChecker = new Checker(program);
   const conformanceRules = ENABLED_RULES.map(ruleCtr => {
-    // TODO(pwng): support multi-entry exemption list in the future.
     const allowlistEntries = [];
     const allowlistEntry = conformanceExemptionConfig.get(ruleCtr.RULE_NAME);
     if (allowlistEntry) {
@@ -142,14 +141,12 @@ function main(args: string[]) {
   }
 
   // Run all enabled conformance checks and collect errors.
-  // TODO(pwng): we should only run conformance checker for files within
-  // the current project, excluding all dependencies.
   for (const sf of program.getSourceFiles()) {
-    // We don't emit errors for delcarations, so might as well skip checking
+    // We don't emit errors for declarations, so might as well skip checking
     // declaration files all together.
     if (sf.isDeclarationFile) continue;
     const conformanceDiagErr = conformanceChecker.execute(sf).map(
-        failure => failure.toDiagnosticWithStringifiedFix());
+        failure => failure.toDiagnosticWithStringifiedFixes());
     diagnostics.push(...conformanceDiagErr);
   }
 

@@ -57,16 +57,10 @@ export function findInChildren(
 
 /**
  * Returns true if the pattern-based Rule should look at that node and consider
- * warning there. The goal is to make it easy to exclude on source files,
- * blocks, module declarations, JSDoc, lib.d.ts nodes, that kind of things.
+ * warning there.
  */
 export function shouldExamineNode(n: ts.Node) {
-  // TODO(b/154674207): Only `isInStockLibraries` seems to be effective here.
-  // Remove the others.
-  return !(
-      ts.isBlock(n) || ts.isModuleBlock(n) || ts.isModuleDeclaration(n) ||
-      ts.isSourceFile(n) || (n.parent && ts.isTypeNode(n.parent)) ||
-      ts.isJSDoc(n) || isInStockLibraries(n));
+  return !((n.parent && ts.isTypeNode(n.parent)) || isInStockLibraries(n));
 }
 
 /**
@@ -112,14 +106,10 @@ export function isPartOfTypeDeclaration(n: ts.Node) {
 }
 
 /**
- * Returns whether `n` is under an import statement.
+ * Returns whether `n` is a declared name on which we do not intend to emit
+ * errors.
  */
-export function isPartOfImportStatement(n: ts.Node) {
-  return [n, ...parents(n)].some(
-      p => p.kind === ts.SyntaxKind.ImportDeclaration);
-}
-
-function isAllowlistedNamedDeclaration(n: ts.Node):
+export function isAllowlistedNamedDeclaration(n: ts.Node):
     n is ts.VariableDeclaration|ts.ClassDeclaration|ts.FunctionDeclaration|
     ts.MethodDeclaration|ts.PropertyDeclaration|ts.InterfaceDeclaration|
     ts.TypeAliasDeclaration|ts.EnumDeclaration|ts.ModuleDeclaration|
@@ -133,16 +123,6 @@ function isAllowlistedNamedDeclaration(n: ts.Node):
       ts.isExportDeclaration(n) || ts.isMissingDeclaration(n) ||
       ts.isImportClause(n) || ts.isExportSpecifier(n) ||
       ts.isImportSpecifier(n);
-}
-
-/** Returns whether `n` is being declared in a declaration statement. */
-export function isNameInDeclaration(n: ts.Node): boolean {
-  const p = n.parent;
-  if (p === undefined) return false;
-
-  return (isAllowlistedNamedDeclaration(p) && p.name === n) ||
-      // TODO(pwng) Double-check if these two cases are needed
-      ts.isVariableDeclarationList(p) || ts.isImportDeclaration(p);
 }
 
 /**

@@ -1,5 +1,6 @@
 import * as ts from 'typescript';
-import {dealias, debugLog, isInStockLibraries, isNameInDeclaration, isPartOfImportStatement} from './ast_tools';
+
+import {dealias, debugLog, isAllowlistedNamedDeclaration, isInStockLibraries} from './ast_tools';
 
 const PATH_NAME_FORMAT = '[/\\.\\w\\d_-]+';
 const JS_IDENTIFIER_FORMAT = '[\\w\\d_-]+';
@@ -65,7 +66,7 @@ const CLUTZ_SYM_PREFIX = 'ಠ_ಠ.clutz.';
  *
  * // in /path/to/file4
  * import {Foo} from /path/to/file1;
- * class Moo { static tar() {return "Moo.tar in file4";} }
+ * class Moo extends Foo { static tar() {return "Moo.tar in file4";} }
  * Moo.bar();
  *
  * An absolute matcher "/path/to/file1|Foo.bar" matches with "Moo.bar()" because
@@ -105,7 +106,9 @@ export class AbsoluteMatcher {
   }
 
   matches(n: ts.Node, tc: ts.TypeChecker): boolean {
-    debugLog(() => `start matching ${n.getText()} in ${n.parent.getText()}`);
+    const p = n.parent;
+
+    debugLog(() => `start matching ${n.getText()} in ${p?.getText()}`);
 
     // Check if the node is being declared. Declaration may be imported without
     // programmer being aware of. We should not alert them about that.
@@ -116,7 +119,7 @@ export class AbsoluteMatcher {
     //   is the target. Since Tsetse is flow insensitive and we don't track
     //   symbol aliases, the import statement is the only place we can match
     //   bad symbols if they get renamed.
-    if (isNameInDeclaration(n)) {
+    if (p && isAllowlistedNamedDeclaration(p) && p.name === n) {
       debugLog(() => `We don't flag symbol declarations`);
       return false;
     }
@@ -166,7 +169,7 @@ export class AbsoluteMatcher {
         return declarations.some((d) => {
           const srcFilePath = d.getSourceFile()?.fileName;
           return srcFilePath && srcFilePath.match(this.filePath);
-        })
+        });
       }
     } else {
       const last = fqn.indexOf('"', 1);
