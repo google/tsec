@@ -110,10 +110,6 @@ export class Failure {
         fixText = `- Replace the full match with: ${printableReplacement}\n` +
             fixText;
       } else {
-        // Fallback case: Use a numerical range to specify a replacement. In
-        // general, falling through in this case should be avoided, as it's not
-        // really readable without an IDE (the range can be outside of the
-        // matched code).
         fixText = `- Replace ${this.readableRange(c.start, c.end)} with: ` +
             `${printableReplacement}\n${fixText}`;
       }
@@ -122,20 +118,21 @@ export class Failure {
     return fixText.trim();
   }
 
-  // TS indexes from 0 both ways, but tooling generally indexes from 1 for both
-  // lines and columns. The translation is done here.
+  /**
+   * Turns the range to a human readable format to be used by fixers.
+   *
+   * If the length of the range is non zero it returns the source file text
+   * representing the range. Otherwise returns the stringified representation of
+   * the source file position.
+   */
   readableRange(from: number, to: number) {
     const lcf = this.sourceFile.getLineAndCharacterOfPosition(from);
     const lct = this.sourceFile.getLineAndCharacterOfPosition(to);
-    if (lcf.line === lct.line) {
-      if (lcf.character === lct.character) {
-        return `at line ${lcf.line + 1}, char ${lcf.character + 1}`;
-      }
-      return `line ${lcf.line + 1}, from char ${lcf.character + 1} to ${
-          lct.character + 1}`;
+    if (lcf.line === lct.line && lcf.character === lct.character) {
+      return `at line ${lcf.line + 1}, char ${lcf.character + 1}`;
     } else {
-      return `from line ${lcf.line + 1}, char ${lcf.character + 1} to line ${
-          lct.line + 1}, char ${lct.character + 1}`;
+      return `'${
+          this.sourceFile.text.substring(from, to).replace(/\n/g, '\\n')}'`;
     }
   }
 }
