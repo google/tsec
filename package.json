@@ -5,8 +5,7 @@
   "main": "lib/tsc.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "postinstall": "npm run build"
+    "build": "tsc"
   },
   "author": "Google ISE Hardening Team",
   "license": "Apache-2.0",
