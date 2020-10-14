@@ -13,6 +13,11 @@ export class Failure {
       private readonly sourceFile: ts.SourceFile,
       private readonly start: number, private readonly end: number,
       private readonly failureText: string, private readonly code: number,
+      /**
+       * The origin of the failure, e.g., the name of the rule reporting the
+       * failure. Can be empty.
+       */
+      private readonly failureSource: string|undefined,
       private readonly suggestedFixes: Fix[] = []) {}
 
   /**
@@ -26,11 +31,17 @@ export class Failure {
       end: this.end,  // Not in ts.Diagnostic, but always useful for
                       // start-end-using systems.
       length: this.end - this.start,
-      messageText: this.failureText,
+      // Emebed `failureSource` into the error message so that we can show
+      // people which check they are violating. This makes it easier for
+      // developers to configure exemptions.
+      messageText: this.failureSource ?
+          `[${this.failureSource}] ${this.failureText}` :
+          this.failureText,
       category: ts.DiagnosticCategory.Error,
       code: this.code,
-      // source is the name of the plugin.
-      source: 'Tsetse',
+      // Other tools like TSLint can use this field to decide the subcategory of
+      // the diagnostic.
+      source: this.failureSource,
       fixes: this.suggestedFixes
     };
   }
@@ -52,9 +63,8 @@ export class Failure {
 
   toString(): string {
     return `{ sourceFile:${
-        this.sourceFile ?
-            this.sourceFile.fileName :
-            'unknown'}, start:${this.start}, end:${this.end}, fixes:${
+        this.sourceFile ? this.sourceFile.fileName : 'unknown'}, start:${
+        this.start}, end:${this.end}, source:${this.failureSource}, fixes:${
         JSON.stringify(this.suggestedFixes.map(fix => fixToString(fix)))} }`;
   }
 

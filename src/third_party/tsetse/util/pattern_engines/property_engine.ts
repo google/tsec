@@ -1,9 +1,7 @@
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
-import {ErrorCode} from '../../error_code';
 import {debugLog} from '../ast_tools';
-import {Fixer} from '../fixer';
 import {PropertyMatcher} from '../property_matcher';
 
 import {PatternEngine} from './pattern_engine';

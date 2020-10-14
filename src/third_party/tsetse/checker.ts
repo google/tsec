@@ -134,9 +134,14 @@ export class Checker {
 
   /**
    * Add a failure with a span.
+   * @param source the origin of the failure, e.g., the name of a rule reporting
+   *     the failure
+   * @param fix an optional, automatically generated fix that can remediate the
+   *     failure
    */
   addFailure(
-      start: number, end: number, failureText: string, fixes: Fix[] = []) {
+      start: number, end: number, failureText: string, source: string|undefined,
+      fixes: Fix[] = []) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
     }
@@ -149,16 +154,18 @@ export class Checker {
 
     const failure = new Failure(
         this.currentSourceFile, start, end, failureText, this.currentCode,
-        fixes);
+        source, fixes);
     this.failures.push(failure);
   }
 
-  addFailureAtNode(node: ts.Node, failureText: string, fixes: Fix[] = []) {
+  addFailureAtNode(
+      node: ts.Node, failureText: string, source: string|undefined,
+      fixes: Fix[] = []) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
     this.addFailure(
         node.getStart(this.currentSourceFile), node.getEnd(), failureText,
-        fixes);
+        source, fixes);
   }
 
   /** Dispatch general handlers registered via `on` */
