@@ -1,10 +1,7 @@
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
-import {ErrorCode} from '../../error_code';
 import {AbsoluteMatcher} from '../absolute_matcher';
-import {debugLog} from '../ast_tools';
-import {Fixer} from '../fixer';
 import {isExpressionOfAllowedTrustedType} from '../is_trusted_type';
 import {TrustedTypesConfig} from '../trusted_types_configuration';
 

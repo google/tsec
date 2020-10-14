@@ -32,7 +32,6 @@ import {shouldExamineNode} from '../third_party/tsetse/util/ast_tools';
 import {isExpressionOfAllowedTrustedType} from '../third_party/tsetse/util/is_trusted_type';
 import {PropertyMatcher} from '../third_party/tsetse/util/property_matcher';
 import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
-
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -46,7 +45,7 @@ const BANNED_PROPERTIES = [
   'Window.prototype.setTimeout',
 ];
 
-function errMsg(bannedEntity: string): string {
+function formatErrorMessage(bannedEntity: string): string {
   let errMsg = `Do not use ${
       bannedEntity}, as calling it with a string argument can cause code-injection security vulnerabilities.`;
   return errMsg;
@@ -152,7 +151,9 @@ export class Rule extends AbstractRule {
                       path.resolve(node.getSourceFile().fileName))) {
                 return;
               }
-              checker.addFailureAtNode(node, errMsg(nameMatcher.bannedName));
+              checker.addFailureAtNode(
+                  node, formatErrorMessage(nameMatcher.bannedName),
+                  Rule.RULE_NAME);
             }
           },
           this.code,
@@ -171,8 +172,9 @@ export class Rule extends AbstractRule {
               }
               checker.addFailureAtNode(
                   node,
-                  errMsg(`${propMatcher.bannedType}#${
-                      propMatcher.bannedProperty}`));
+                  formatErrorMessage(`${propMatcher.bannedType}#${
+                      propMatcher.bannedProperty}`),
+                  Rule.RULE_NAME);
             }
           },
           this.code,
@@ -192,8 +194,9 @@ export class Rule extends AbstractRule {
               }
               checker.addFailureAtNode(
                   node,
-                  errMsg(`${propMatcher.bannedType}#${
-                      propMatcher.bannedProperty}`));
+                  formatErrorMessage(`${propMatcher.bannedType}#${
+                      propMatcher.bannedProperty}`),
+                  Rule.RULE_NAME);
             }
           },
           this.code,
