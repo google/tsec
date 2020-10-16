@@ -17,42 +17,18 @@ import * as path from 'path';
 import * as ts from 'typescript';
 
 import {ENABLED_RULES} from './rule_groups';
-import {ExemptionList, parseConformanceExemptionConfig} from './tsec_lib/exemption_config';
+import {createEmptyExemptionList, ExemptionList, parseConformanceExemptionConfig} from './tsec_lib/exemption_config';
+import {FORMAT_DIAGNOSTIC_HOST, reportDiagnostic, reportDiagnosticsWithSummary, reportErrorSummary} from './tsec_lib/report';
 import {ExtendedParsedCommandLine, parseTsConfigFile} from './tsec_lib/tsconfig';
 
-const FORMAT_DIAGNOSTIC_HOST: ts.FormatDiagnosticsHost = {
-  getCurrentDirectory: ts.sys.getCurrentDirectory,
-  // `path.resolve` helps us eliminate relative path segments ('.' and '..').
-  // `ts.formatDiagnosticsWithColorAndContext` always produce relative paths.
-  getCanonicalFileName: fileName => path.resolve(fileName),
-  getNewLine: () => ts.sys.newLine,
-};
-
-function countErrors(diagnostics: readonly ts.Diagnostic[]): number {
-  return diagnostics.reduce(
-      (sum, diag) =>
-          sum + (diag.category === ts.DiagnosticCategory.Error ? 1 : 0),
-      0);
-}
-
-function reportDiagnosticsWithSummary(diagnostics: readonly ts.Diagnostic[]):
-    number {
-  ts.sys.write(ts.formatDiagnosticsWithColorAndContext(
-      diagnostics, FORMAT_DIAGNOSTIC_HOST));
-
-  const errorCount = countErrors(diagnostics);
-  if (errorCount > 0) {
-    // Separate from the diagnostics with two line breaks.
-    const newLine = FORMAT_DIAGNOSTIC_HOST.getNewLine();
-    ts.sys.write(newLine + newLine);
-
-    if (errorCount === 1) {
-      ts.sys.write(`Found 1 error.${newLine}`);
-    } else {
-      ts.sys.write(`Found ${errorCount} errors.${newLine}`);
-    }
+function isInBuildMode(cmdArgs: string[]) {
+  // --build or -b has to be the first argument
+  if (cmdArgs.length && cmdArgs[0].charAt(0) === '-') {
+    const optionStart = cmdArgs[0].charAt(1) === '-' ? 2 : 1;
+    const firstOption = cmdArgs[0].slice(optionStart);
+    return firstOption === 'build' || firstOption === 'b';
   }
-  return errorCount;
+  return false;
 }
 
 function getTsConfigFilePath(projectPath?: string): string {
@@ -71,11 +47,91 @@ function getTsConfigFilePath(projectPath?: string): string {
   return tsConfigFilePath;
 }
 
+function performanceConformanceCheck(
+    program: ts.Program,
+    conformanceExemptionConfig: ExemptionList =
+        createEmptyExemptionList()): ts.Diagnostic[] {
+  const diagnostics = [...ts.getPreEmitDiagnostics(program)];
+
+  // Create all enabled rules with corresponding exemption list entries.
+  const conformanceChecker = new Checker(program);
+  const conformanceRules = ENABLED_RULES.map(ruleCtr => {
+    const allowlistEntries = [];
+    const allowlistEntry = conformanceExemptionConfig.get(ruleCtr.RULE_NAME);
+    if (allowlistEntry) {
+      allowlistEntries.push(allowlistEntry);
+    }
+    return new ruleCtr(allowlistEntries);
+  });
+
+  // Register all rules.
+  for (const rule of conformanceRules) {
+    rule.register(conformanceChecker);
+  }
+
+  // Run all enabled conformance checks and collect errors.
+  for (const sf of program.getSourceFiles()) {
+    // We don't emit errors for delcarations, so might as well skip checking
+    // declaration files all together.
+    if (sf.isDeclarationFile) continue;
+    const conformanceDiagErr = conformanceChecker.execute(sf).map(
+        failure => failure.toDiagnosticWithStringifiedFixes());
+    diagnostics.push(...conformanceDiagErr);
+  }
+
+  return diagnostics;
+}
+
 /**
  * A simple tsc wrapper that runs TSConformance checks over the source files
  * and emits code for files without conformance violations.
  */
 function main(args: string[]) {
+  if (isInBuildMode(args)) {
+    // We don't support any of the build options, so we only expect one option
+    // in build mode. It may make sense to support incremental build to save
+    // time. The others are likely never relevant to tsec.
+    const projects = args.slice(1);
+
+    // Bail if there are more than one tsconfig.json (or unsupported options)
+    // are provided.
+    if (projects.length > 1) {
+      return 1;
+    }
+
+    const buildHost = ts.createSolutionBuilderHost(
+        ts.sys,
+        /*createProgram*/ undefined,
+        reportDiagnostic,
+        /*reportSolutionBuilderStatus*/ undefined,
+        reportErrorSummary,
+
+    );
+
+    const diagnostics: ts.Diagnostic[] = [];
+
+    buildHost.afterProgramEmitAndDiagnostics = (p) => {
+      diagnostics.push(...performanceConformanceCheck(p.getProgram()));
+    };
+    const builder =
+        ts.createSolutionBuilder(buildHost, projects, /*buildOptions*/ {});
+
+    // Force clean. The project may have been built by tsc before. To ensure we
+    // can report conformance errors, we need to dump the build cache first.
+    builder.clean();
+
+    const exitStatus = builder.build();
+    if (exitStatus !== ts.ExitStatus.Success) {
+      ts.sys.write(
+          'There are build errors in your project. Please make sure your project can be built by tsc');
+      return 1;
+    }
+
+    const errorCount = reportDiagnosticsWithSummary(diagnostics);
+
+    return errorCount === 0 ? 0 : 1;
+  }
+
   let parsedConfig: ExtendedParsedCommandLine = ts.parseCommandLine(args);
   if (parsedConfig.errors.length !== 0) {
     // Same as tsc, do not emit colorful diagnostic texts for command line
@@ -93,8 +149,7 @@ function main(args: string[]) {
     const parseConfigFileHost: ts.ParseConfigFileHost = {
       ...ts.sys,
       onUnRecoverableConfigFileDiagnostic: (diagnostic: ts.Diagnostic) => {
-        ts.sys.write(
-            ts.formatDiagnostics([diagnostic], FORMAT_DIAGNOSTIC_HOST));
+        ts.sys.write(ts.formatDiagnostic(diagnostic, FORMAT_DIAGNOSTIC_HOST));
         ts.sys.exit(1);
       }
     };
@@ -122,33 +177,7 @@ function main(args: string[]) {
   const program = ts.createProgram(
       parsedConfig.fileNames, parsedConfig.options, compilerHost);
 
-  diagnostics.push(...ts.getPreEmitDiagnostics(program));
-
-  // Create all enabled rules with corresponding exemption list entries.
-  const conformanceChecker = new Checker(program);
-  const conformanceRules = ENABLED_RULES.map(ruleCtr => {
-    const allowlistEntries = [];
-    const allowlistEntry = conformanceExemptionConfig.get(ruleCtr.RULE_NAME);
-    if (allowlistEntry) {
-      allowlistEntries.push(allowlistEntry);
-    }
-    return new ruleCtr(allowlistEntries);
-  });
-
-  // Register all rules.
-  for (const rule of conformanceRules) {
-    rule.register(conformanceChecker);
-  }
-
-  // Run all enabled conformance checks and collect errors.
-  for (const sf of program.getSourceFiles()) {
-    // We don't emit errors for declarations, so might as well skip checking
-    // declaration files all together.
-    if (sf.isDeclarationFile) continue;
-    const conformanceDiagErr = conformanceChecker.execute(sf).map(
-        failure => failure.toDiagnosticWithStringifiedFixes());
-    diagnostics.push(...conformanceDiagErr);
-  }
+  diagnostics.push(...performanceConformanceCheck(program));
 
   // If there are conformance errors while noEmitOnError is set, refrain from
   // emitting code.

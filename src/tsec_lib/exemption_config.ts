@@ -20,11 +20,18 @@ import {getDiagnosticErrorFromJsonNode} from './tsconfig';
 
 /**
  * Mapping from rule name to the list of names of files that are exempted from
- * the rule
+ * the rule.
  */
 export type ExemptionList = Map<string, AllowlistEntry>;
 
-/** Parse the content of the conformance exemption configuration file */
+/**
+ * Create an empty ExemptionList instance.
+ */
+export function createEmptyExemptionList() {
+  return new Map<string, AllowlistEntry>();
+}
+
+/** Parse the content of the conformance exemption configuration file. */
 export function parseConformanceExemptionConfig(
     exemptionConfigPath: string,
     host: ts.ParseConfigHost = ts.sys): ExemptionList|ts.Diagnostic[] {
