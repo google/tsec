@@ -177,7 +177,8 @@ function main(args: string[]) {
   const program = ts.createProgram(
       parsedConfig.fileNames, parsedConfig.options, compilerHost);
 
-  diagnostics.push(...performanceConformanceCheck(program));
+  diagnostics.push(
+      ...performanceConformanceCheck(program, conformanceExemptionConfig));
 
   // If there are conformance errors while noEmitOnError is set, refrain from
   // emitting code.
