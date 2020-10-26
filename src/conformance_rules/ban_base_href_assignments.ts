@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {AllowlistEntry} from '../third_party/tsetse/util/allowlist';
+import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
     'Do not modify HTMLBaseElement#href elements, as this can compromise all other efforts to sanitize unsafe URLs and lead to XSS.';
@@ -26,14 +26,14 @@ let errMsg =
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-base-href-assignments';
 
-  constructor(allowlistEntries?: AllowlistEntry[]) {
+  constructor(configuration: RuleConfiguration = {}) {
     super({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_PROPERTY_WRITE,
       values: ['HTMLBaseElement.prototype.href'],
-      allowlistEntries,
       name: Rule.RULE_NAME,
+      ...configuration
     });
   }
 }

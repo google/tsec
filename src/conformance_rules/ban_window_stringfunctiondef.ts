@@ -35,6 +35,8 @@ import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configura
 import * as path from 'path';
 import * as ts from 'typescript';
 
+import {RuleConfiguration} from '../../rule_configuration';
+
 const BANNED_NAMES = [
   'GLOBAL|setInterval',
   'GLOBAL|setTimeout',
@@ -124,12 +126,12 @@ export class Rule extends AbstractRule {
 
   private readonly allowlist?: Allowlist;
 
-  constructor(allowlistEntries?: AllowlistEntry[]) {
+  constructor(configuration: RuleConfiguration = {}) {
     super();
     this.nameMatchers = BANNED_NAMES.map(name => new AbsoluteMatcher(name));
     this.propMatchers = BANNED_PROPERTIES.map(PropertyMatcher.fromSpec);
-    if (allowlistEntries) {
-      this.allowlist = new Allowlist(allowlistEntries);
+    if (configuration?.allowlistEntries) {
+      this.allowlist = new Allowlist(configuration?.allowlistEntries);
     }
   }
 

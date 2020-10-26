@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {AllowlistEntry} from '../third_party/tsetse/util/allowlist';
+import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
     'Do not use HTMLScriptElement#appendChild because it is similar to eval and can cause code-injection security vulnerabilities.';
@@ -22,14 +22,14 @@ let errMsg =
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-script-appendchild-calls';
 
-  constructor(allowlistEntries?: AllowlistEntry[]) {
+  constructor(configuration: RuleConfiguration = {}) {
     super({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_PROPERTY,
       values: ['HTMLScriptElement.prototype.appendChild'],
-      allowlistEntries,
       name: Rule.RULE_NAME,
+      ...configuration,
     });
   }
 }

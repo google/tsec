@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {AllowlistEntry} from '../third_party/tsetse/util/allowlist';
+import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg = 'Creating a Trusted Types policy requires a security review.';
 
@@ -23,14 +23,14 @@ let errMsg = 'Creating a Trusted Types policy requires a security review.';
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-trustedtypes-createpolicy';
 
-  constructor(allowlistEntries?: AllowlistEntry[]) {
+  constructor(configuration: RuleConfiguration = {}) {
     super({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_PROPERTY,
       values: ['TrustedTypePolicyFactory.prototype.createPolicy'],
-      allowlistEntries,
       name: Rule.RULE_NAME,
+      ...configuration,
     });
   }
 }
