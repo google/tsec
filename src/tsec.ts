@@ -61,7 +61,7 @@ function performanceConformanceCheck(
     if (allowlistEntry) {
       allowlistEntries.push(allowlistEntry);
     }
-    return new ruleCtr(allowlistEntries);
+    return new ruleCtr({allowlistEntries});
   });
 
   // Register all rules.

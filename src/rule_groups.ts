@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {AbstractRule} from './third_party/tsetse/rule';
-import {AllowlistEntry} from './third_party/tsetse/util/allowlist';
+import {RuleConfiguration} from './rule_configuration';
 
 import {Rule as TTBanBaseHrefAssignments} from './conformance_rules/ban_base_href_assignments';
 import {Rule as TTBanDocumentWriteCalls} from './conformance_rules/ban_document_write_calls';
@@ -36,7 +36,7 @@ import {Rule as TTBanWorkerCalls} from './conformance_rules/ban_worker_calls';
  */
 export interface RuleConstructor {
   readonly RULE_NAME: string;
-  new(allowlistEntries?: AllowlistEntry[]): AbstractRule;
+  new(configuration?: RuleConfiguration): AbstractRule;
 }
 
 /** Conformance rules related to Trusted Types adoption */
