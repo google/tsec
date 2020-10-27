@@ -17,7 +17,6 @@ import {RuleConfiguration} from './rule_configuration';
 
 import {Rule as TTBanBaseHrefAssignments} from './conformance_rules/ban_base_href_assignments';
 import {Rule as TTBanDocumentWriteCalls} from './conformance_rules/ban_document_write_calls';
-import {Rule as TTBanDynamicImports} from './conformance_rules/ban_dynamic_imports';
 import {Rule as TTBanElementInnerHTMLAssignments} from './conformance_rules/ban_element_innerhtml_assignments';
 import {Rule as TTBanElementOuterHTMLAssignments} from './conformance_rules/ban_element_outerhtml_assignments';
 import {Rule as TTBanElementSrcdocAssignments} from './conformance_rules/ban_element_srcdoc_assignments';
@@ -43,7 +42,6 @@ export interface RuleConstructor {
 const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanBaseHrefAssignments,  // https://github.com/w3c/webappsec-trusted-types/issues/172
   TTBanDocumentWriteCalls,
-  TTBanDynamicImports,
   TTBanEvalCalls,
   TTBanScriptAppendChildCalls,
   TTBanScriptContentAssignments,
