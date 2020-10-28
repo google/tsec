@@ -13,6 +13,11 @@ export class Failure {
       private readonly sourceFile: ts.SourceFile,
       private readonly start: number, private readonly end: number,
       private readonly failureText: string, private readonly code: number,
+      /**
+       * The origin of the failure, e.g., the name of the rule reporting the
+       * failure. Can be empty.
+       */
+      private readonly failureSource: string|undefined,
       private readonly suggestedFixes: Fix[] = []) {}
 
   /**
@@ -26,11 +31,17 @@ export class Failure {
       end: this.end,  // Not in ts.Diagnostic, but always useful for
                       // start-end-using systems.
       length: this.end - this.start,
-      messageText: this.failureText,
+      // Emebed `failureSource` into the error message so that we can show
+      // people which check they are violating. This makes it easier for
+      // developers to configure exemptions.
+      messageText: this.failureSource ?
+          `[${this.failureSource}] ${this.failureText}` :
+          this.failureText,
       category: ts.DiagnosticCategory.Error,
       code: this.code,
-      // source is the name of the plugin.
-      source: 'Tsetse',
+      // Other tools like TSLint can use this field to decide the subcategory of
+      // the diagnostic.
+      source: this.failureSource,
       fixes: this.suggestedFixes
     };
   }
@@ -52,9 +63,8 @@ export class Failure {
 
   toString(): string {
     return `{ sourceFile:${
-        this.sourceFile ?
-            this.sourceFile.fileName :
-            'unknown'}, start:${this.start}, end:${this.end}, fixes:${
+        this.sourceFile ? this.sourceFile.fileName : 'unknown'}, start:${
+        this.start}, end:${this.end}, source:${this.failureSource}, fixes:${
         JSON.stringify(this.suggestedFixes.map(fix => fixToString(fix)))} }`;
   }
 
@@ -110,10 +120,6 @@ export class Failure {
         fixText = `- Replace the full match with: ${printableReplacement}\n` +
             fixText;
       } else {
-        // Fallback case: Use a numerical range to specify a replacement. In
-        // general, falling through in this case should be avoided, as it's not
-        // really readable without an IDE (the range can be outside of the
-        // matched code).
         fixText = `- Replace ${this.readableRange(c.start, c.end)} with: ` +
             `${printableReplacement}\n${fixText}`;
       }
@@ -122,20 +128,21 @@ export class Failure {
     return fixText.trim();
   }
 
-  // TS indexes from 0 both ways, but tooling generally indexes from 1 for both
-  // lines and columns. The translation is done here.
+  /**
+   * Turns the range to a human readable format to be used by fixers.
+   *
+   * If the length of the range is non zero it returns the source file text
+   * representing the range. Otherwise returns the stringified representation of
+   * the source file position.
+   */
   readableRange(from: number, to: number) {
     const lcf = this.sourceFile.getLineAndCharacterOfPosition(from);
     const lct = this.sourceFile.getLineAndCharacterOfPosition(to);
-    if (lcf.line === lct.line) {
-      if (lcf.character === lct.character) {
-        return `at line ${lcf.line + 1}, char ${lcf.character + 1}`;
-      }
-      return `line ${lcf.line + 1}, from char ${lcf.character + 1} to ${
-          lct.character + 1}`;
+    if (lcf.line === lct.line && lcf.character === lct.character) {
+      return `at line ${lcf.line + 1}, char ${lcf.character + 1}`;
     } else {
-      return `from line ${lcf.line + 1}, char ${lcf.character + 1} to line ${
-          lct.line + 1}, char ${lct.character + 1}`;
+      return `'${
+          this.sourceFile.text.substring(from, to).replace(/\n/g, '\\n')}'`;
     }
   }
 }

@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {AllowlistEntry} from '../third_party/tsetse/util/allowlist';
 import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
 import {TRUSTED_HTML} from '../third_party/tsetse/util/trusted_types_configuration';
+
+import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
     'Assigning directly to Element#outerHTML can result in XSS vulnerabilities.';
@@ -25,15 +26,15 @@ let errMsg =
  */
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-element-outerhtml-assignments';
-  constructor(allowlistEntries?: AllowlistEntry[]) {
+  constructor(configuration: RuleConfiguration = {}) {
     super(overridePatternConfig({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_PROPERTY_WRITE,
       values: ['Element.prototype.outerHTML'],
-      allowlistEntries,
       name: Rule.RULE_NAME,
       allowedTrustedType: TRUSTED_HTML,
+      ...configuration,
     }));
   }
 }

@@ -2,7 +2,6 @@ import * as path from 'path';
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
-import {Fix} from '../../failure';
 import {Allowlist} from '../../util/allowlist';
 import {Fixer} from '../../util/fixer';
 import {PatternEngineConfig} from '../../util/pattern_config';
@@ -15,6 +14,7 @@ export abstract class PatternEngine {
   private readonly allowlist: Allowlist;
 
   constructor(
+      protected readonly ruleName: string,
       protected readonly config: PatternEngineConfig,
       protected readonly fixers?: Fixer[]) {
     this.allowlist = new Allowlist(config.allowlistEntries);
@@ -51,7 +51,8 @@ export abstract class PatternEngine {
             fixes.push(fix);
           }
         }
-        c.addFailureAtNode(matchedNode, this.config.errorMessage, fixes);
+        c.addFailureAtNode(
+            matchedNode, this.config.errorMessage, this.ruleName, fixes);
       }
     };
   }

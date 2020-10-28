@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {AllowlistEntry} from '../third_party/tsetse/util/allowlist';
 import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
+
+import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg = 'Do not use eval, as this can lead to XSS.';
 
@@ -27,15 +28,15 @@ let errMsg = 'Do not use eval, as this can lead to XSS.';
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-eval-calls';
 
-  constructor(allowlistEntries?: AllowlistEntry[]) {
+  constructor(configuration: RuleConfiguration = {}) {
     super(overridePatternConfig({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_NAME,
       values: ['GLOBAL|eval'],
-      allowlistEntries,
       name: Rule.RULE_NAME,
-      allowedTrustedType: TRUSTED_SCRIPT
+      allowedTrustedType: TRUSTED_SCRIPT,
+      ...configuration,
     }));
   }
 }
