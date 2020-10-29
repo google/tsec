@@ -35,7 +35,7 @@ import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configura
 import * as path from 'path';
 import * as ts from 'typescript';
 
-import {RuleConfiguration} from '../../rule_configuration';
+import {RuleConfiguration} from '../rule_configuration';
 
 const BANNED_NAMES = [
   'GLOBAL|setInterval',

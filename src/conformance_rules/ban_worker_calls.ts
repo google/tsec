@@ -16,7 +16,7 @@ import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tse
 import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT_URL} from '../third_party/tsetse/util/trusted_types_configuration';
 
-import {RuleConfiguration} from '../../rule_configuration';
+import {RuleConfiguration} from '../rule_configuration';
 
 let errMsg =
     'Constructing Web Workers can cause code to be loaded from an untrusted URL.';

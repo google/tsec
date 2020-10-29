@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {RuleConfiguration} from '../../rule_configuration';
+import {RuleConfiguration} from '../rule_configuration';
 
 let errMsg =
     'Do not modify HTMLBaseElement#href elements, as this can compromise all other efforts to sanitize unsafe URLs and lead to XSS.';
