@@ -39,7 +39,7 @@ export interface RuleConstructor {
 }
 
 /** Conformance rules related to Trusted Types adoption */
-const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
+export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanBaseHrefAssignments,  // https://github.com/w3c/webappsec-trusted-types/issues/172
   TTBanDocumentWriteCalls,
   TTBanEvalCalls,
