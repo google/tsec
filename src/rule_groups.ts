@@ -16,7 +16,7 @@ import {AbstractRule} from './third_party/tsetse/rule';
 import {RuleConfiguration} from './rule_configuration';
 
 import {Rule as TTBanBaseHrefAssignments} from './conformance_rules/ban_base_href_assignments';
-import {Rule as TTBanDocumentWriteCalls} from './conformance_rules/ban_document_write_calls';
+import {WritelnRule as TTBanDocumentWritelnCalls, WriteRule as TTBanDocumentWriteCalls} from './conformance_rules/ban_document_write_calls';
 import {Rule as TTBanElementInnerHTMLAssignments} from './conformance_rules/ban_element_innerhtml_assignments';
 import {Rule as TTBanElementOuterHTMLAssignments} from './conformance_rules/ban_element_outerhtml_assignments';
 import {Rule as TTBanElementSrcdocAssignments} from './conformance_rules/ban_element_srcdoc_assignments';
@@ -41,6 +41,7 @@ export interface RuleConstructor {
 /** Conformance rules related to Trusted Types adoption */
 export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanBaseHrefAssignments,  // https://github.com/w3c/webappsec-trusted-types/issues/172
+  TTBanDocumentWritelnCalls,
   TTBanDocumentWriteCalls,
   TTBanEvalCalls,
   TTBanScriptAppendChildCalls,

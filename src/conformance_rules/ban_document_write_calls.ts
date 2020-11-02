@@ -22,20 +22,43 @@ let errMsg =
     'Do not use Document#write or Document#writeln, as this can lead to XSS.';
 
 /**
- * A Rule that looks for use of Document#write and Document#writeln properties.
+ * A Rule that looks for use of Document#write properties.
  */
-export class Rule extends ConformancePatternRule {
+export class WriteRule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-document-write-calls';
 
   constructor(configuration: RuleConfiguration = {}) {
-    super(overridePatternConfig({
-      errorCode: ErrorCode.CONFORMANCE_PATTERN,
-      errorMessage: errMsg,
-      kind: PatternKind.BANNED_PROPERTY,
-      values: ['Document.prototype.write', 'Document.prototype.writeln'],
-      name: Rule.RULE_NAME,
-      allowedTrustedType: TRUSTED_HTML,
-      ...configuration,
-    }));
+    super(
+        overridePatternConfig({
+          errorCode: ErrorCode.CONFORMANCE_PATTERN,
+          errorMessage: errMsg,
+          kind: PatternKind.BANNED_PROPERTY,
+          values: ['Document.prototype.write'],
+          name: WriteRule.RULE_NAME,
+          allowedTrustedType: TRUSTED_HTML,
+          ...configuration,
+        }),
+    );
+  }
+}
+
+/**
+ * A Rule that looks for use of Document#writeln properties.
+ */
+export class WritelnRule extends ConformancePatternRule {
+  static readonly RULE_NAME = 'ban-document-writeln-calls';
+
+  constructor(configuration: RuleConfiguration = {}) {
+    super(
+        overridePatternConfig({
+          errorCode: ErrorCode.CONFORMANCE_PATTERN,
+          errorMessage: errMsg,
+          kind: PatternKind.BANNED_PROPERTY,
+          values: ['Document.prototype.writeln'],
+          name: WritelnRule.RULE_NAME,
+          allowedTrustedType: TRUSTED_HTML,
+          ...configuration,
+        }),
+    );
   }
 }
