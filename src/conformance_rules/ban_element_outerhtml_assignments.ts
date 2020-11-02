@@ -27,16 +27,14 @@ let errMsg =
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-element-outerhtml-assignments';
   constructor(configuration: RuleConfiguration = {}) {
-    super(
-        overridePatternConfig({
-          errorCode: ErrorCode.CONFORMANCE_PATTERN,
-          errorMessage: errMsg,
-          kind: PatternKind.BANNED_PROPERTY_WRITE,
-          values: ['Element.prototype.outerHTML'],
-          name: Rule.RULE_NAME,
-          allowedTrustedType: TRUSTED_HTML,
-          ...configuration,
-        }),
-    );
+    super(overridePatternConfig({
+      errorCode: ErrorCode.CONFORMANCE_PATTERN,
+      errorMessage: errMsg,
+      kind: PatternKind.BANNED_PROPERTY_WRITE,
+      values: ['Element.prototype.outerHTML'],
+      name: Rule.RULE_NAME,
+      allowedTrustedType: TRUSTED_HTML,
+      ...configuration,
+    }));
   }
 }

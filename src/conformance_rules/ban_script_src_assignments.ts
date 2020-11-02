@@ -39,6 +39,8 @@ export class Rule extends ConformancePatternRule {
           name: Rule.RULE_NAME,
           allowedTrustedType: TRUSTED_SCRIPT_URL,
         }),
+        [
+        ],
     );
   }
 }
