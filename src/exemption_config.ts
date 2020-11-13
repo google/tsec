@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AllowlistEntry, ExemptionReason} from '../third_party/tsetse/util/allowlist';
+import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/util/allowlist';
 import * as path from 'path';
 import * as ts from 'typescript';
 

@@ -17,12 +17,11 @@
  * directly in the editor.
  */
 
-import {Checker} from '../third_party/tsetse/checker';
-import {ErrorCode} from '../third_party/tsetse/error_code';
-import {DiagnosticWithFixes} from '../third_party/tsetse/failure';
+import {ENABLED_RULES} from './rule_groups';
+import {Checker} from './third_party/tsetse/checker';
+import {ErrorCode} from './third_party/tsetse/error_code';
+import {DiagnosticWithFixes} from './third_party/tsetse/failure';
 import * as ts from 'typescript/lib/tsserverlibrary';
-
-import {ENABLED_RULES} from '../rule_groups';
 
 /**
  * The proxy design pattern, allowing us to customize behavior of the delegate

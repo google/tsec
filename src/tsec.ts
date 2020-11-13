@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {ENABLED_RULES} from './rule_groups';
 import {Checker} from './third_party/tsetse/checker';
 import * as path from 'path';
 import * as ts from 'typescript';
 
-import {ENABLED_RULES} from './rule_groups';
-import {createEmptyExemptionList, ExemptionList, parseConformanceExemptionConfig} from './tsec_lib/exemption_config';
-import {FORMAT_DIAGNOSTIC_HOST, reportDiagnostic, reportDiagnosticsWithSummary, reportErrorSummary} from './tsec_lib/report';
-import {ExtendedParsedCommandLine, parseTsConfigFile} from './tsec_lib/tsconfig';
+import {createEmptyExemptionList, ExemptionList, parseConformanceExemptionConfig} from './exemption_config';
+import {FORMAT_DIAGNOSTIC_HOST, reportDiagnostic, reportDiagnosticsWithSummary, reportErrorSummary} from './report';
+import {ExtendedParsedCommandLine, parseTsConfigFile} from './tsconfig';
 
 function isInBuildMode(cmdArgs: string[]) {
   // --build or -b has to be the first argument
