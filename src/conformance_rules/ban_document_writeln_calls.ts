@@ -18,13 +18,13 @@ import {TRUSTED_HTML} from '../third_party/tsetse/util/trusted_types_configurati
 
 import {RuleConfiguration} from '../rule_configuration';
 
-let errMsg = 'Do not use Document#write, as this can lead to XSS.';
+let errMsg = 'Do not use Document#writeln, as this can lead to XSS.';
 
 /**
- * A Rule that looks for use of Document#write properties.
+ * A Rule that looks for use of Document#writeln properties.
  */
 export class Rule extends ConformancePatternRule {
-  static readonly RULE_NAME = 'ban-document-write-calls';
+  static readonly RULE_NAME = 'ban-document-writeln-calls';
 
   constructor(configuration: RuleConfiguration = {}) {
     super(
@@ -32,7 +32,7 @@ export class Rule extends ConformancePatternRule {
           errorCode: ErrorCode.CONFORMANCE_PATTERN,
           errorMessage: errMsg,
           kind: PatternKind.BANNED_PROPERTY,
-          values: ['Document.prototype.write'],
+          values: ['Document.prototype.writeln'],
           name: Rule.RULE_NAME,
           allowedTrustedType: TRUSTED_HTML,
           ...configuration,
