@@ -2,18 +2,20 @@
   "name": "tsec",
   "version": "0.0.1",
   "description": "",
-  "main": "lib/tsc.js",
+  "main": "lib/tsec.js",
+  "bin": {
+    "tsec": "bin/tsec"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
-    "postinstall": "npm run build"
+    "tsc": "tsc",
+    "build": "npm run tsc",
+    "prepare": "npm run build"
   },
   "author": "Google ISE Hardening Team",
   "license": "Apache-2.0",
-  "devDependencies": {
-    "typescript": "^3.9.2"
-  },
   "dependencies": {
+    "typescript": "^3.9.2",
     "@types/node": "^13.13.5"
   }
 }
