@@ -10,9 +10,20 @@ tsec supports most compilation flags as tsc does. For code pattern patterns that
 is potentially incompatible with Trusted Types, tsec emits compilation errors.
 
 tsec is based on the open source TypeScript static analyzer
-[Tsetse](https://tsetse.info/).
+[tsetse](https://tsetse.info/).
 
-## Build and Run
+## Supported checks
+
+tsec perform a basket of security checks to find possible XSS issues in your
+code. In particular, the checks ban using dangerous DOM sink APIs with plain
+string values. Any violation of the checks can hinder Trusted Types adoption
+either directly or indirectly. To fix the violations, you should construct
+Trusted Types values to feed into these sinks. At the moment, tsec covers most
+of the Trusted Types sinks that are enforced by the browser. See
+[here](docs/supported-checks.md) for the complete list of available checks. We
+will be adding the missing ones soon.
+
+## Build and run
 
 ### Build
 
