@@ -31,23 +31,7 @@ function isInBuildMode(cmdArgs: string[]) {
   return false;
 }
 
-function getTsConfigFilePath(projectPath?: string): string {
-  let tsConfigFilePath: string;
-
-  // TODO(b/169605827): To fully align with tsc, we should also search parent
-  // directories of pwd until a tsconfig.json file is found.
-  if (projectPath === undefined) projectPath = '.';
-
-  if (ts.sys.directoryExists(projectPath)) {
-    tsConfigFilePath = path.join(projectPath, 'tsconfig.json');
-  } else {
-    tsConfigFilePath = projectPath;
-  }
-
-  return tsConfigFilePath;
-}
-
-function performanceConformanceCheck(
+function performConformanceCheck(
     program: ts.Program,
     conformanceExemptionConfig: ExemptionList =
         createEmptyExemptionList()): ts.Diagnostic[] {
@@ -118,7 +102,7 @@ function main(args: string[]) {
     const diagnostics: ts.Diagnostic[] = [];
 
     buildHost.afterProgramEmitAndDiagnostics = (p) => {
-      diagnostics.push(...performanceConformanceCheck(p.getProgram()));
+      diagnostics.push(...performConformanceCheck(p.getProgram()));
     };
     const builder =
         ts.createSolutionBuilder(buildHost, projects, /*buildOptions*/ {});
@@ -149,7 +133,13 @@ function main(args: string[]) {
   // must be a configuration file that tells the compiler what to do. Try
   // looking for this file and parse it.
   if (parsedConfig.fileNames.length === 0) {
-    const tsConfigFilePath = getTsConfigFilePath(parsedConfig.options.project);
+    const tsConfigFilePath = ts.findConfigFile(
+        parsedConfig.options.project ?? '.', ts.sys.fileExists);
+    if (tsConfigFilePath === undefined) {
+      ts.sys.write('tsec: Cannot find project configuration.');
+      ts.sys.write(ts.sys.newLine);
+      return 1;
+    }
     const parseConfigFileHost: ts.ParseConfigFileHost = {
       ...ts.sys,
       onUnRecoverableConfigFileDiagnostic: (diagnostic: ts.Diagnostic) => {
@@ -182,7 +172,7 @@ function main(args: string[]) {
       parsedConfig.fileNames, parsedConfig.options, compilerHost);
 
   diagnostics.push(
-      ...performanceConformanceCheck(program, conformanceExemptionConfig));
+      ...performConformanceCheck(program, conformanceExemptionConfig));
 
   // If there are conformance errors while noEmitOnError is set, refrain from
   // emitting code.
