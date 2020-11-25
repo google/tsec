@@ -17,7 +17,7 @@ import {Checker} from './third_party/tsetse/checker';
 import * as ts from 'typescript';
 
 import {createEmptyExemptionList, ExemptionList} from './exemption_config';
-import {reportDiagnostic, reportDiagnosticsWithSummary, reportErrorSummary} from './report';
+import {reportDiagnosticsWithSummary} from './report';
 
 /** Check if tsec is invoked in the build mode. */
 export function isInBuildMode(cmdArgs: string[]) {
@@ -32,10 +32,10 @@ export function isInBuildMode(cmdArgs: string[]) {
 
 /** Perform conformance checks on a single project. */
 export function performConformanceCheck(
-    program: ts.Program,
-    conformanceExemptionConfig: ExemptionList =
-        createEmptyExemptionList()): ts.Diagnostic[] {
-  const diagnostics = [...ts.getPreEmitDiagnostics(program)];
+    program: ts.Program, conformanceExemptionConfig: ExemptionList,
+    includePreEmitDiagnostics: boolean = true): ts.Diagnostic[] {
+  const diagnostics =
+      includePreEmitDiagnostics ? [...ts.getPreEmitDiagnostics(program)] : [];
 
   // Create all enabled rules with corresponding exemption list entries.
   const conformanceChecker = new Checker(program);
@@ -103,43 +103,50 @@ export function performBuild(args: string[]): number {
   // tslint:disable-next-line:ban-module-namespace-object-escape
   (ts as {version: string}).version += '-tsec';
 
+  const nonConformanceErrors: ts.Diagnostic[] = [];
   const builderHost = ts.createSolutionBuilderHost(
       ts.sys,
       /*createProgram*/ undefined,
-      reportDiagnostic,
+      // Suppress the reporting of pre-emit diagnostics. We will report them
+      // with conformance errors together at the end of the build.
+      /*reportDiagnostic*/
+      diag => {
+        nonConformanceErrors.push(diag);
+      },
       /*reportSolutionBuilderStatus*/ undefined,
-      reportErrorSummary,
+      // Suppress the reporting of error summary. We will report it later.
+      /*reportErrorSummary*/ () => {},
   );
 
-  const allConformanceErrors: ts.Diagnostic[] = [];
+  const conformanceErrors: ts.Diagnostic[] = [];
   // So far, `afterProgramEmitAndDiagnostics` is the only known API that allows
   // us to hook a callback. Therefore, we can only perform conformance checks
   // after code emission. See b/174168274.
-  builderHost.afterProgramEmitAndDiagnostics = (p) => {
-    allConformanceErrors.push(...performConformanceCheck(p.getProgram()));
+  builderHost.afterProgramEmitAndDiagnostics = (builder) => {
+    conformanceErrors.push(...performConformanceCheck(
+        builder.getProgram(), createEmptyExemptionList(),
+        /*includePreEmitDiagnostics*/ false));
   };
   const builder = ts.createSolutionBuilder(builderHost, projects, buildOptions);
-  const exitStatus = buildOptions['clean'] ? builder.clean() : builder.build();
+  buildOptions['clean'] ? builder.clean() : builder.build();
 
   const freshDate = new Date();
   // Since we do conformance checks after code emission, conformance errors do
   // not prevent JS code from being emitted (if there are no other errors in
   // the TS source file). Therefore, for those TS source files, we need to
   // update their freshness to make sure they will still be built next time.
-  // TODO(b/174168274): This can be further optimized when a file containing
-  // conformance violations also has semantic errors. For those files, we can
-  // directly modify their corresponding `semanticDiagnosticsPerFile` entries in
-  // the .tsbuildinfo file, such that the conformance errors are also cached.
-  // The ideal solution is to find a better API to insert our conformance check
-  // callback. This is blocked by b/174168274.
-  for (const error of allConformanceErrors) {
+  // TODO(b/174168274): The ideal solution is to find a better API to insert
+  // our conformance check callback.
+  for (const error of conformanceErrors) {
     const sourceFile = error.file;
-    if (sourceFile !== undefined) {
+    // If `error.source` is undefined, it is not a conformance error.
+    if (error.source && sourceFile) {
       builderHost.setModifiedTime(sourceFile.fileName, freshDate);
     }
   }
 
-  const errorCount = reportDiagnosticsWithSummary(allConformanceErrors);
-
-  return errorCount + exitStatus;
+  return reportDiagnosticsWithSummary([
+    ...nonConformanceErrors,
+    ...conformanceErrors,
+  ]);
 }
