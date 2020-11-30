@@ -17,7 +17,7 @@ import {Checker} from './third_party/tsetse/checker';
 import * as ts from 'typescript';
 
 import {createEmptyExemptionList, ExemptionList} from './exemption_config';
-import {reportDiagnosticsWithSummary} from './report';
+import {createDiagnosticsReporter} from './report';
 
 /** Check if tsec is invoked in the build mode. */
 export function isInBuildMode(cmdArgs: string[]) {
@@ -88,9 +88,10 @@ export function performBuild(args: string[]): number {
       }).parseBuildCommand;
 
   const {buildOptions, projects, errors} = parseBuildCommand(args);
+  const reportDiagnostics = createDiagnosticsReporter(buildOptions);
 
   if (errors.length !== 0) {
-    return reportDiagnosticsWithSummary(errors);
+    return reportDiagnostics(errors, /*withSummary*/ true);
   }
 
   if (projects.length === 0) projects.push('.');
@@ -145,8 +146,10 @@ export function performBuild(args: string[]): number {
     }
   }
 
-  return reportDiagnosticsWithSummary([
-    ...nonConformanceErrors,
-    ...conformanceErrors,
-  ]);
+  return reportDiagnostics(
+      [
+        ...nonConformanceErrors,
+        ...conformanceErrors,
+      ],
+      /*withSummary*/ true);
 }

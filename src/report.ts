@@ -24,39 +24,49 @@ export const FORMAT_DIAGNOSTIC_HOST: ts.FormatDiagnosticsHost = {
   getNewLine: () => ts.sys.newLine,
 };
 
-/** Report a single Diagnostic. */
-export function reportDiagnostic(diagnostic: ts.Diagnostic) {
-  ts.sys.write(ts.formatDiagnosticsWithColorAndContext(
-      [diagnostic], FORMAT_DIAGNOSTIC_HOST));
-
-  const newLine = FORMAT_DIAGNOSTIC_HOST.getNewLine();
-  ts.sys.write(newLine + newLine);
-}
+const NEW_LINE = FORMAT_DIAGNOSTIC_HOST.getNewLine();
 
 /** Report the summary of error Diagnostic. */
 export function reportErrorSummary(errorCount: number) {
   if (errorCount > 0) {
-    const newLine = FORMAT_DIAGNOSTIC_HOST.getNewLine();
     if (errorCount === 1) {
-      ts.sys.write(`Found 1 error.${newLine}`);
+      ts.sys.write(`Found 1 error.${NEW_LINE}`);
     } else {
-      ts.sys.write(`Found ${errorCount} errors.${newLine}`);
+      ts.sys.write(`Found ${errorCount} errors.${NEW_LINE}`);
     }
   }
 }
 
-/** Report a list of Diagnostic with a trailing error summary. */
-export function reportDiagnosticsWithSummary(
-    diagnostics: readonly ts.Diagnostic[]): number {
-  for (const diag of diagnostics) {
-    reportDiagnostic(diag);
-  }
+/** Report a list of Diagnostic with an optional trailing error summary. */
+function reportDiagnostics(
+    diagnostics: readonly ts.Diagnostic[], withSummary: boolean,
+    pretty: boolean): number {
+  const formatter =
+      pretty ? ts.formatDiagnosticsWithColorAndContext : ts.formatDiagnostics;
+  ts.sys.write(formatter(diagnostics, FORMAT_DIAGNOSTIC_HOST));
+
 
   const errorCount =
       diagnostics.filter(d => d.category === ts.DiagnosticCategory.Error)
           .length;
 
-  reportErrorSummary(errorCount);
+  if (withSummary && errorCount !== 0) {
+    ts.sys.write(NEW_LINE + NEW_LINE);
+    reportErrorSummary(errorCount);
+  }
 
   return errorCount;
+}
+
+/**
+ * create a diagnostic reporter with a pretty option inferred from compiler or
+ * build options.
+ */
+export function createDiagnosticsReporter(options: ts.CompilerOptions|
+                                          ts.BuildOptions) {
+  let pretty =
+      ts.sys.writeOutputIsTTY === undefined ? false : ts.sys.writeOutputIsTTY();
+  if (options['pretty'] !== undefined) pretty = options['pretty'] as boolean;
+  return (diagnostics: readonly ts.Diagnostic[], withSummary: boolean) =>
+             reportDiagnostics(diagnostics, withSummary, pretty);
 }

@@ -17,7 +17,7 @@ import * as ts from 'typescript';
 
 import {isInBuildMode, performBuild, performConformanceCheck} from './build';
 import {createEmptyExemptionList, ExemptionList, parseConformanceExemptionConfig} from './exemption_config';
-import {FORMAT_DIAGNOSTIC_HOST, reportDiagnostic, reportDiagnosticsWithSummary, reportErrorSummary} from './report';
+import {createDiagnosticsReporter, FORMAT_DIAGNOSTIC_HOST} from './report';
 import {ExtendedParsedCommandLine, parseTsConfigFile} from './tsconfig';
 
 /**
@@ -96,7 +96,8 @@ function main(args: string[]) {
   const result = program.emit();
   diagnostics.push(...result.diagnostics);
 
-  const errorCount = reportDiagnosticsWithSummary(diagnostics);
+  const reportDiagnostics = createDiagnosticsReporter(parsedConfig.options);
+  const errorCount = reportDiagnostics(diagnostics, /*withSummary*/ true);
 
   return errorCount === 0 ? 0 : 1;
 }
