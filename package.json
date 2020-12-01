@@ -2,7 +2,7 @@
   "name": "tsec",
   "version": "0.0.1",
   "description": "",
-  "main": "lib/tsec.js",
+  "main": "lib/language_service_plugin.js",
   "bin": {
     "tsec": "bin/tsec"
   },

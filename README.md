@@ -155,8 +155,7 @@ see the violations directly in your IDE. For this to work you need to:
       "compilerOptions": {
         "plugins": [
           {
-            // the path is relative to TS server, "../../" points to the root dir
-            "name": "../../node_modules/tsec/lib/tsec_lib/language_service_plugin.js"
+            "name": "tsec"
           }
         ]
       }
