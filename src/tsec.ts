@@ -15,8 +15,7 @@
 import * as path from 'path';
 import * as ts from 'typescript';
 
-import {isInBuildMode, performBuild, performConformanceCheck} from './build';
-import {createEmptyExemptionList, ExemptionList, parseConformanceExemptionConfig} from './exemption_config';
+import {isInBuildMode, performBuild, performCheck} from './build';
 import {createDiagnosticsReporter, FORMAT_DIAGNOSTIC_HOST} from './report';
 import {ExtendedParsedCommandLine, parseTsConfigFile} from './tsconfig';
 
@@ -61,27 +60,12 @@ function main(args: string[]) {
   }
 
   const diagnostics = [...parsedConfig.errors];
-
-  // Try locating and parsing exemption list.
-  let conformanceExemptionConfig: ExemptionList = createEmptyExemptionList();
-  if (parsedConfig.conformanceExemptionPath) {
-    const conformanceExemptionOrErrors =
-        parseConformanceExemptionConfig(parsedConfig.conformanceExemptionPath);
-
-    if (Array.isArray(conformanceExemptionOrErrors)) {
-      diagnostics.push(...conformanceExemptionOrErrors);
-    } else {
-      conformanceExemptionConfig = conformanceExemptionOrErrors;
-    }
-  }
-
   const compilerHost = ts.createCompilerHost(parsedConfig.options, true);
 
   const program = ts.createProgram(
       parsedConfig.fileNames, parsedConfig.options, compilerHost);
 
-  diagnostics.push(
-      ...performConformanceCheck(program, conformanceExemptionConfig));
+  diagnostics.push(...performCheck(program));
 
   // If there are conformance errors while noEmitOnError is set, refrain from
   // emitting code.

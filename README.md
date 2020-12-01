@@ -45,42 +45,6 @@ To run a check for the compatibility with Trusted Types in the project
 containing `tsconfig.json` use: `{PATH_TO_TSEC}/bin/tsec -p tsconfig.json` Add
 `--noEmit` flag to skip emitting JS code from compilation.
 
-## Configure exemptions
-
-You can configure tsec to exempt certain violations. Add a
-"conformanceExemptionPath" field in the `tsconfig.json` file of your project.
-The value of that field is a string indicating the path to the exemption list,
-relative to the path of `tsconfig.json`.
-
-The exemption list is a JSON file of which each entry is the name of a rule. The
-value of the entry is a list of files that you would like to exempt from that
-rule.
-
-Here is an example. Suppose you have a file `src/foo.ts` in your project that
-triggers the following error from tsec:
-
-```
-src/foo.ts:10:5 - error TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.
-
-10     element.innerHTML = someVariable;
-       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-```
-
-You can exempt it by creating an `exemption_list.json` file along side your
-`tsconfig.json` with the following content:
-
-```json
-{
-  "ban-element-innerhtml-assignments": ["src/foo.ts"]
-}
-```
-
-Make sure you have the entry `json "conformanceExemptionPath":
-"./exemption_list.json"` added in your `tsconfig.json`.
-
-*Note that exemptions are granted at the file granularity. If you exempt a file
-from a rule, all violations in that file will be exempted.*
-
 ## Trusted Type awareness in tsec rules
 
 Using Trusted Types in TypeScript has
@@ -182,6 +146,58 @@ following these steps:
 4.  Find `tsserver.log` inside the folder _(you can use `find` command line
     utility)_ and open the file(s). There should be an error somewhere in the
     logs which should get you started.
+
+## Configure exemptions
+
+You can configure tsec to exempt certain violations. Add an "exemptionConfig"
+option in the configuration for the tsec language service plugin. The value of
+that field is a string indicating the path to the exemption list, relative to
+the path of `tsconfig.json`. See an exemption below.
+
+```jsonc
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "tsec",
+        "exemptionConfig": "./exemption_list.json"
+      }
+    ]
+  }
+}
+```
+
+Note that although this configuration appears to be for the language service
+plugin, it also works for the command line use of tsec.
+
+The exemption list is a JSON file of which each entry is the name of a rule. The
+value of the entry is a list of files that you would like to exempt from that
+rule.
+
+Here is an example. Suppose you have a file `src/foo.ts` in your project that
+triggers the following error from tsec:
+
+```
+src/foo.ts:10:5 - error TS21228: Assigning directly to Element#innerHTML can result in XSS vulnerabilities.
+
+10     element.innerHTML = someVariable;
+       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+```
+
+You can exempt it by creating an `exemption_list.json` file along side your
+`tsconfig.json` with the following content:
+
+```json
+{
+  "ban-element-innerhtml-assignments": ["src/foo.ts"]
+}
+```
+
+Make sure you have the entry `json "conformanceExemptionPath":
+"./exemption_list.json"` added in your `tsconfig.json`.
+
+*Note that exemptions are granted at the file granularity. If you exempt a file
+from a rule, all violations in that file will be exempted.*
 
 ## Developing locally
 

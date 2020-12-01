@@ -19,20 +19,60 @@ import * as ts from 'typescript';
 import {getDiagnosticErrorFromJsonNode} from './tsconfig';
 
 /**
- * Mapping from rule name to the list of names of files that are exempted from
- * the rule.
+ * Stores exemption list configurations by rules. Supports commonly used Map
+ * operations.
  */
-export type ExemptionList = Map<string, AllowlistEntry>;
+export class ExemptionList {
+  // Extending Map<string, AllowlistEntry> doesn't work in ES5.
+  private readonly map: Map<string, AllowlistEntry>;
 
-/**
- * Create an empty ExemptionList instance.
- */
-export function createEmptyExemptionList() {
-  return new Map<string, AllowlistEntry>();
+  constructor(copyFrom?: ExemptionList) {
+    this.map = new Map(copyFrom?.map.entries() ?? []);
+  }
+
+  get(rule: string): AllowlistEntry|undefined {
+    return this.map.get(rule);
+  }
+
+  set(rule: string, allowlistEntry: AllowlistEntry) {
+    this.map.set(rule, allowlistEntry);
+  }
+
+  entries() {
+    return this.map.entries();
+  }
+
+  get size() {
+    return this.map.size;
+  }
 }
 
-/** Parse the content of the conformance exemption configuration file. */
-export function parseConformanceExemptionConfig(
+/** Get the path of the exemption configuration file from compiler options. */
+export function getExemptionConfigPath(options: ts.CompilerOptions): string|
+    undefined {
+  if (options['configFilePath'] === undefined ||
+      options['plugins'] === undefined) {
+    return undefined;
+  }
+
+  // Read the "exemptionConfig" field from the language service plugin options.
+  for (const plugin of options['plugins'] as ts.PluginImport[]) {
+    if (plugin.name !== 'tsec') continue;
+
+    const {exemptionConfig} = plugin as {exemptionConfig?: unknown};
+    if (typeof exemptionConfig === 'string') {
+      // Path of the exemption config is relative to the path of tsconfig.json.
+      // Resolve it to the absolute path.
+      const projectPath = path.dirname(options['configFilePath'] as string);
+      return path.resolve(projectPath, exemptionConfig);
+    }
+  }
+
+  return undefined;
+}
+
+/** Parse the content of the exemption configuration file. */
+export function parseExemptionConfig(
     exemptionConfigPath: string,
     host: ts.ParseConfigHost = ts.sys): ExemptionList|ts.Diagnostic[] {
   const errors: ts.Diagnostic[] = [];
@@ -48,7 +88,7 @@ export function parseConformanceExemptionConfig(
       file: jsonSourceFile,
       start: 1,
       length: undefined,
-      messageText: 'Invalid conformance exemtpion list',
+      messageText: 'Invalid exemtpion list',
     });
     return errors;
   }
@@ -57,11 +97,11 @@ export function parseConformanceExemptionConfig(
   if (!ts.isObjectLiteralExpression(jsonObj)) {
     errors.push(getDiagnosticErrorFromJsonNode(
         jsonObj, jsonSourceFile,
-        'Conformance exemption configuration requires a value of type object'));
+        'Exemption configuration requires a value of type object'));
     return errors;
   }
 
-  const conformanceExemption: ExemptionList = new Map();
+  const exemption = new ExemptionList();
   const baseDir = path.dirname(exemptionConfigPath);
 
   for (const prop of jsonObj.properties) {
@@ -86,8 +126,7 @@ export function parseConformanceExemptionConfig(
     if (!ts.isArrayLiteralExpression(prop.initializer)) {
       errors.push(getDiagnosticErrorFromJsonNode(
           prop.initializer, jsonSourceFile,
-          `Conformance exemption entry '${
-              ruleName}' requires a value of type Array`));
+          `Exemption entry '${ruleName}' requires a value of type Array`));
       continue;
     }
 
@@ -97,19 +136,18 @@ export function parseConformanceExemptionConfig(
       if (!ts.isStringLiteral(elem)) {
         errors.push(getDiagnosticErrorFromJsonNode(
             elem, jsonSourceFile,
-            `Item of conformance exemption entry '${
+            `Item of exemption entry '${
                 ruleName}' requires values of type string`));
         continue;
       }
       fileNames.push(path.resolve(baseDir, elem.text));
     }
 
-
-    conformanceExemption.set(ruleName, {
+    exemption.set(ruleName, {
       reason: ExemptionReason.UNSPECIFIED,
       prefix: fileNames,
     });
   }
 
-  return errors.length > 0 ? errors : conformanceExemption;
+  return errors.length > 0 ? errors : exemption;
 }

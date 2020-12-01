@@ -16,7 +16,7 @@ import {ENABLED_RULES} from './rule_groups';
 import {Checker} from './third_party/tsetse/checker';
 import * as ts from 'typescript';
 
-import {createEmptyExemptionList, ExemptionList} from './exemption_config';
+import {ExemptionList, getExemptionConfigPath, parseExemptionConfig} from './exemption_config';
 import {createDiagnosticsReporter} from './report';
 
 /** Check if tsec is invoked in the build mode. */
@@ -30,18 +30,32 @@ export function isInBuildMode(cmdArgs: string[]) {
   return false;
 }
 
-/** Perform conformance checks on a single project. */
-export function performConformanceCheck(
-    program: ts.Program, conformanceExemptionConfig: ExemptionList,
+/** Perform security checks on a single project. */
+export function performCheck(
+    program: ts.Program,
     includePreEmitDiagnostics: boolean = true): ts.Diagnostic[] {
   const diagnostics =
       includePreEmitDiagnostics ? [...ts.getPreEmitDiagnostics(program)] : [];
 
+  let exemptionList: ExemptionList|undefined = undefined;
+
+  const exemptionConfigPath =
+      getExemptionConfigPath(program.getCompilerOptions());
+
+  if (exemptionConfigPath) {
+    const projExemptionConfigOrErr = parseExemptionConfig(exemptionConfigPath);
+    if (projExemptionConfigOrErr instanceof ExemptionList) {
+      exemptionList = projExemptionConfigOrErr;
+    } else {
+      diagnostics.push(...projExemptionConfigOrErr);
+    }
+  }
+
   // Create all enabled rules with corresponding exemption list entries.
-  const conformanceChecker = new Checker(program);
-  const conformanceRules = ENABLED_RULES.map(ruleCtr => {
+  const checker = new Checker(program);
+  const rules = ENABLED_RULES.map(ruleCtr => {
     const allowlistEntries = [];
-    const allowlistEntry = conformanceExemptionConfig.get(ruleCtr.RULE_NAME);
+    const allowlistEntry = exemptionList?.get(ruleCtr.RULE_NAME);
     if (allowlistEntry) {
       allowlistEntries.push(allowlistEntry);
     }
@@ -49,24 +63,24 @@ export function performConformanceCheck(
   });
 
   // Register all rules.
-  for (const rule of conformanceRules) {
-    rule.register(conformanceChecker);
+  for (const rule of rules) {
+    rule.register(checker);
   }
 
-  // Run all enabled conformance checks and collect errors.
+  // Run all enabled checks and collect errors.
   for (const sf of program.getSourceFiles()) {
     // We don't emit errors for delcarations, so might as well skip checking
     // declaration files all together.
     if (sf.isDeclarationFile) continue;
-    const conformanceDiagErr = conformanceChecker.execute(sf).map(
+    const tsecErrors = checker.execute(sf).map(
         failure => failure.toDiagnosticWithStringifiedFixes());
-    diagnostics.push(...conformanceDiagErr);
+    diagnostics.push(...tsecErrors);
   }
 
   return diagnostics;
 }
 
-/** Perform conformance checks on a monorepo. */
+/** Perform checks on a monorepo. */
 export function performBuild(args: string[]): number {
   // This is an internal interface used by the TS compiler.
   interface ParsedBuildCommand {
@@ -104,43 +118,43 @@ export function performBuild(args: string[]): number {
   // tslint:disable-next-line:ban-module-namespace-object-escape
   (ts as {version: string}).version += '-tsec';
 
-  const nonConformanceErrors: ts.Diagnostic[] = [];
+  const nonTsecErrors: ts.Diagnostic[] = [];
   const builderHost = ts.createSolutionBuilderHost(
       ts.sys,
       /*createProgram*/ undefined,
       // Suppress the reporting of pre-emit diagnostics. We will report them
-      // with conformance errors together at the end of the build.
+      // with errors together at the end of the build.
       /*reportDiagnostic*/
       diag => {
-        nonConformanceErrors.push(diag);
+        nonTsecErrors.push(diag);
       },
       /*reportSolutionBuilderStatus*/ undefined,
       // Suppress the reporting of error summary. We will report it later.
       /*reportErrorSummary*/ () => {},
   );
 
-  const conformanceErrors: ts.Diagnostic[] = [];
+  const tsecErrors: ts.Diagnostic[] = [];
   // So far, `afterProgramEmitAndDiagnostics` is the only known API that allows
-  // us to hook a callback. Therefore, we can only perform conformance checks
+  // us to hook a callback. Therefore, we can only perform security checks
   // after code emission. See b/174168274.
   builderHost.afterProgramEmitAndDiagnostics = (builder) => {
-    conformanceErrors.push(...performConformanceCheck(
-        builder.getProgram(), createEmptyExemptionList(),
+    tsecErrors.push(...performCheck(
+        builder.getProgram(),
         /*includePreEmitDiagnostics*/ false));
   };
   const builder = ts.createSolutionBuilder(builderHost, projects, buildOptions);
   buildOptions['clean'] ? builder.clean() : builder.build();
 
   const freshDate = new Date();
-  // Since we do conformance checks after code emission, conformance errors do
+  // Since tsec does checks after code emission, security errors do
   // not prevent JS code from being emitted (if there are no other errors in
   // the TS source file). Therefore, for those TS source files, we need to
   // update their freshness to make sure they will still be built next time.
   // TODO(b/174168274): The ideal solution is to find a better API to insert
-  // our conformance check callback.
-  for (const error of conformanceErrors) {
+  // security check callback.
+  for (const error of tsecErrors) {
     const sourceFile = error.file;
-    // If `error.source` is undefined, it is not a conformance error.
+    // If `error.source` is undefined, it is not a tsec error.
     if (error.source && sourceFile) {
       builderHost.setModifiedTime(sourceFile.fileName, freshDate);
     }
@@ -148,8 +162,8 @@ export function performBuild(args: string[]): number {
 
   return reportDiagnostics(
       [
-        ...nonConformanceErrors,
-        ...conformanceErrors,
+        ...nonTsecErrors,
+        ...tsecErrors,
       ],
       /*withSummary*/ true);
 }
