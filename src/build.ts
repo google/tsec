@@ -16,7 +16,7 @@ import {ENABLED_RULES} from './rule_groups';
 import {Checker} from './third_party/tsetse/checker';
 import * as ts from 'typescript';
 
-import {ExemptionList, getExemptionConfigPath, parseExemptionConfig} from './exemption_config';
+import {ExemptionList, parseExemptionConfig, resolveExemptionConfigPath} from './exemption_config';
 import {createDiagnosticsReporter} from './report';
 import {createProxy} from './utils';
 
@@ -35,8 +35,8 @@ export function isInBuildMode(cmdArgs: string[]) {
 export function performCheck(program: ts.Program): ts.Diagnostic[] {
   let exemptionList: ExemptionList|undefined = undefined;
 
-  const exemptionConfigPath =
-      getExemptionConfigPath(program.getCompilerOptions());
+  const exemptionConfigPath = resolveExemptionConfigPath(
+      program.getCompilerOptions()['configFilePath'] as string);
 
   const diagnostics = [];
 

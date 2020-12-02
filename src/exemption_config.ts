@@ -48,24 +48,32 @@ export class ExemptionList {
 }
 
 /** Get the path of the exemption configuration file from compiler options. */
-export function getExemptionConfigPath(options: ts.CompilerOptions): string|
+export function resolveExemptionConfigPath(configFilePath: string): string|
     undefined {
-  if (options['configFilePath'] === undefined ||
-      options['plugins'] === undefined) {
-    return undefined;
+  const {config} = ts.readConfigFile(configFilePath, ts.sys.readFile);
+  const options = config?.compilerOptions;
+
+  const configFileDir = path.dirname(configFilePath);
+
+  if (Array.isArray(options.plugins)) {
+    for (const plugin of options.plugins as ts.PluginImport[]) {
+      if (plugin.name !== 'tsec') continue;
+      const {exemptionConfig} = plugin as {exemptionConfig?: unknown};
+      if (typeof exemptionConfig === 'string') {
+        // Path of the exemption config is relative to the path of
+        // tsconfig.json. Resolve it to the absolute path.
+        const resolvedPath = path.resolve(configFileDir, exemptionConfig);
+        // Always returned a path to an existing file so that tsec won't crash.
+        if (ts.sys.fileExists(resolvedPath)) {
+          return resolvedPath;
+        }
+      }
+    }
   }
 
-  // Read the "exemptionConfig" field from the language service plugin options.
-  for (const plugin of options['plugins'] as ts.PluginImport[]) {
-    if (plugin.name !== 'tsec') continue;
-
-    const {exemptionConfig} = plugin as {exemptionConfig?: unknown};
-    if (typeof exemptionConfig === 'string') {
-      // Path of the exemption config is relative to the path of tsconfig.json.
-      // Resolve it to the absolute path.
-      const projectPath = path.dirname(options['configFilePath'] as string);
-      return path.resolve(projectPath, exemptionConfig);
-    }
+  if (config.extends) {
+    return resolveExemptionConfigPath(
+        path.resolve(configFileDir, config.extends as string));
   }
 
   return undefined;
