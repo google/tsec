@@ -22,23 +22,7 @@ import {Checker} from './third_party/tsetse/checker';
 import {ErrorCode} from './third_party/tsetse/error_code';
 import {DiagnosticWithFixes} from './third_party/tsetse/failure';
 import * as ts from 'typescript/lib/tsserverlibrary';
-
-/**
- * The proxy design pattern, allowing us to customize behavior of the delegate
- * object.
- * This creates a property-by-property copy of the functions of the object, so
- * it can be mutated without affecting other users of the original object. See
- * https://en.wikipedia.org/wiki/Proxy_pattern
- */
-function createProxy<T>(delegate: T): T {
-  const proxy = Object.create(null);
-  for (const [key, value] of Object.entries(delegate)) {
-    if (typeof value === 'function') {
-      proxy[key] = (...args: unknown[]) => value.apply(delegate, args);
-    }
-  }
-  return proxy;
-}
+import {createProxy} from './utils';
 
 function diagnosticToCodeFixActions(d: DiagnosticWithFixes):
     ts.CodeFixAction[] {
