@@ -16,8 +16,6 @@ import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/util/allowli
 import * as path from 'path';
 import * as ts from 'typescript';
 
-import {getDiagnosticErrorFromJsonNode} from './tsconfig';
-
 /**
  * Stores exemption list configurations by rules. Supports commonly used Map
  * operations.
@@ -84,6 +82,23 @@ export function resolveExemptionConfigPath(configFilePath: string): string|
   }
 
   return undefined;
+}
+
+/** Create a Diagnostic for a JSON node from a configuration file */
+function getDiagnosticErrorFromJsonNode(
+    node: ts.Node, file: ts.JsonSourceFile,
+    messageText: string): ts.Diagnostic {
+  const start = node.getStart(file);
+  const length = node.getEnd() - start;
+  return {
+    source: 'tsec',
+    category: ts.DiagnosticCategory.Error,
+    code: 21110,
+    file,
+    start,
+    length,
+    messageText,
+  };
 }
 
 /** Parse the content of the exemption configuration file. */

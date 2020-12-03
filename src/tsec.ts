@@ -17,7 +17,6 @@ import * as ts from 'typescript';
 
 import {isInBuildMode, performBuild, performCheck} from './build';
 import {createDiagnosticsReporter, FORMAT_DIAGNOSTIC_HOST} from './report';
-import {ExtendedParsedCommandLine, parseTsConfigFile} from './tsconfig';
 
 /**
  * A simple tsc wrapper that runs TSConformance checks over the source files
@@ -28,7 +27,7 @@ function main(args: string[]) {
     return performBuild(args.slice(1)) === 0 ? 0 : 1;
   }
 
-  let parsedConfig: ExtendedParsedCommandLine = ts.parseCommandLine(args);
+  let parsedConfig = ts.parseCommandLine(args);
   if (parsedConfig.errors.length !== 0) {
     // Same as tsc, do not emit colorful diagnostic texts for command line
     // parsing errors.
@@ -55,8 +54,8 @@ function main(args: string[]) {
         ts.sys.exit(1);
       }
     };
-    parsedConfig = parseTsConfigFile(
-        tsConfigFilePath, parsedConfig.options, parseConfigFileHost);
+    parsedConfig = ts.getParsedCommandLineOfConfigFile(
+        tsConfigFilePath, parsedConfig.options, parseConfigFileHost)!;
   }
 
   const diagnostics = [...parsedConfig.errors];
