@@ -60,7 +60,7 @@ export function resolveExemptionConfigPath(configFilePath: string): string|
 
   const configFileDir = path.dirname(configFilePath);
 
-  if (Array.isArray(options.plugins)) {
+  if (Array.isArray(options?.plugins)) {
     for (const plugin of options.plugins as ts.PluginImport[]) {
       if (plugin.name !== 'tsec') continue;
       const {exemptionConfig} = plugin as {exemptionConfig?: unknown};
