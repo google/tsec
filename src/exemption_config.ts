@@ -50,6 +50,13 @@ export class ExemptionList {
 /** Get the path of the exemption configuration file from compiler options. */
 export function resolveExemptionConfigPath(configFilePath: string): string|
     undefined {
+  if (!ts.sys.fileExists(configFilePath)) {
+    configFilePath += ts.Extension.Json;
+    if (!ts.sys.fileExists(configFilePath)) {
+      return undefined;
+    }
+  }
+
   const {config} = ts.readConfigFile(configFilePath, ts.sys.readFile);
   const options = config?.compilerOptions;
 
@@ -80,12 +87,11 @@ export function resolveExemptionConfigPath(configFilePath: string): string|
 }
 
 /** Parse the content of the exemption configuration file. */
-export function parseExemptionConfig(
-    exemptionConfigPath: string,
-    host: ts.ParseConfigHost = ts.sys): ExemptionList|ts.Diagnostic[] {
+export function parseExemptionConfig(exemptionConfigPath: string):
+    ExemptionList|ts.Diagnostic[] {
   const errors: ts.Diagnostic[] = [];
 
-  const jsonContent = host.readFile(exemptionConfigPath)!;
+  const jsonContent = ts.sys.readFile(exemptionConfigPath)!;
   const jsonSourceFile = ts.parseJsonText(exemptionConfigPath, jsonContent);
 
   if (!jsonSourceFile.statements.length) {
