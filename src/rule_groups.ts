@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import {AbstractRule} from './third_party/tsetse/rule';
-import {RuleConfiguration} from './rule_configuration';
 
+import {RuleConfiguration} from './rule_configuration';
 import {Rule as TTBanBaseHrefAssignments} from './conformance_rules/ban_base_href_assignments';
 import {Rule as TTBanDocumentWriteCalls} from './conformance_rules/ban_document_write_calls';
 import {Rule as TTBanDocumentWritelnCalls} from './conformance_rules/ban_document_writeln_calls';
