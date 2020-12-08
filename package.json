@@ -7,10 +7,9 @@
     "tsec": "bin/tsec"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "tsc",
-    "build": "npm run tsc",
-    "postinstall": "npm run build"
+    "build": "yarn tsc -p ./tsconfig.json --incremental",
+    "prepare": "yarn build",
+    "postinstall": "yarn build || exit 0"
   },
   "author": "Google ISE Hardening Team",
   "license": "Apache-2.0",
