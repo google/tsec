@@ -14,6 +14,7 @@ ban-element-srcdoc-assignments    | Assignments to `.srcdoc` on <iframe>
 ban-script-appendchild-calls      | Calls to `.appendChild` on <script>
 ban-script-content-assignments    | Assignments to `.text` and .textContent on <script>
 ban-script-src-assignments        | Assignments to `.src` on <script>
+ban-shared-worker-calls           | Calls to the constructor of `SharedWorker`
 ban-worker-calls                  | Calls to the constructor of `Worker`
 ban-window-stringfunctiondef      | Calls to `setInternal` and `setTimeout` with strings as the first argument
 ban-trustedtypes-createpolicy     | Calls to `TrustedTypePolicyFactory.createPolicy`
