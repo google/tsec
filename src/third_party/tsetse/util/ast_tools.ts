@@ -55,12 +55,19 @@ export function findInChildren(
   return false;
 }
 
+function isOnRHSOfInstanceOf(n: ts.Node) {
+  return n.parent && ts.isBinaryExpression(n.parent) && n.parent.right === n &&
+      n.parent.operatorToken.kind === ts.SyntaxKind.InstanceOfKeyword;
+}
+
 /**
  * Returns true if the pattern-based Rule should look at that node and consider
  * warning there.
  */
 export function shouldExamineNode(n: ts.Node) {
-  return !((n.parent && ts.isTypeNode(n.parent)) || isInStockLibraries(n));
+  return !(
+      (n.parent && ts.isTypeNode(n.parent)) || isOnRHSOfInstanceOf(n) ||
+      isInStockLibraries(n));
 }
 
 /**
@@ -73,8 +80,8 @@ export function isInStockLibraries(n: ts.Node|ts.SourceFile): boolean {
   if (sourceFile) {
     return sourceFile.fileName.indexOf('node_modules/typescript/') !== -1;
   } else {
-    // the node is nowhere? Consider it as part of the core libs: we can't do
-    // anything with it anyways, and it was likely included as default.
+    // the node is nowhere? Consider it as part of the core libs: we can't
+    // do anything with it anyways, and it was likely included as default.
     return true;
   }
 }
