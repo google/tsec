@@ -5,7 +5,7 @@
     "target": "ES2015",
     "outDir": "lib",
     "types": [
-      "node"
+      "node", "glob"
     ],
     "lib": [
       "dom",

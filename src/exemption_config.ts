@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import * as glob from 'glob';
 import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/util/allowlist';
 import * as path from 'path';
 import * as ts from 'typescript';
@@ -132,6 +133,7 @@ export function parseExemptionConfig(exemptionConfigPath: string):
 
   const exemption = new ExemptionList();
   const baseDir = path.dirname(exemptionConfigPath);
+  const globOptions = {cwd: baseDir, absolute: true, silent: true};
 
   for (const prop of jsonObj.properties) {
     if (!ts.isPropertyAssignment(prop)) {
@@ -159,7 +161,7 @@ export function parseExemptionConfig(exemptionConfigPath: string):
       continue;
     }
 
-    const fileNames = [];
+    const fileNames: string[] = [];
 
     for (const elem of prop.initializer.elements) {
       if (!ts.isStringLiteral(elem)) {
@@ -169,7 +171,11 @@ export function parseExemptionConfig(exemptionConfigPath: string):
                 ruleName}' requires values of type string`));
         continue;
       }
-      fileNames.push(path.resolve(baseDir, elem.text));
+      if (glob.hasMagic(elem.text, globOptions)) {
+        fileNames.push(...glob.sync(elem.text, globOptions));
+      } else {
+        fileNames.push(path.resolve(baseDir, elem.text));
+      }
     }
 
     exemption.set(ruleName, {

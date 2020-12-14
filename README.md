@@ -196,6 +196,15 @@ You can exempt it by creating an `exemption_list.json` file along side your
 Make sure you have the entry `json "conformanceExemptionPath":
 "./exemption_list.json"` added in your `tsconfig.json`.
 
+The exemption list supports the glob syntax. For example, if you want to
+completely disable a check, you can write:
+
+```json
+{
+  "ban-element-innerhtml-assignments": ["**/*.ts"]
+}
+```
+
 *Note that exemptions are granted at the file granularity. If you exempt a file
 from a rule, all violations in that file will be exempted.*
 
