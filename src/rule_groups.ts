@@ -18,6 +18,7 @@ import {RuleConfiguration} from './rule_configuration';
 import {Rule as TTBanBaseHrefAssignments} from './conformance_rules/ban_base_href_assignments';
 import {Rule as TTBanDocumentWriteCalls} from './conformance_rules/ban_document_write_calls';
 import {Rule as TTBanDocumentWritelnCalls} from './conformance_rules/ban_document_writeln_calls';
+import {Rule as TTBanDomParserParseFromString} from './conformance_rules/ban_domparser_parsefromstring';
 import {Rule as TTBanElementInnerHTMLAssignments} from './conformance_rules/ban_element_innerhtml_assignments';
 import {Rule as TTBanElementOuterHTMLAssignments} from './conformance_rules/ban_element_outerhtml_assignments';
 import {Rule as TTBanElementSrcdocAssignments} from './conformance_rules/ban_element_srcdoc_assignments';
@@ -56,6 +57,7 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanElementOuterHTMLAssignments,
   TTBanElementInnerHTMLAssignments,
   TTBanElementSrcdocAssignments,
+  TTBanDomParserParseFromString,
 ];
 
 /** Conformance rules that should be registered by the check runner */
