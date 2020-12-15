@@ -7,13 +7,14 @@
     "types": [
       "node", "glob"
     ],
+    "typeRoots": [
+      "./node_modules/@types"
+    ],
     "lib": [
       "dom",
-      "es5",
-      "es2015.core",
-      "es2015.collection"
-    ],
-    "sourceMap": true
+      "es2015",
+      "es2017.object"
+    ]
   },
   "exclude": [
     "node_modules"
