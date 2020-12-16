@@ -27,6 +27,7 @@ import {Rule as TTBanFunctionCalls} from './conformance_rules/ban_function_calls
 import {Rule as TTBanScriptAppendChildCalls} from './conformance_rules/ban_script_appendchild_calls';
 import {Rule as TTBanScriptContentAssignments} from './conformance_rules/ban_script_content_assignments';
 import {Rule as TTBanScriptSrcAssignments} from './conformance_rules/ban_script_src_assignments';
+import {Rule as TTBanSharedWorkerCalls} from './conformance_rules/ban_shared_worker_calls';
 import {Rule as TTBanTrustedTypesCreatepolicy} from './conformance_rules/ban_trustedtypes_createpolicy';
 import {Rule as TTBanWindowStringfunctiondef} from './conformance_rules/ban_window_stringfunctiondef';
 import {Rule as TTBanWorkerCalls} from './conformance_rules/ban_worker_calls';
@@ -51,6 +52,7 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanScriptAppendChildCalls,
   TTBanScriptContentAssignments,
   TTBanScriptSrcAssignments,
+  TTBanSharedWorkerCalls,
   TTBanTrustedTypesCreatepolicy,
   TTBanWindowStringfunctiondef,
   TTBanWorkerCalls,
