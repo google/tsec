@@ -13,23 +13,24 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
+import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
 import {RuleConfiguration} from '../rule_configuration';
 
 let errMsg =
-    'Using DOMParser#parseFromString() can lead to create a document from non safe HTML and further lead to XSS.';
+    'Using DOMParser#parseFromString to parse untrusted input into DOM elements can lead to XSS.';
 
 /** A rule that bans any use of DOMParser.prototype.parseFromString. */
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-domparser-parsefromstring';
 
   constructor(configuration: RuleConfiguration = {}) {
-    super({
+    super(overridePatternConfig({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_PROPERTY,
       values: ['DOMParser.prototype.parseFromString'],
       name: Rule.RULE_NAME,
       ...configuration,
-    });
+    }));
   }
 }
