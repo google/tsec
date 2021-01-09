@@ -40,9 +40,14 @@ function main(args: string[]) {
   // must be a configuration file that tells the compiler what to do. Try
   // looking for this file and parse it.
   if (parsedConfig.fileNames.length === 0) {
-    const tsConfigFilePath = ts.findConfigFile(
-        parsedConfig.options.project ?? '.', ts.sys.fileExists);
+    let tsConfigFilePath: string|undefined = parsedConfig.options.project;
     if (tsConfigFilePath === undefined) {
+      tsConfigFilePath = ts.findConfigFile('.', ts.sys.fileExists);
+    } else if (ts.sys.directoryExists(tsConfigFilePath)) {
+      tsConfigFilePath = path.resolve(tsConfigFilePath, 'tsconfig.json');
+    }
+    if (tsConfigFilePath === undefined ||
+        !ts.sys.fileExists(tsConfigFilePath)) {
       ts.sys.write('tsec: Cannot find project configuration.');
       ts.sys.write(ts.sys.newLine);
       return 1;
