@@ -9,9 +9,6 @@ checks on the codebase's compatibility with
 tsec supports most compilation flags as tsc does. For code pattern patterns that
 is potentially incompatible with Trusted Types, tsec emits compilation errors.
 
-tsec is based on the open source TypeScript static analyzer
-[tsetse](https://tsetse.info/).
-
 ## Supported checks
 
 tsec perform a basket of security checks to find possible XSS issues in your
