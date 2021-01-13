@@ -1,22 +1,37 @@
 {
   "name": "tsec",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.1.0",
+  "description": "Extended TypeScript compiler checking Trusted Types compatibility.",
+  "author": "Google ISE Hardening Team",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/googleinterns/tsec",
+  "bugs": {
+    "url": "https://github.com/googleinterns/tsec/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/googleinterns/tsec.git"
+  },
   "main": "lib/language_service_plugin.js",
   "bin": {
     "tsec": "bin/tsec"
   },
   "scripts": {
-    "build": "yarn tsc -p ./tsconfig.json --incremental",
-    "prepare": "yarn build",
-    "postinstall": "yarn build || exit 0"
+    "build": "yarn tsc -p ./tsconfig.json",
+    "clean": "yarn rimraf ./lib",
+    "prepublishOnly": "yarn clean && yarn build",
+    "postinstall": "yarn build"
   },
-  "author": "Google ISE Hardening Team",
-  "license": "Apache-2.0",
-  "dependencies": {
-    "typescript": "^4.1.2",
-    "glob": "^7.1.1",
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
     "@types/node": "^13.13.5",
-    "@types/glob": "^7.1.1"
+    "rimraf": "^3.0.2",
+    "typescript": "^3.9.2"
+  },
+  "dependencies": {
+    "glob": "^7.1.1"
+  },
+  "peerDependencies": {
+    "typescript": ">=3.9.2"
   }
 }
