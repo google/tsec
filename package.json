@@ -19,8 +19,8 @@
   "scripts": {
     "build": "yarn tsc -p ./tsconfig.json",
     "clean": "yarn rimraf ./lib",
-    "prepublishOnly": "yarn clean && yarn build",
-    "postinstall": "yarn build"
+    "prepublishOnly": "yarn clean",
+    "prepare": "yarn build"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
