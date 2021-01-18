@@ -4,13 +4,13 @@
   "description": "Extended TypeScript compiler checking Trusted Types compatibility.",
   "author": "Google ISE Hardening Team",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/googleinterns/tsec",
+  "homepage": "https://github.com/google/tsec",
   "bugs": {
-    "url": "https://github.com/googleinterns/tsec/issues"
+    "url": "https://github.com/google/tsec/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/googleinterns/tsec.git"
+    "url": "https://github.com/google/tsec.git"
   },
   "main": "lib/language_service_plugin.js",
   "bin": {

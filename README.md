@@ -20,27 +20,22 @@ of the Trusted Types sinks that are enforced by the browser. See
 [here](docs/supported-checks.md) for the complete list of available checks. We
 will be adding the missing ones soon.
 
-## Build and run
+## Run
 
-### Build
+First add tsec as a dev dependency of your TypeScript project.
 
 ```
-  # Clone the repository
-  git clone https://github.com/googleinterns/tsec
-  cd tsec
-
-  # Install dependencies
-  npm install
-
-  # Build
-  npm run build
+  yarn add tsec --dev
 ```
 
-### Run
+Then choose the right configuration file to build the project with tsec and
+check its Trusted Types compatibility.
 
-To run a check for the compatibility with Trusted Types in the project
-containing `tsconfig.json` use: `{PATH_TO_TSEC}/bin/tsec -p tsconfig.json` Add
-`--noEmit` flag to skip emitting JS code from compilation.
+```
+  yarn tsec -p tsconfig.json
+```
+
+Add `--noEmit` flag to skip emitting JS code from compilation.
 
 ## Trusted Type awareness in tsec rules
 
@@ -190,9 +185,6 @@ You can exempt it by creating an `exemption_list.json` file along side your
 }
 ```
 
-Make sure you have the entry `json "conformanceExemptionPath":
-"./exemption_list.json"` added in your `tsconfig.json`.
-
 The exemption list supports the glob syntax. For example, if you want to
 completely disable a check, you can write:
 
@@ -217,5 +209,4 @@ tsec source file.
 
 ## Contributing
 
-See
-[CONTRIBUTING.md](https://github.com/googleinterns/tsec/blob/master/CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
