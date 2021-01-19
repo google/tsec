@@ -1,6 +1,6 @@
 {
   "name": "tsec",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Extended TypeScript compiler checking Trusted Types compatibility.",
   "author": "Google ISE Hardening Team",
   "license": "Apache-2.0",
@@ -19,8 +19,7 @@
   "scripts": {
     "build": "yarn tsc -p ./tsconfig.json",
     "clean": "yarn rimraf ./lib",
-    "prepublishOnly": "yarn clean",
-    "prepare": "yarn build"
+    "prepublishOnly": "yarn clean && yarn build"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
