@@ -110,18 +110,27 @@ export class AbsoluteMatcher {
 
     debugLog(() => `start matching ${n.getText()} in ${p?.getText()}`);
 
-    // Check if the node is being declared. Declaration may be imported without
-    // programmer being aware of. We should not alert them about that.
-    // Since import statments are also declarations, this have two notable
-    // consequences.
-    // - Match is negative for imports without renaming
-    // - Match is positive for imports with renaming, when the imported name
-    //   is the target. Since Tsetse is flow insensitive and we don't track
-    //   symbol aliases, the import statement is the only place we can match
-    //   bad symbols if they get renamed.
-    if (p && isAllowlistedNamedDeclaration(p) && p.name === n) {
-      debugLog(() => `We don't flag symbol declarations`);
-      return false;
+    if (p !== undefined) {
+      // Do not match global symbols appearing on the LHS of an assignment
+      // expression. This avoids false positives in polyfill code.
+      if (this.filePath === GLOBAL && ts.isBinaryExpression(p) &&
+          p.left === n && p.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+        return false;
+      }
+
+      // Check if the node is being declared. Declaration may be imported
+      // without programmer being aware of. We should not alert them about that.
+      // Since import statments are also declarations, this have two notable
+      // consequences.
+      // - Match is negative for imports without renaming
+      // - Match is positive for imports with renaming, when the imported name
+      //   is the target. Since Tsetse is flow insensitive and we don't track
+      //   symbol aliases, the import statement is the only place we can match
+      //   bad symbols if they get renamed.
+      if (isAllowlistedNamedDeclaration(p) && p.name === n) {
+        debugLog(() => `We don't flag symbol declarations`);
+        return false;
+      }
     }
 
     // Get the symbol (or the one at the other end of this alias) that we're
