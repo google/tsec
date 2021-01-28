@@ -45,7 +45,7 @@ export function findInChildren(
     n: ts.Node, test: (n: ts.Node) => boolean): boolean {
   let toExplore: ts.Node[] = [n];
   let cur: ts.Node|undefined;
-  while (cur = toExplore.pop()) {
+  while ((cur = toExplore.pop())) {
     if (test(cur)) {
       return true;
     }
