@@ -111,13 +111,6 @@ export class AbsoluteMatcher {
     debugLog(() => `start matching ${n.getText()} in ${p?.getText()}`);
 
     if (p !== undefined) {
-      // Do not match global symbols appearing on the LHS of an assignment
-      // expression. This avoids false positives in polyfill code.
-      if (this.filePath === GLOBAL && ts.isBinaryExpression(p) &&
-          p.left === n && p.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
-        return false;
-      }
-
       // Check if the node is being declared. Declaration may be imported
       // without programmer being aware of. We should not alert them about that.
       // Since import statments are also declarations, this have two notable
