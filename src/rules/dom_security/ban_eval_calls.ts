@@ -12,24 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
-import {RuleConfiguration} from '../rule_configuration';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
+import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 
-let errMsg =
-    'Using DOMParser#parseFromString to parse untrusted input into DOM elements can lead to XSS.';
+import {RuleConfiguration} from '../../rule_configuration';
 
-/** A rule that bans any use of DOMParser.prototype.parseFromString. */
+let errMsg = 'Do not use eval, as this can lead to XSS.';
+
+/**
+ * A Rule that looks for refereces to the built-in eval() and window.eval()
+ * methods. window.eval performs an indirect call to eval(), so a single check
+ * for eval() bans both calls.
+ */
 export class Rule extends ConformancePatternRule {
-  static readonly RULE_NAME = 'ban-domparser-parsefromstring';
+  static readonly RULE_NAME = 'ban-eval-calls';
 
   constructor(configuration: RuleConfiguration = {}) {
     super(overridePatternConfig({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
-      kind: PatternKind.BANNED_PROPERTY,
-      values: ['DOMParser.prototype.parseFromString'],
+      kind: PatternKind.BANNED_NAME,
+      values: ['GLOBAL|eval'],
       name: Rule.RULE_NAME,
+      allowedTrustedType: TRUSTED_SCRIPT,
       ...configuration,
     }));
   }

@@ -12,28 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {RuleConfiguration} from '../rule_configuration';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
+import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
-    'Do not modify HTMLBaseElement#href elements, as this can compromise all other efforts to sanitize unsafe URLs and lead to XSS.';
+    'Using DOMParser#parseFromString to parse untrusted input into DOM elements can lead to XSS.';
 
-/**
- * A Rule that looks for dynamic assignments to HTMLBaseElement#href property.
- * With this property modified, every URL in the page becomes unsafe.
- * Developers should avoid writing to this property.
- */
+/** A rule that bans any use of DOMParser.prototype.parseFromString. */
 export class Rule extends ConformancePatternRule {
-  static readonly RULE_NAME = 'ban-base-href-assignments';
+  static readonly RULE_NAME = 'ban-domparser-parsefromstring';
 
   constructor(configuration: RuleConfiguration = {}) {
-    super({
+    super(overridePatternConfig({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
-      kind: PatternKind.BANNED_PROPERTY_WRITE,
-      values: ['HTMLBaseElement.prototype.href'],
+      kind: PatternKind.BANNED_PROPERTY,
+      values: ['DOMParser.prototype.parseFromString'],
       name: Rule.RULE_NAME,
-      ...configuration
-    });
+      ...configuration,
+    }));
   }
 }

@@ -15,22 +15,24 @@
 import {AbstractRule} from './third_party/tsetse/rule';
 
 import {RuleConfiguration} from './rule_configuration';
-import {Rule as TTBanBaseHrefAssignments} from './conformance_rules/ban_base_href_assignments';
-import {Rule as TTBanDocumentWriteCalls} from './conformance_rules/ban_document_write_calls';
-import {Rule as TTBanDocumentWritelnCalls} from './conformance_rules/ban_document_writeln_calls';
-import {Rule as TTBanDomParserParseFromString} from './conformance_rules/ban_domparser_parsefromstring';
-import {Rule as TTBanElementInnerHTMLAssignments} from './conformance_rules/ban_element_innerhtml_assignments';
-import {Rule as TTBanElementOuterHTMLAssignments} from './conformance_rules/ban_element_outerhtml_assignments';
-import {Rule as TTBanElementSrcdocAssignments} from './conformance_rules/ban_element_srcdoc_assignments';
-import {Rule as TTBanEvalCalls} from './conformance_rules/ban_eval_calls';
-import {Rule as TTBanFunctionCalls} from './conformance_rules/ban_function_calls';
-import {Rule as TTBanScriptAppendChildCalls} from './conformance_rules/ban_script_appendchild_calls';
-import {Rule as TTBanScriptContentAssignments} from './conformance_rules/ban_script_content_assignments';
-import {Rule as TTBanScriptSrcAssignments} from './conformance_rules/ban_script_src_assignments';
-import {Rule as TTBanSharedWorkerCalls} from './conformance_rules/ban_shared_worker_calls';
-import {Rule as TTBanTrustedTypesCreatepolicy} from './conformance_rules/ban_trustedtypes_createpolicy';
-import {Rule as TTBanWindowStringfunctiondef} from './conformance_rules/ban_window_stringfunctiondef';
-import {Rule as TTBanWorkerCalls} from './conformance_rules/ban_worker_calls';
+import {Rule as TTBanBaseHrefAssignments} from './rules/dom_security/ban_base_href_assignments';
+import {Rule as TTBanDocumentWriteCalls} from './rules/dom_security/ban_document_write_calls';
+import {Rule as TTBanDocumentWritelnCalls} from './rules/dom_security/ban_document_writeln_calls';
+import {Rule as TTBanDomParserParseFromString} from './rules/dom_security/ban_domparser_parsefromstring';
+import {Rule as TTBanElementInnerHTMLAssignments} from './rules/dom_security/ban_element_innerhtml_assignments';
+import {Rule as TTBanElementOuterHTMLAssignments} from './rules/dom_security/ban_element_outerhtml_assignments';
+import {Rule as TTBanElementSrcdocAssignments} from './rules/dom_security/ban_element_srcdoc_assignments';
+import {Rule as TTBanEvalCalls} from './rules/dom_security/ban_eval_calls';
+import {Rule as TTBanFunctionCalls} from './rules/dom_security/ban_function_calls';
+import {Rule as TTBanScriptAppendChildCalls} from './rules/dom_security/ban_script_appendchild_calls';
+import {Rule as TTBanScriptContentAssignments} from './rules/dom_security/ban_script_content_assignments';
+import {Rule as TTBanScriptSrcAssignments} from './rules/dom_security/ban_script_src_assignments';
+import {Rule as TTBanSharedWorkerCalls} from './rules/dom_security/ban_shared_worker_calls';
+import {Rule as TTBanTrustedTypesCreatepolicy} from './rules/dom_security/ban_trustedtypes_createpolicy';
+import {Rule as TTBanWindowStringfunctiondef} from './rules/dom_security/ban_window_stringfunctiondef';
+import {Rule as TTBanWorkerCalls} from './rules/dom_security/ban_worker_calls';
+import {Rule as BanLegacyConversions} from './rules/unsafe/ban_legacy_conversions';
+import {Rule as BanUncheckedConversions} from './rules/unsafe/ban_reviewed_conversions';
 
 /**
  * An interface unifying rules extending `AbstractRule` and those extending
@@ -60,6 +62,8 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanElementInnerHTMLAssignments,
   TTBanElementSrcdocAssignments,
   TTBanDomParserParseFromString,
+  BanLegacyConversions,
+  BanUncheckedConversions,
 ];
 
 /** Conformance rules that should be registered by the check runner */

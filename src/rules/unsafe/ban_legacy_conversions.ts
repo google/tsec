@@ -12,31 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
-import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {RuleConfiguration} from '../../rule_configuration';
 
-import {RuleConfiguration} from '../rule_configuration';
+let errMsg =
+    'Use of legacy conversions to safe values requires security reviews and approval.';
 
-let errMsg = 'Do not use eval, as this can lead to XSS.';
+let bannedValues = [
+  '/node_modules/safevalues/unsafe/legacy|legacyConversionToTrustedHTML',
+  '/node_modules/safevalues/unsafe/legacy|legacyConversionToTrustedScript',
+  '/node_modules/safevalues/unsafe/legacy|legacyConversionToTrustedScriptURL',
+];
 
-/**
- * A Rule that looks for refereces to the built-in eval() and window.eval()
- * methods. window.eval performs an indirect call to eval(), so a single check
- * for eval() bans both calls.
- */
+/** A Rule that bans the use of TS legacy conversions to safe values. */
 export class Rule extends ConformancePatternRule {
-  static readonly RULE_NAME = 'ban-eval-calls';
+  static readonly RULE_NAME = 'ban-legacy-conversions';
 
   constructor(configuration: RuleConfiguration = {}) {
-    super(overridePatternConfig({
+    super({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
+      values: bannedValues,
       kind: PatternKind.BANNED_NAME,
-      values: ['GLOBAL|eval'],
       name: Rule.RULE_NAME,
-      allowedTrustedType: TRUSTED_SCRIPT,
       ...configuration,
-    }));
+    });
   }
 }

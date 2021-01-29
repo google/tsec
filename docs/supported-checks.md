@@ -1,4 +1,4 @@
-# Supported checks
+# Checks for detecting Trusted Types violations
 
 <!-- mdformat off(compatibility with GitHub) -->
 
@@ -21,3 +21,17 @@ ban-window-stringfunctiondef      | Calls to `setInternal` and `setTimeout` with
 ban-trustedtypes-createpolicy     | Calls to `TrustedTypePolicyFactory.createPolicy`
 
 <!-- mdformat on -->
+
+# Support for the safevalues library
+
+The [safevalues](https://github.com/google/safevalues) library offers a set of
+APIs to construct Trusted Types. There are legitimate cases where these APIs are
+not expressive enough or the migration is blocked by legacy issues. The library
+offer some "unsafe" APIs to make exceptions for these cases, but uses of unsafe
+APIs should be closely monitored and documented, which can be achieved by two
+additional rules offered by tsec: "ban-legacy-conversions" and
+"ban-reviewed-conversions".
+
+Please see the safevalues
+[documentations](https://github.com/google/safevalues#reviewed-and-legacy-conversions)
+for details.

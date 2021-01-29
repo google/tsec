@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {overridePatternConfig} from '../third_party/tsetse/util/pattern_config';
-import {TRUSTED_HTML} from '../third_party/tsetse/util/trusted_types_configuration';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
+import {TRUSTED_HTML} from '../../third_party/tsetse/util/trusted_types_configuration';
 
-import {RuleConfiguration} from '../rule_configuration';
+import {RuleConfiguration} from '../../rule_configuration';
 
-let errMsg = 'Do not use Document#writeln, as this can lead to XSS.';
+let errMsg = 'Do not use Document#write, as this can lead to XSS.';
 
 /**
- * A Rule that looks for use of Document#writeln properties.
+ * A Rule that looks for use of Document#write properties.
  */
 export class Rule extends ConformancePatternRule {
-  static readonly RULE_NAME = 'ban-document-writeln-calls';
+  static readonly RULE_NAME = 'ban-document-write-calls';
 
   constructor(configuration: RuleConfiguration = {}) {
     super(
@@ -32,7 +32,7 @@ export class Rule extends ConformancePatternRule {
           errorCode: ErrorCode.CONFORMANCE_PATTERN,
           errorMessage: errMsg,
           kind: PatternKind.BANNED_PROPERTY,
-          values: ['Document.prototype.writeln'],
+          values: ['Document.prototype.write'],
           name: Rule.RULE_NAME,
           allowedTrustedType: TRUSTED_HTML,
           ...configuration,

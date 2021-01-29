@@ -23,19 +23,19 @@
  * too many false positives in this case.
  */
 
-import {Checker} from '../third_party/tsetse/checker';
-import {ErrorCode} from '../third_party/tsetse/error_code';
-import {AbstractRule} from '../third_party/tsetse/rule';
-import {AbsoluteMatcher} from '../third_party/tsetse/util/absolute_matcher';
-import {Allowlist, AllowlistEntry} from '../third_party/tsetse/util/allowlist';
-import {shouldExamineNode} from '../third_party/tsetse/util/ast_tools';
-import {isExpressionOfAllowedTrustedType} from '../third_party/tsetse/util/is_trusted_type';
-import {PropertyMatcher} from '../third_party/tsetse/util/property_matcher';
-import {TRUSTED_SCRIPT} from '../third_party/tsetse/util/trusted_types_configuration';
+import {Checker} from '../../third_party/tsetse/checker';
+import {ErrorCode} from '../../third_party/tsetse/error_code';
+import {AbstractRule} from '../../third_party/tsetse/rule';
+import {AbsoluteMatcher} from '../../third_party/tsetse/util/absolute_matcher';
+import {Allowlist, AllowlistEntry} from '../../third_party/tsetse/util/allowlist';
+import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
+import {isExpressionOfAllowedTrustedType} from '../../third_party/tsetse/util/is_trusted_type';
+import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
+import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 import * as path from 'path';
 import * as ts from 'typescript';
 
-import {RuleConfiguration} from '../rule_configuration';
+import {RuleConfiguration} from '../../rule_configuration';
 
 const BANNED_NAMES = [
   'GLOBAL|setInterval',

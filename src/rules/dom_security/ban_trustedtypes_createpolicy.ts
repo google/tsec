@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../third_party/tsetse/rules/conformance_pattern_rule';
-import {RuleConfiguration} from '../rule_configuration';
+import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg = 'Creating a Trusted Types policy requires a security review.';
 
