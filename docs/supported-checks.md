@@ -11,7 +11,7 @@ ban-domparser-parsefromstring     | Calls to `DOMParser.parseFromString`
 ban-eval-calls                    | Calls to `eval`
 ban-element-innerhtml-assignments | Assignments to `.innerHTML` on any element
 ban-element-outerhtml-assignments | Assignments to `.outerHTML` on any element
-ban-element-srcdoc-assignments    | Assignments to `.srcdoc` on <iframe>
+ban-iframe-srcdoc-assignments     | Assignments to `.srcdoc` on <iframe>
 ban-script-appendchild-calls      | Calls to `.appendChild` on <script>
 ban-script-content-assignments    | Assignments to `.text` and .textContent on <script>
 ban-script-src-assignments        | Assignments to `.src` on <script>

@@ -25,7 +25,7 @@ let errMsg =
  * A Rule that looks for assignments to an HTMLIFrameElement's srcdoc property.
  */
 export class Rule extends ConformancePatternRule {
-  static readonly RULE_NAME = 'ban-element-srcdoc-assignments';
+  static readonly RULE_NAME = 'ban-iframe-srcdoc-assignments';
   constructor(configuration: RuleConfiguration = {}) {
     super(
         overridePatternConfig({
