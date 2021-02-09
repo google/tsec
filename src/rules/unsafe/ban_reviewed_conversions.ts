@@ -19,6 +19,7 @@ let errMsg =
 
 let bannedValues = [
   '/node_modules/safevalues/unsafe/reviewed|safeHtmlFromStringKnownToSatisfyTypeContract',
+  '/node_modules/safevalues/unsafe/reviewed|trustedHTMLFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/unsafe/reviewed|trustedScriptFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/unsafe/reviewed|trustedScriptURLFromStringKnownToSatisfyTypeContract',
 ];

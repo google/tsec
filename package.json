@@ -17,14 +17,25 @@
     "tsec": "bin/tsec"
   },
   "scripts": {
-    "build": "yarn tsc -p ./tsconfig.json",
+    "build": "yarn tsc",
+    "test:update-golden": "yarn --silent ts-node test/harness.ts > test/golden.json",
+    "test": "yarn jasmine-ts --config=jasmine.json",
+    "test:coverage": "yarn nyc -e .ts -x \"test/*.ts\" jasmine-ts --config=jasmine.json",
     "clean": "yarn rimraf ./lib",
-    "prepublishOnly": "yarn clean && yarn build"
+    "prepublishOnly": "yarn clean && yarn build && yarn test"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
+    "@types/jasmine": "^3.6.3",
     "@types/node": "^13.13.5",
+    "@types/trusted-types": "^2.0.0",
+    "jasmine": "^3.6.4",
+    "jasmine-spec-reporter": "^6.0.0",
+    "jasmine-ts": "^0.3.0",
+    "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
+    "safevalues": "^0.1.0",
+    "ts-node": "^7.0.1",
     "typescript": "^3.9.2"
   },
   "dependencies": {
