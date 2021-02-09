@@ -27,7 +27,7 @@ import {Checker} from '../../third_party/tsetse/checker';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
 import {AbstractRule} from '../../third_party/tsetse/rule';
 import {AbsoluteMatcher} from '../../third_party/tsetse/util/absolute_matcher';
-import {Allowlist, AllowlistEntry} from '../../third_party/tsetse/util/allowlist';
+import {Allowlist} from '../../third_party/tsetse/util/allowlist';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isExpressionOfAllowedTrustedType} from '../../third_party/tsetse/util/is_trusted_type';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
