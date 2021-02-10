@@ -1,12 +1,12 @@
 import * as legacyConversion from 'safevalues/unsafe/legacy';
-import {legacyConversionToTrustedHTML, legacyConversionToTrustedScript, legacyConversionToTrustedScriptURL} from 'safevalues/unsafe/legacy';
+import {legacyConversionToHtml, legacyConversionToScript, legacyConversionToScriptUrl} from 'safevalues/unsafe/legacy';
 
 declare var unsafeValue: string;
 
-legacyConversionToTrustedHTML(unsafeValue);
-legacyConversionToTrustedScriptURL(unsafeValue);
-legacyConversionToTrustedScript(unsafeValue);
+legacyConversionToHtml(unsafeValue);
+legacyConversionToScriptUrl(unsafeValue);
+legacyConversionToScript(unsafeValue);
 
-legacyConversion.legacyConversionToTrustedHTML(unsafeValue);
-legacyConversion.legacyConversionToTrustedScriptURL(unsafeValue);
-legacyConversion.legacyConversionToTrustedScript(unsafeValue);
+legacyConversion.legacyConversionToHtml(unsafeValue);
+legacyConversion.legacyConversionToScriptUrl(unsafeValue);
+legacyConversion.legacyConversionToScript(unsafeValue);

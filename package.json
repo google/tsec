@@ -1,6 +1,6 @@
 {
   "name": "tsec",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Extended TypeScript compiler checking Trusted Types compatibility.",
   "author": "Google ISE Hardening Team",
   "license": "Apache-2.0",
@@ -34,7 +34,7 @@
     "jasmine-ts": "^0.3.0",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
-    "safevalues": "^0.1.0",
+    "safevalues": "^0.1.1",
     "ts-node": "^7.0.1",
     "typescript": "^3.9.2"
   },

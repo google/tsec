@@ -19,9 +19,9 @@ let errMsg =
     'Use of legacy conversions to safe values requires security reviews and approval.';
 
 let bannedValues = [
-  '/node_modules/safevalues/unsafe/legacy|legacyConversionToTrustedHTML',
-  '/node_modules/safevalues/unsafe/legacy|legacyConversionToTrustedScript',
-  '/node_modules/safevalues/unsafe/legacy|legacyConversionToTrustedScriptURL',
+  '/node_modules/safevalues/unsafe/legacy|legacyConversionToHtml',
+  '/node_modules/safevalues/unsafe/legacy|legacyConversionToScript',
+  '/node_modules/safevalues/unsafe/legacy|legacyConversionToScriptUrl',
 ];
 
 /** A Rule that bans the use of TS legacy conversions to safe values. */

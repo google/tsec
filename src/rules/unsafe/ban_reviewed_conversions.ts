@@ -18,10 +18,9 @@ let errMsg =
     'Use of reviewed conversions to safe values requires security reviews and approval.';
 
 let bannedValues = [
-  '/node_modules/safevalues/unsafe/reviewed|safeHtmlFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/unsafe/reviewed|trustedHTMLFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/unsafe/reviewed|trustedScriptFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/unsafe/reviewed|trustedScriptURLFromStringKnownToSatisfyTypeContract',
+  '/node_modules/safevalues/unsafe/reviewed|htmlFromStringKnownToSatisfyTypeContract',
+  '/node_modules/safevalues/unsafe/reviewed|scriptFromStringKnownToSatisfyTypeContract',
+  '/node_modules/safevalues/unsafe/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
 ];
 
 /** A Rule that bans the use of TS reviewed conversions to safe values. */

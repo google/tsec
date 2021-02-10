@@ -1,16 +1,16 @@
 import * as uncheckedConversion from 'safevalues/unsafe/reviewed';
-import {safeHtmlFromStringKnownToSatisfyTypeContract, trustedScriptFromStringKnownToSatisfyTypeContract, trustedScriptURLFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
+import {htmlFromStringKnownToSatisfyTypeContract, scriptFromStringKnownToSatisfyTypeContract, scriptUrlFromStringKnownToSatisfyTypeContract} from 'safevalues/unsafe/reviewed';
 
 declare var unsafeValue: string;
 
-safeHtmlFromStringKnownToSatisfyTypeContract(unsafeValue, 'for testing');
-trustedScriptURLFromStringKnownToSatisfyTypeContract(
+htmlFromStringKnownToSatisfyTypeContract(unsafeValue, 'for testing');
+scriptUrlFromStringKnownToSatisfyTypeContract(
     unsafeValue, 'for testing');
-trustedScriptFromStringKnownToSatisfyTypeContract(unsafeValue, 'for testing');
+scriptFromStringKnownToSatisfyTypeContract(unsafeValue, 'for testing');
 
-uncheckedConversion.safeHtmlFromStringKnownToSatisfyTypeContract(
+uncheckedConversion.htmlFromStringKnownToSatisfyTypeContract(
     unsafeValue, 'for testing');
-uncheckedConversion.trustedScriptURLFromStringKnownToSatisfyTypeContract(
+uncheckedConversion.scriptUrlFromStringKnownToSatisfyTypeContract(
     unsafeValue, 'for testing');
-uncheckedConversion.trustedScriptFromStringKnownToSatisfyTypeContract(
+uncheckedConversion.scriptFromStringKnownToSatisfyTypeContract(
     unsafeValue, 'for testing');
