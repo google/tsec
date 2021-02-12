@@ -38,6 +38,22 @@ export function buildReplacementFixer(
   };
 }
 
+interface NamedImportsFromModule {
+  namedBindings: ts.NamedImports;
+  fromModule: string;
+}
+
+interface NamespaceImportFromModule {
+  namedBindings: ts.NamespaceImport;
+  fromModule: string;
+}
+
+// Type union is not distributive over properties so just define a new inteface
+interface NamedImportBindingsFromModule {
+  namedBindings: ts.NamedImports|ts.NamespaceImport;
+  fromModule: string;
+}
+
 /**
  * Builds an IndividualChange that imports the required symbol from the given
  * file under the given name. This might reimport the same thing twice in some
@@ -46,51 +62,51 @@ export function buildReplacementFixer(
  * that).
  */
 export function maybeAddNamedImport(
-    source: ts.SourceFile, importWhat: string, fromFile: string,
+    source: ts.SourceFile, importWhat: string, fromModule: string,
     importAs?: string, tazeComment?: string): IndividualChange|undefined {
   const importStatements = source.statements.filter(ts.isImportDeclaration);
   const importSpecifier =
       importAs ? `${importWhat} as ${importAs}` : importWhat;
 
-  for (const iDecl of importStatements) {
-    const parsedDecl = maybeParseImportNode(iDecl);
-    if (!parsedDecl || parsedDecl.fromFile !== fromFile) {
-      // Not an import from the right file, or couldn't understand the import.
-      continue;  // Jump to the next import.
-    }
-    if (ts.isNamespaceImport(parsedDecl.namedBindings)) {
-      debugLog(() => `... but it's a wildcard import`);
-      continue;  // Jump to the next import.
-    }
+  // See if the original code already imported something from the right file
+  const importFromRightModule =
+      importStatements
+          .map(maybeParseImportNode)
+          // Exclude undefined
+          .filter(
+              (binding): binding is NamedImportBindingsFromModule =>
+                  binding !== undefined)
+          // Exclude wildcard import
+          .filter(
+              (binding): binding is NamedImportsFromModule =>
+                  ts.isNamedImports(binding.namedBindings))
+          // Exlcude imports from the wrong file
+          .find(binding => binding.fromModule === fromModule);
 
-    // Else, bindings is a NamedImports. We can now search whether the right
-    // symbol is there under the right name.
-    const foundRightImport = parsedDecl.namedBindings.elements.some(
+  if (importFromRightModule) {
+    const foundRightImport = importFromRightModule.namedBindings.elements.some(
         iSpec => iSpec.propertyName ?
             iSpec.name.getText() === importAs &&  // import {foo as bar}
                 iSpec.propertyName.getText() === importWhat :
             iSpec.name.getText() === importWhat);  // import {foo}
-
-    if (foundRightImport) {
-      debugLog(
-          () => `"${iDecl.getFullText()}" imports ${importWhat} as we want.`);
-      return;  // Our request is already imported under the right name.
+    if (!foundRightImport) {
+      // Insert our symbol in the list of imports from that file.
+      debugLog(() => `No named imports from that file, generating new fix`);
+      return {
+        start: importFromRightModule.namedBindings.elements[0].getStart(),
+        end: importFromRightModule.namedBindings.elements[0].getStart(),
+        sourceFile: source,
+        replacement: `${importSpecifier}, `,
+      };
     }
-
-    // Else, insert our symbol in the list of imports from that file.
-    debugLog(() => `No named imports from that file, generating new fix`);
-    return {
-      start: parsedDecl.namedBindings.elements[0].getStart(),
-      end: parsedDecl.namedBindings.elements[0].getStart(),
-      sourceFile: source,
-      replacement: `${importSpecifier}, `,
-    };
+    return;  // Our request is already imported under the right name.
   }
 
   // If we get here, we didn't find anything imported from the wanted file, so
   // we'll need the full import string. Add it after the last import,
   // and let clang-format handle the rest.
-  const newImportStatement = `import {${importSpecifier}} from '${fromFile}';` +
+  const newImportStatement =
+      `import {${importSpecifier}} from '${fromModule}';` +
       (tazeComment ? `  ${tazeComment}\n` : `\n`);
   const insertionPosition = importStatements.length ?
       importStatements[importStatements.length - 1].getEnd() + 1 :
@@ -111,30 +127,24 @@ export function maybeAddNamedImport(
  * that).
  */
 export function maybeAddNamespaceImport(
-    source: ts.SourceFile, fromFile: string, importAs: string,
+    source: ts.SourceFile, fromModule: string, importAs: string,
     tazeComment?: string): IndividualChange|undefined {
   const importStatements = source.statements.filter(ts.isImportDeclaration);
 
-  const hasTheRightImport = importStatements.some(iDecl => {
-    const parsedDecl = maybeParseImportNode(iDecl);
-    if (!parsedDecl || parsedDecl.fromFile !== fromFile) {
-      // Not an import from the right file, or couldn't understand the import.
-      return false;
-    }
-    debugLog(() => `"${iDecl.getFullText()}" is an import from the right file`);
-
-    if (ts.isNamedImports(parsedDecl.namedBindings)) {
-      debugLog(() => `... but it's a named import`);
-      return false;  // irrelevant to our namespace imports
-    }
-    // Else, bindings is a NamespaceImport.
-    if (parsedDecl.namedBindings.name.getText() !== importAs) {
-      debugLog(() => `... but not the right name, we need to reimport`);
-      return false;
-    }
-    debugLog(() => `... and the right name, no need to reimport`);
-    return true;
-  });
+  const hasTheRightImport =
+      importStatements
+          .map(maybeParseImportNode)
+          // Exclude undefined
+          .filter(
+              (binding): binding is NamedImportBindingsFromModule =>
+                  binding !== undefined)
+          // Exlcude named imports
+          .filter(
+              (binding): binding is NamespaceImportFromModule =>
+                  ts.isNamespaceImport(binding.namedBindings))
+          .some(
+              binding => binding.fromModule === fromModule &&
+                  binding.namedBindings.name.getText() === importAs);
 
   if (!hasTheRightImport) {
     const insertionPosition = importStatements.length ?
@@ -145,22 +155,20 @@ export function maybeAddNamespaceImport(
       end: insertionPosition,
       sourceFile: source,
       replacement: tazeComment ?
-          `import * as ${importAs} from '${fromFile}';  ${tazeComment}\n` :
-          `import * as ${importAs} from '${fromFile}';\n`,
+          `import * as ${importAs} from '${fromModule}';  ${tazeComment}\n` :
+          `import * as ${importAs} from '${fromModule}';\n`,
     };
   }
   return;
 }
 
 /**
- * This tries to make sense of an ImportDeclaration, and returns the interesting
- * parts, undefined if the import declaration is valid but not understandable by
- * the checker.
+ * This tries to make sense of an ImportDeclaration, and returns the
+ * interesting parts, undefined if the import declaration is valid but not
+ * understandable by the checker.
  */
-function maybeParseImportNode(iDecl: ts.ImportDeclaration): {
-  namedBindings: ts.NamedImportBindings|ts.NamespaceImport,
-  fromFile: string
-}|undefined {
+function maybeParseImportNode(iDecl: ts.ImportDeclaration):
+    NamedImportBindingsFromModule|undefined {
   if (!iDecl.importClause) {
     // something like import "./file";
     debugLog(
@@ -170,9 +178,9 @@ function maybeParseImportNode(iDecl: ts.ImportDeclaration): {
   }
   if (iDecl.importClause.name || !iDecl.importClause.namedBindings) {
     // Seems to happen in defaults imports like import Foo from 'Bar'.
-    // Not much we can do with that when trying to get a hold of some symbols,
-    // so just ignore that line (worst case, we'll suggest another import
-    // style).
+    // Not much we can do with that when trying to get a hold of some
+    // symbols, so just ignore that line (worst case, we'll suggest another
+    // import style).
     debugLog(() => `Ignoring import: ${iDecl.getFullText()}`);
     return;
   }
@@ -182,6 +190,6 @@ function maybeParseImportNode(iDecl: ts.ImportDeclaration): {
   }
   return {
     namedBindings: iDecl.importClause.namedBindings,
-    fromFile: iDecl.moduleSpecifier.text
+    fromModule: iDecl.moduleSpecifier.text
   };
 }
