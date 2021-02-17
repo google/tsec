@@ -71,21 +71,6 @@ export function shouldExamineNode(n: ts.Node) {
 }
 
 /**
- * Returns the top-level property access expression (or element access
- * expression) that the input node is part of.
- *
- * For example, given an expression `c` which is part of `a['b'].c = 1;`,
- * the function returns the whole LHS expression `a['b'].c`.
- */
-export function walkUpPropertyAndElementAccess(n: ts.Node): ts.Node {
-  while (ts.isPropertyAccessExpression(n.parent) ||
-         ts.isElementAccessExpression(n.parent)) {
-    n = n.parent;
-  }
-  return n;
-}
-
-/**
  * Return whether the given Node is (or is in) a library included as default.
  * We currently look for a node_modules/typescript/ prefix, but this could
  * be expanded if needed.

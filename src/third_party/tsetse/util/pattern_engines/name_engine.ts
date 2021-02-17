@@ -2,7 +2,6 @@ import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
 import {AbsoluteMatcher} from '../absolute_matcher';
-import {walkUpPropertyAndElementAccess} from '../ast_tools';
 import {isExpressionOfAllowedTrustedType} from '../is_trusted_type';
 import {TrustedTypesConfig} from '../trusted_types_configuration';
 
@@ -24,9 +23,8 @@ function isCalledWithAllowedTrustedType(
 
 function isPolyfill(n: ts.Node, matcher: AbsoluteMatcher) {
   if (matcher.filePath === 'GLOBAL') {
-    const wholeExp = walkUpPropertyAndElementAccess(n);
-    const parent = wholeExp.parent;
-    if (parent && ts.isBinaryExpression(parent) && parent.left === wholeExp &&
+    const parent = n.parent;
+    if (parent && ts.isBinaryExpression(parent) && parent.left === n &&
         parent.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
       return true;
     }
@@ -37,11 +35,12 @@ function isPolyfill(n: ts.Node, matcher: AbsoluteMatcher) {
 function checkIdentifierNode(
     tc: ts.TypeChecker, n: ts.Identifier, matcher: AbsoluteMatcher,
     allowedTrustedType: TrustedTypesConfig|undefined): ts.Node|undefined {
-  if (isPolyfill(n, matcher)) return;
+  const wholeExp = ts.isPropertyAccessExpression(n.parent) ? n.parent : n;
+  if (isPolyfill(wholeExp, matcher)) return;
   if (!matcher.matches(n, tc)) return;
   if (isCalledWithAllowedTrustedType(tc, n, allowedTrustedType)) return;
 
-  return n;
+  return wholeExp;
 }
 
 function checkElementAccessNode(
