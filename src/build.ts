@@ -31,21 +31,25 @@ export function isInBuildMode(cmdArgs: string[]) {
   return false;
 }
 
-/** Perform security checks on a single project. */
-export function performCheck(program: ts.Program): ts.Diagnostic[] {
+/**
+ * Create a new cheker with all enabled rules registered and the exemption list
+ * configured.
+ */
+export function getConfiguredChecker(program: ts.Program):
+    {checker: Checker, errors: ts.Diagnostic[]} {
   let exemptionList: ExemptionList|undefined = undefined;
 
   const exemptionConfigPath = resolveExemptionConfigPath(
       program.getCompilerOptions()['configFilePath'] as string);
 
-  const diagnostics = [];
+  const errors = [];
 
   if (exemptionConfigPath) {
     const projExemptionConfigOrErr = parseExemptionConfig(exemptionConfigPath);
     if (projExemptionConfigOrErr instanceof ExemptionList) {
       exemptionList = projExemptionConfigOrErr;
     } else {
-      diagnostics.push(...projExemptionConfigOrErr);
+      errors.push(...projExemptionConfigOrErr);
     }
   }
 
@@ -65,6 +69,13 @@ export function performCheck(program: ts.Program): ts.Diagnostic[] {
     rule.register(checker);
   }
 
+  return {checker, errors};
+}
+
+/** Perform security checks on a single project. */
+export function performCheck(program: ts.Program): ts.Diagnostic[] {
+  const {checker, errors} = getConfiguredChecker(program);
+
   // Run all enabled checks and collect errors.
   for (const sf of program.getSourceFiles()) {
     // We don't emit errors for delcarations, so might as well skip checking
@@ -72,10 +83,10 @@ export function performCheck(program: ts.Program): ts.Diagnostic[] {
     if (sf.isDeclarationFile) continue;
     const tsecErrors = checker.execute(sf).map(
         failure => failure.toDiagnosticWithStringifiedFixes());
-    diagnostics.push(...tsecErrors);
+    errors.push(...tsecErrors);
   }
 
-  return diagnostics;
+  return errors;
 }
 
 const ALL_TSEC_RULE_NAMES =

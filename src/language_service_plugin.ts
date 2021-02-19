@@ -17,11 +17,11 @@
  * directly in the editor.
  */
 
-import {ENABLED_RULES} from './rule_groups';
-import {Checker} from './third_party/tsetse/checker';
 import {ErrorCode} from './third_party/tsetse/error_code';
 import {DiagnosticWithFixes} from './third_party/tsetse/failure';
 import * as ts from 'typescript/lib/tsserverlibrary';
+
+import {getConfiguredChecker} from './build';
 import {createProxy} from './utils';
 
 function diagnosticToCodeFixActions(d: DiagnosticWithFixes):
@@ -86,13 +86,7 @@ class TsecLanguageServicePlugin {
           );
         }
 
-        const checker = new Checker(program);
-
-        // Register all of the rules for now.
-        for (const rule of ENABLED_RULES) {
-          new rule().register(checker);
-        }
-
+        const {checker} = getConfiguredChecker(program);
         const failures = checker.execute(program.getSourceFile(fileName)!);
 
         this.codeFixActions.set(fileName, new Map());
