@@ -14,6 +14,7 @@
 
 import * as glob from 'glob';
 import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/util/allowlist';
+import * as minimatch from 'minimatch';
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -162,6 +163,7 @@ export function parseExemptionConfig(exemptionConfigPath: string):
     }
 
     const fileNames: string[] = [];
+    const patterns: string[] = [];
 
     for (const elem of prop.initializer.elements) {
       if (!ts.isStringLiteral(elem)) {
@@ -172,7 +174,13 @@ export function parseExemptionConfig(exemptionConfigPath: string):
         continue;
       }
       if (glob.hasMagic(elem.text, globOptions)) {
-        fileNames.push(...glob.sync(elem.text, globOptions));
+        let pattern = elem.text;
+        if (!pattern.startsWith('/')) {
+          pattern = baseDir + '/' + pattern;
+        }
+        patterns.push(
+            // Strip the leading and trailing '/' from the stringified regexp.
+            minimatch.makeRe(pattern, {}).toString().substring(1, -1));
       } else {
         fileNames.push(path.resolve(baseDir, elem.text));
       }
@@ -181,6 +189,7 @@ export function parseExemptionConfig(exemptionConfigPath: string):
     exemption.set(ruleName, {
       reason: ExemptionReason.UNSPECIFIED,
       prefix: fileNames,
+      regexp: patterns,
     });
   }
 
