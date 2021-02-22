@@ -66,7 +66,10 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   BanUncheckedConversions,
 ];
 
-/** Conformance rules that should be registered by the check runner */
+/**
+ * Conformance rules that should be registered by the check as a compiler
+ * plugin.
+ */
 export const ENABLED_RULES: readonly RuleConstructor[] = [
   ...TRUSTED_TYPES_RELATED_RULES,
 ];
