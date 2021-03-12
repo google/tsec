@@ -1,6 +1,10 @@
 import * as ts from 'typescript';
+
 import {Fix, IndividualChange} from '../failure';
 import {debugLog} from './ast_tools';
+
+export {Fix} from '../failure';
+
 
 /**
  * A Fixer turns Nodes (that are supposed to have been matched before) into a

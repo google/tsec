@@ -23,16 +23,15 @@
  * too many false positives in this case.
  */
 
+import {Allowlist} from '../../third_party/tsetse/allowlist';
 import {Checker} from '../../third_party/tsetse/checker';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
 import {AbstractRule} from '../../third_party/tsetse/rule';
 import {AbsoluteMatcher} from '../../third_party/tsetse/util/absolute_matcher';
-import {Allowlist} from '../../third_party/tsetse/util/allowlist';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isExpressionOfAllowedTrustedType} from '../../third_party/tsetse/util/is_trusted_type';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
-import * as path from 'path';
 import * as ts from 'typescript';
 
 import {RuleConfiguration} from '../../rule_configuration';
@@ -149,13 +148,9 @@ export class Rule extends AbstractRule {
 
             const node = checkNode(c.typeChecker, n, nameMatcher);
             if (node) {
-              if (this.allowlist?.isAllowlisted(
-                      path.resolve(node.getSourceFile().fileName))) {
-                return;
-              }
               checker.addFailureAtNode(
                   node, formatErrorMessage(nameMatcher.bannedName),
-                  Rule.RULE_NAME);
+                  Rule.RULE_NAME, this.allowlist);
             }
           },
           this.code,
@@ -168,15 +163,11 @@ export class Rule extends AbstractRule {
           (c, n) => {
             const node = checkNode(c.typeChecker, n, propMatcher);
             if (node) {
-              if (this.allowlist?.isAllowlisted(
-                      path.resolve(node.getSourceFile().fileName))) {
-                return;
-              }
               checker.addFailureAtNode(
                   node,
                   formatErrorMessage(`${propMatcher.bannedType}#${
                       propMatcher.bannedProperty}`),
-                  Rule.RULE_NAME);
+                  Rule.RULE_NAME, this.allowlist);
             }
           },
           this.code,
@@ -190,15 +181,11 @@ export class Rule extends AbstractRule {
                   isBannedStringLiteralAccess(n, c.typeChecker, propMatcher)
             });
             if (node) {
-              if (this.allowlist?.isAllowlisted(
-                      path.resolve(node.getSourceFile().fileName))) {
-                return;
-              }
               checker.addFailureAtNode(
                   node,
                   formatErrorMessage(`${propMatcher.bannedType}#${
                       propMatcher.bannedProperty}`),
-                  Rule.RULE_NAME);
+                  Rule.RULE_NAME, this.allowlist);
             }
           },
           this.code,

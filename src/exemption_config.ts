@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import * as glob from 'glob';
-import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/util/allowlist';
+import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/allowlist';
 import * as minimatch from 'minimatch';
 import * as path from 'path';
 import * as ts from 'typescript';

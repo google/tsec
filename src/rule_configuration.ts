@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {AllowlistEntry} from './third_party/tsetse/util/allowlist';
+import {AllowlistEntry} from './third_party/tsetse/allowlist';
 
 /**
  * A configuration interface passed to the rules with properties configured

@@ -1,4 +1,4 @@
-import {AllowlistEntry} from './allowlist';
+import {AllowlistEntry} from '../allowlist';
 import {TrustedTypesConfig} from './trusted_types_configuration';
 
 /**

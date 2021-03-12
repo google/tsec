@@ -3,7 +3,10 @@
  * file AST traversals and report errors.
  */
 
+import * as path from 'path';
 import * as ts from 'typescript';
+
+import {Allowlist} from './allowlist';
 import {Failure, Fix} from './failure';
 
 
@@ -141,9 +144,13 @@ export class Checker {
    */
   addFailure(
       start: number, end: number, failureText: string, source: string|undefined,
-      fixes: Fix[] = []) {
+      allowlist?: Allowlist, fixes?: Fix[]) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
+    }
+    if (allowlist?.isAllowlisted(
+            path.resolve(this.currentSourceFile.fileName))) {
+      return;
     }
     if (start >= end || end > this.currentSourceFile.end || start < 0) {
       // Since only addFailureAtNode() is exposed for now this shouldn't happen.
@@ -154,18 +161,18 @@ export class Checker {
 
     const failure = new Failure(
         this.currentSourceFile, start, end, failureText, this.currentCode,
-        source, fixes);
+        source, fixes ?? []);
     this.failures.push(failure);
   }
 
   addFailureAtNode(
       node: ts.Node, failureText: string, source: string|undefined,
-      fixes: Fix[] = []) {
+      allowlist?: Allowlist, fixes?: Fix[]) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
     this.addFailure(
         node.getStart(this.currentSourceFile), node.getEnd(), failureText,
-        source, fixes);
+        source, allowlist, fixes);
   }
 
   /** Dispatch general handlers registered via `on` */

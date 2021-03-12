@@ -1,9 +1,8 @@
-import * as path from 'path';
 import * as ts from 'typescript';
 
+import {Allowlist} from '../../allowlist';
 import {Checker} from '../../checker';
-import {Allowlist} from '../../util/allowlist';
-import {Fixer} from '../../util/fixer';
+import {Fix, Fixer} from '../../util/fixer';
 import {PatternEngineConfig} from '../../util/pattern_config';
 import {shouldExamineNode} from '../ast_tools';
 
@@ -42,17 +41,13 @@ export abstract class PatternEngine {
         return;
       }
       const matchedNode = checkFunction(c.typeChecker, n);
-      if (matchedNode &&
-          !this.allowlist.isAllowlisted(path.resolve(sf.fileName))) {
-        const fixes = [];
-        for (const fixer of (this.fixers ?? [])) {
-          const fix = fixer.getFixForFlaggedNode(matchedNode);
-          if (fix) {
-            fixes.push(fix);
-          }
-        }
+      if (matchedNode) {
+        const fixes =
+            this.fixers?.map(fixer => fixer.getFixForFlaggedNode(matchedNode))
+                ?.filter((fix): fix is Fix => fix !== undefined);
         c.addFailureAtNode(
-            matchedNode, this.config.errorMessage, this.ruleName, fixes);
+            matchedNode, this.config.errorMessage, this.ruleName,
+            this.allowlist, fixes);
       }
     };
   }
