@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
     'Use of reviewed conversions to safe values requires security reviews and approval.';
@@ -26,13 +27,15 @@ let bannedValues = [
 /** A Rule that bans the use of TS reviewed conversions to safe values. */
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-reviewed-conversions';
-  constructor() {
+
+  constructor(configuration: RuleConfiguration = {}) {
     super({
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_NAME,
       values: bannedValues,
       name: Rule.RULE_NAME,
+      ...configuration,
     });
   }
 }

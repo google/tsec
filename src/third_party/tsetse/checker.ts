@@ -48,6 +48,8 @@ export class Checker {
       new Map<string, Array<Handler<ts.ElementAccessExpression>>>();
 
   private failures: Failure[] = [];
+  private exemptedFailures: Failure[] = [];
+
   private currentSourceFile: ts.SourceFile|undefined;
   // currentCode will be set before invoking any handler functions so the value
   // initialized here is never used.
@@ -144,13 +146,9 @@ export class Checker {
    */
   addFailure(
       start: number, end: number, failureText: string, source: string|undefined,
-      allowlist?: Allowlist, fixes?: Fix[]) {
+      allowlist: Allowlist|undefined, fixes?: Fix[]) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
-    }
-    if (allowlist?.isAllowlisted(
-            path.resolve(this.currentSourceFile.fileName))) {
-      return;
     }
     if (start >= end || end > this.currentSourceFile.end || start < 0) {
       // Since only addFailureAtNode() is exposed for now this shouldn't happen.
@@ -162,12 +160,18 @@ export class Checker {
     const failure = new Failure(
         this.currentSourceFile, start, end, failureText, this.currentCode,
         source, fixes ?? []);
-    this.failures.push(failure);
+
+    const isFailureAllowlisted =
+        allowlist?.isAllowlisted(path.resolve(this.currentSourceFile.fileName));
+    const failures =
+        isFailureAllowlisted ? this.exemptedFailures : this.failures;
+
+    failures.push(failure);
   }
 
   addFailureAtNode(
       node: ts.Node, failureText: string, source: string|undefined,
-      allowlist?: Allowlist, fixes?: Fix[]) {
+      allowlist: Allowlist|undefined, fixes?: Fix[]) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
     this.addFailure(
@@ -232,13 +236,27 @@ export class Checker {
    * Walk `sourceFile`, invoking registered handlers with Checker as the first
    * argument and current node as the second argument. Return failures if there
    * are any.
+   *
+   * Callers of this function can request that the checker report violations
+   * that have been exempted by an allowlist by setting the
+   * `reportExemptedViolations` parameter to `true`. The function will return an
+   * object that contains both the exempted and unexempted failures.
    */
-  execute(sourceFile: ts.SourceFile): Failure[] {
+  execute(sourceFile: ts.SourceFile): Failure[];
+  execute(sourceFile: ts.SourceFile, reportExemptedViolations: false):
+      Failure[];
+  execute(sourceFile: ts.SourceFile, reportExemptedViolations: true):
+      {failures: Failure[], exemptedFailures: Failure[]};
+  execute(sourceFile: ts.SourceFile, reportExemptedViolations: boolean = false):
+      Failure[]|{failures: Failure[], exemptedFailures: Failure[]} {
     const thisChecker = this;
     this.currentSourceFile = sourceFile;
     this.failures = [];
+    this.exemptedFailures = [];
     run(sourceFile);
-    return this.failures;
+    return reportExemptedViolations ?
+        {failures: this.failures, exemptedFailures: this.exemptedFailures} :
+        this.failures;
 
     function run(node: ts.Node) {
       // Dispatch handlers registered via `on`
