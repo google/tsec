@@ -31,6 +31,7 @@ import {Rule as TTBanSharedWorkerCalls} from './rules/dom_security/ban_shared_wo
 import {Rule as TTBanTrustedTypesCreatepolicy} from './rules/dom_security/ban_trustedtypes_createpolicy';
 import {Rule as TTBanWindowStringfunctiondef} from './rules/dom_security/ban_window_stringfunctiondef';
 import {Rule as TTBanWorkerCalls} from './rules/dom_security/ban_worker_calls';
+import {Rule as TTBanWorkerImportScripts} from './rules/dom_security/ban_worker_importscripts';
 import {Rule as BanLegacyConversions} from './rules/unsafe/ban_legacy_conversions';
 import {Rule as BanUncheckedConversions} from './rules/unsafe/ban_reviewed_conversions';
 
@@ -59,6 +60,7 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanTrustedTypesCreatepolicy,
   TTBanWindowStringfunctiondef,
   TTBanWorkerCalls,
+  TTBanWorkerImportScripts,
   TTBanElementOuterHTMLAssignments,
   TTBanElementInnerHTMLAssignments,
   TTBanDomParserParseFromString,
