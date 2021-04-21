@@ -13,6 +13,7 @@ import {TrustedTypesConfig} from './trusted_types_configuration';
 export function isExpressionOfAllowedTrustedType(
     tc: ts.TypeChecker, expr: ts.Expression,
     allowedType: TrustedTypesConfig): boolean {
+  if (isIntersectionOfTrustedType(tc, expr, allowedType)) return true;
   if (isTrustedTypeCastToUnknownToString(tc, expr, allowedType)) return true;
   if (isTrustedTypeUnionWithStringCastToString(tc, expr, allowedType)) return true;
   if (isTrustedTypeUnwrapperFunction(tc, expr, allowedType)) return true;
@@ -108,4 +109,17 @@ function isTrustedTypeUnwrapperFunction(
   return expr.arguments.length > 0 &&
       isAllowedSymbol(
              tc, tc.getTypeAtLocation(expr.arguments[0]).getSymbol(), allowedType);
+}
+
+/**
+ * Returns true if the expression is a value of a type that is the
+ * intersection of Trusted Types and other types.
+ */
+function isIntersectionOfTrustedType(
+    tc: ts.TypeChecker, expr: ts.Expression, allowedType: TrustedTypesConfig) {
+  const type = tc.getTypeAtLocation(expr);
+
+  if (!type.isIntersection()) return false;
+
+  return type.types.some(t => isAllowedSymbol(tc, t.getSymbol(), allowedType));
 }
