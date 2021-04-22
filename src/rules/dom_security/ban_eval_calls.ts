@@ -29,14 +29,16 @@ export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-eval-calls';
 
   constructor(configuration: RuleConfiguration = {}) {
-    super(overridePatternConfig({
-      errorCode: ErrorCode.CONFORMANCE_PATTERN,
-      errorMessage: errMsg,
-      kind: PatternKind.BANNED_NAME,
-      values: ['GLOBAL|eval'],
-      name: Rule.RULE_NAME,
-      allowedTrustedType: TRUSTED_SCRIPT,
-      ...configuration,
-    }));
+    super(
+        overridePatternConfig({
+          errorCode: ErrorCode.CONFORMANCE_PATTERN,
+          errorMessage: errMsg,
+          kind: PatternKind.BANNED_NAME,
+          values: ['GLOBAL|eval'],
+          name: Rule.RULE_NAME,
+          allowedTrustedType: TRUSTED_SCRIPT,
+          ...configuration,
+        }),
+    );
   }
 }
