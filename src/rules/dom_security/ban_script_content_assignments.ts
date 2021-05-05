@@ -35,6 +35,7 @@ export class Rule extends ConformancePatternRule {
           errorMessage: errMsg,
           kind: PatternKind.BANNED_PROPERTY_WRITE,
           values: [
+            'HTMLScriptElement.prototype.innerText',
             'HTMLScriptElement.prototype.text',
             'HTMLScriptElement.prototype.textContent'
           ],
