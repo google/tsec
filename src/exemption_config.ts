@@ -78,6 +78,11 @@ export function resolveExemptionConfigPath(configFilePath: string): string|
     }
   }
 
+  if (typeof config.extends === 'string') {
+    return resolveExemptionConfigPath(
+        path.resolve(configFileDir, config.extends));
+  }
+
   return undefined;
 }
 
