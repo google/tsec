@@ -319,6 +319,74 @@
       }
     }
   ],
+  "dom_security/ban_element_setattribute": [
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 3,
+        "character": 0
+      },
+      "end": {
+        "line": 3,
+        "character": 17
+      }
+    },
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 4,
+        "character": 0
+      },
+      "end": {
+        "line": 4,
+        "character": 17
+      }
+    },
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 5,
+        "character": 0
+      },
+      "end": {
+        "line": 5,
+        "character": 19
+      }
+    },
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 6,
+        "character": 0
+      },
+      "end": {
+        "line": 6,
+        "character": 21
+      }
+    },
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 7,
+        "character": 0
+      },
+      "end": {
+        "line": 7,
+        "character": 23
+      }
+    },
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 14,
+        "character": 0
+      },
+      "end": {
+        "line": 14,
+        "character": 17
+      }
+    }
+  ],
   "dom_security/ban_iframe_srcdoc_assignments": [
     {
       "ruleName": "ban-iframe-srcdoc-assignments",
