@@ -59,7 +59,8 @@ export class Allowlist {
   // repeatedly.
   private readonly allowlistMemoizer = new Map<string, boolean>();
 
-  constructor(allowlistEntries?: AllowlistEntry[]) {
+  constructor(
+      allowlistEntries?: AllowlistEntry[], removePrefixes: string[] = []) {
     if (allowlistEntries) {
       for (const e of allowlistEntries) {
         if (e.prefix) {

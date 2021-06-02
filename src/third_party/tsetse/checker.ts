@@ -3,7 +3,6 @@
  * file AST traversals and report errors.
  */
 
-import * as path from 'path';
 import * as ts from 'typescript';
 
 import {Allowlist} from './allowlist';
@@ -161,8 +160,8 @@ export class Checker {
         this.currentSourceFile, start, end, failureText, this.currentCode,
         source, fixes ?? []);
 
-    const isFailureAllowlisted =
-        allowlist?.isAllowlisted(path.resolve(this.currentSourceFile.fileName));
+    let filePath = this.currentSourceFile.fileName;
+    const isFailureAllowlisted = allowlist?.isAllowlisted(filePath);
     const failures =
         isFailureAllowlisted ? this.exemptedFailures : this.failures;
 
