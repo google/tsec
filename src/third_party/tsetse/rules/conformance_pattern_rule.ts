@@ -3,7 +3,7 @@ import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 import {Fixer} from '../util/fixer';
 import {PatternEngineConfig, PatternKind, PatternRuleConfig} from '../util/pattern_config';
-import {NameEngine} from '../util/pattern_engines/name_engine';
+import {ImportedNameEngine, NameEngine} from '../util/pattern_engines/name_engine';
 import {PatternEngine} from '../util/pattern_engines/pattern_engine';
 import {PropertyEngine} from '../util/pattern_engines/property_engine';
 import {PropertyNonConstantWriteEngine} from '../util/pattern_engines/property_non_constant_write_engine';
@@ -43,6 +43,9 @@ export class ConformancePatternRule implements AbstractRule {
         break;
       case PatternKind.BANNED_NAME:
         engine = NameEngine;
+        break;
+      case PatternKind.BANNED_IMPORTED_NAME:
+        engine = ImportedNameEngine;
         break;
       default:
         throw new Error('Config type not recognized, or not implemented yet.');

@@ -71,6 +71,10 @@ const CLUTZ_SYM_PREFIX = 'ಠ_ಠ.clutz.';
  *
  * An absolute matcher "/path/to/file1|Foo.bar" matches with "Moo.bar()" because
  * "bar" is defined as part of Foo in /path/to/file1.
+ *
+ * By default, the matcher won't match symbols in import statements if the
+ * symbol is not renamed. Machers can be optionally configured symbols in import
+ * statements even if it's not a named import.
  */
 export class AbsoluteMatcher {
   /**
@@ -79,7 +83,7 @@ export class AbsoluteMatcher {
   readonly filePath: string;
   readonly bannedName: string;
 
-  constructor(spec: string) {
+  constructor(spec: string, readonly matchImport: boolean = false) {
     if (!spec.match(ABSOLUTE_RE)) {
       throw new Error('Malformed matcher selector.');
     }
@@ -121,8 +125,9 @@ export class AbsoluteMatcher {
       //   symbol aliases, the import statement is the only place we can match
       //   bad symbols if they get renamed.
       if (isAllowlistedNamedDeclaration(p) && p.name === n) {
-        debugLog(() => `We don't flag symbol declarations`);
-        return false;
+        if (!this.matchImport || !ts.isImportSpecifier(p)) {
+          return false;
+        }
       }
     }
 

@@ -55,9 +55,11 @@ function checkElementAccessNode(
 
 /** Engine for the BANNED_NAME pattern */
 export class NameEngine extends PatternEngine {
+  protected readonly banImport: boolean = false;
+
   register(checker: Checker) {
     for (const value of this.config.values) {
-      const matcher = new AbsoluteMatcher(value);
+      const matcher = new AbsoluteMatcher(value, this.banImport);
 
       // `String.prototype.split` only returns emtpy array when both the
       // string and the splitter are empty. Here we should be able to safely
@@ -85,4 +87,9 @@ export class NameEngine extends PatternEngine {
           this.config.errorCode);
     }
   }
+}
+
+/** Engine for the BANNED_IMPORTED_NAME pattern */
+export class ImportedNameEngine extends NameEngine {
+  protected readonly banImport: boolean = true;
 }

@@ -9,6 +9,8 @@ import {TrustedTypesConfig} from './trusted_types_configuration';
 export enum PatternKind {
   /** Ban use of fully distinguished names. */
   BANNED_NAME = 'banned-name',
+  /** Ban use of fully distinguished names, even in import statements. */
+  BANNED_IMPORTED_NAME = 'banned-imported-name',
   /** Ban use of instance properties */
   BANNED_PROPERTY = 'banned-property',
   /**
