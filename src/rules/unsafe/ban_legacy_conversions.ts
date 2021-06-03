@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
@@ -24,7 +25,7 @@ let bannedValues = [
   '/node_modules/safevalues/unsafe/legacy|legacyConversionToScriptUrl',
 ];
 
-/** A Rule that bans the use of TS legacy conversions to safe values. */
+/** A Rule that bans the use of legacy conversions to safe values. */
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-legacy-conversions';
 
@@ -37,5 +38,7 @@ export class Rule extends ConformancePatternRule {
       name: Rule.RULE_NAME,
       ...configuration,
     });
+
   }
+
 }
