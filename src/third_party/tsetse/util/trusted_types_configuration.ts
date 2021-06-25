@@ -1,3 +1,5 @@
+/** Names of all Trusted Types */
+export type TrustedTypes = 'TrustedHTML'|'TrustedScript'|'TrustedScriptURL';
 /**
  * Trusted Types configuration used to match Trusted values in the assignments
  * to sinks.
@@ -11,20 +13,19 @@ export interface TrustedTypesConfig {
    * The fully qualified name of the trusted type to allow. E.g.
    * "global.TrustedHTML".
    */
-  fullyQualifiedName: string;
+  typeName: TrustedTypes;
 }
 
 /**
  * Create `TrustedTypesConfig` for the given Trusted Type.
  */
-function createDefaultTrustedTypeConfig(
-    type: 'TrustedHTML'|'TrustedScript'|
-    'TrustedScriptURL'): TrustedTypesConfig {
+function createDefaultTrustedTypeConfig(type: TrustedTypes):
+    TrustedTypesConfig {
   const config = {
     // the module path may look like
     // "/home/username/.../node_modules/@types/trusted-types/"
     modulePathMatcher: '/node_modules/@types/trusted-types/',
-    fullyQualifiedName: 'global.' + type
+    typeName: type,
   };
 
   return config;
