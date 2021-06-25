@@ -42,7 +42,7 @@ function isAllowedSymbol(
   debugLog(() => `got declaration filenames ${declarationFileNames}`);
 
   return declarationFileNames.some(
-      fileName => fileName.endsWith(allowedType.modulePathSuffix));
+      fileName => fileName.includes(allowedType.modulePathMatcher));
 }
 
 /**

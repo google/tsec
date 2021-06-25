@@ -4,9 +4,9 @@
  */
 export interface TrustedTypesConfig {
   /**
-   * The suffix of the absolute path of the definition file.
+   * A characteristic component of the absolute path of the definition file.
    */
-  modulePathSuffix: string;
+  modulePathMatcher: string;
   /**
    * The fully qualified name of the trusted type to allow. E.g.
    * "global.TrustedHTML".
@@ -22,8 +22,8 @@ function createDefaultTrustedTypeConfig(
     'TrustedScriptURL'): TrustedTypesConfig {
   const config = {
     // the module path may look like
-    // "/home/username/.../node_modules/@types/trusted-types/index.d.ts"
-    modulePathSuffix: '/node_modules/@types/trusted-types/index.d.ts',
+    // "/home/username/.../node_modules/@types/trusted-types/"
+    modulePathMatcher: '/node_modules/@types/trusted-types/',
     fullyQualifiedName: 'global.' + type
   };
 
