@@ -20,6 +20,7 @@ import {Rule as TTBanDocumentWriteCalls} from './rules/dom_security/ban_document
 import {Rule as TTBanDocumentWritelnCalls} from './rules/dom_security/ban_document_writeln_calls';
 import {Rule as TTBanDomParserParseFromString} from './rules/dom_security/ban_domparser_parsefromstring';
 import {Rule as TTBanElementInnerHTMLAssignments} from './rules/dom_security/ban_element_innerhtml_assignments';
+import {Rule as TTBanElementInsertAdjacentHTML} from './rules/dom_security/ban_element_insertadjacenthtml';
 import {Rule as TTBanElementOuterHTMLAssignments} from './rules/dom_security/ban_element_outerhtml_assignments';
 import {Rule as TTBanElementSetAttribute} from './rules/dom_security/ban_element_setattribute';
 import {Rule as TTBanEvalCalls} from './rules/dom_security/ban_eval_calls';
@@ -64,6 +65,7 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanWorkerImportScripts,
   TTBanElementOuterHTMLAssignments,
   TTBanElementInnerHTMLAssignments,
+  TTBanElementInsertAdjacentHTML,
   TTBanDomParserParseFromString,
   TTBanElementSetAttribute,
   BanLegacyConversions,
