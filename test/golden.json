@@ -260,6 +260,17 @@
         "line": 18,
         "character": 46
       }
+    },
+    {
+      "ruleName": "ban-element-innerhtml-assignments",
+      "start": {
+        "line": 20,
+        "character": 0
+      },
+      "end": {
+        "line": 20,
+        "character": 45
+      }
     }
   ],
   "dom_security/ban_element_outerhtml_assignments": [

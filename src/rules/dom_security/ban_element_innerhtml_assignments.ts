@@ -32,7 +32,7 @@ export class Rule extends ConformancePatternRule {
           errorCode: ErrorCode.CONFORMANCE_PATTERN,
           errorMessage: errMsg,
           kind: PatternKind.BANNED_PROPERTY_WRITE,
-          values: ['Element.prototype.innerHTML'],
+          values: ['InnerHTML.prototype.innerHTML'],
           name: Rule.RULE_NAME,
           allowedTrustedType: TRUSTED_HTML,
           ...configuration,

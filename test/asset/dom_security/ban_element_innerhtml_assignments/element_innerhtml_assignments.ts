@@ -17,3 +17,5 @@ document.body.innerHTML += PAYLOAD;
 document.body['innerHTML'] = PAYLOAD;
 
 document.body.innerHTML = '<span>hello</span>';
+
+document.body.shadowRoot!.innerHTML = PAYLOAD;
