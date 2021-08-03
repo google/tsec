@@ -55,11 +55,15 @@ export function getConfiguredChecker(program: ts.Program):
 
   // Create all enabled rules with corresponding exemption list entries.
   const checker = new Checker(program);
+  const wildcardAllowListEntry = exemptionList?.get('*');
   const rules = ENABLED_RULES.map(ruleCtr => {
     const allowlistEntries = [];
     const allowlistEntry = exemptionList?.get(ruleCtr.RULE_NAME);
     if (allowlistEntry) {
       allowlistEntries.push(allowlistEntry);
+    }
+    if (wildcardAllowListEntry) {
+      allowlistEntries.push(wildcardAllowListEntry);
     }
     return new ruleCtr({allowlistEntries});
   });

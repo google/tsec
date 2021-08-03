@@ -197,6 +197,16 @@ completely disable a check, you can write:
 *Note that exemptions are granted at the file granularity. If you exempt a file
 from a rule, all violations in that file will be exempted.*
 
+You can exempt files from all rules by setting the exemption list for the
+wildcard rule name `"*"`. This can be useful when the compiler configuration of
+your project include files for testing.
+
+```json
+{
+  "*": ["**/test/*.ts", "**/*.test.ts", "**/*.spec.ts"]
+}
+```
+
 ## Developing locally
 
 We recommend developing using [VS Code](https://code.visualstudio.com/). We have
