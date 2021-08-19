@@ -4,7 +4,7 @@ import {dealias, debugLog, isAllowlistedNamedDeclaration, isInStockLibraries} fr
 
 const PATH_NAME_FORMAT = '[/\\.\\w\\d_-]+';
 const JS_IDENTIFIER_FORMAT = '[\\w\\d_-]+';
-const FQN_FORMAT = `(${JS_IDENTIFIER_FORMAT}\.)*${JS_IDENTIFIER_FORMAT}`;
+const FQN_FORMAT = `(${JS_IDENTIFIER_FORMAT}.)*${JS_IDENTIFIER_FORMAT}`;
 const GLOBAL = 'GLOBAL';
 const ANY_SYMBOL = 'ANY_SYMBOL';
 const CLOSURE = 'CLOSURE';
