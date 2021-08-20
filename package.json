@@ -37,7 +37,7 @@
     "rimraf": "^3.0.2",
     "safevalues": "^0.1.1",
     "ts-node": "^7.0.1",
-    "typescript": "^3.9.2"
+    "typescript": "4.3.2"
   },
   "dependencies": {
     "glob": "^7.1.1",
