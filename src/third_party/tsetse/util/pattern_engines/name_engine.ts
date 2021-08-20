@@ -91,5 +91,5 @@ export class NameEngine extends PatternEngine {
 
 /** Engine for the BANNED_IMPORTED_NAME pattern */
 export class ImportedNameEngine extends NameEngine {
-  protected readonly banImport: boolean = true;
+  protected override readonly banImport: boolean = true;
 }

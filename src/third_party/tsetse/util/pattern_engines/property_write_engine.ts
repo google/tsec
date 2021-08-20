@@ -60,7 +60,7 @@ function allowTrustedExpressionOnMatchedProperty(
  * type.
  */
 export class PropertyWriteEngine extends PropertyEngine {
-  register(checker: Checker) {
+  override register(checker: Checker) {
     this.registerWith(
         checker,
         (tc, n, m) => allowTrustedExpressionOnMatchedProperty(

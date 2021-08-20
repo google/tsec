@@ -29,7 +29,7 @@ function matchPropertyNonConstantWrite(
  * The engine for BANNED_PROPERTY_NON_CONSTANT_WRITE.
  */
 export class PropertyNonConstantWriteEngine extends PropertyWriteEngine {
-  register(checker: Checker) {
+  override register(checker: Checker) {
     this.registerWith(checker, matchPropertyNonConstantWrite);
   }
 }
