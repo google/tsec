@@ -180,7 +180,7 @@ export function parseExemptionConfig(exemptionConfigPath: string):
         }
         patterns.push(
             // Strip the leading and trailing '/' from the stringified regexp.
-            minimatch.makeRe(pattern, {}).toString().substring(1, -1));
+            minimatch.makeRe(pattern, {}).toString().slice(1, -1));
       } else {
         fileNames.push(path.resolve(baseDir, elem.text));
       }
