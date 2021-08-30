@@ -25,7 +25,6 @@ wst(() => {});
 
 window['setTimeout'](`alert('xss')`);
 window[`setTimeout`](`alert('xss')`);
-window[`${'setTimeout'}`](`alert('xss')`);
 
 
 
