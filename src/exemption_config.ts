@@ -174,10 +174,7 @@ export function parseExemptionConfig(exemptionConfigPath: string):
         continue;
       }
       if (glob.hasMagic(elem.text, globOptions)) {
-        let pattern = elem.text;
-        if (!pattern.startsWith('/')) {
-          pattern = baseDir + '/' + pattern;
-        }
+        const pattern = path.resolve(baseDir, elem.text);
         patterns.push(
             // Strip the leading and trailing '/' from the stringified regexp.
             minimatch.makeRe(pattern, {}).toString().slice(1, -1));
