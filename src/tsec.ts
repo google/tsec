@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {runfiles} from '@bazel/runfiles';
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -43,11 +44,24 @@ function main(args: string[]) {
     let tsConfigFilePath: string|undefined = parsedConfig.options.project;
     if (tsConfigFilePath === undefined) {
       tsConfigFilePath = ts.findConfigFile('.', ts.sys.fileExists);
-    } else if (ts.sys.directoryExists(tsConfigFilePath)) {
+      if (tsConfigFilePath === undefined) {
+        ts.sys.write('tsec: Cannot find project configuration.');
+        ts.sys.write(ts.sys.newLine);
+        return 1;
+      }
+    }
+    // tsec may run as a nodejs_binary in a bazel project. In that case,
+    // `tsConfigFilePath` can be a source file, which isn't available as a
+    // runfile on Windows where source tree symlinking is not enabled by
+    // default. Try resolving the path to the source tree.
+    try {
+      tsConfigFilePath = runfiles.resolveWorkspaceRelative(tsConfigFilePath);
+    } catch {
+    }
+    if (ts.sys.directoryExists(tsConfigFilePath)) {
       tsConfigFilePath = path.resolve(tsConfigFilePath, 'tsconfig.json');
     }
-    if (tsConfigFilePath === undefined ||
-        !ts.sys.fileExists(tsConfigFilePath)) {
+    if (!ts.sys.fileExists(tsConfigFilePath)) {
       ts.sys.write('tsec: Cannot find project configuration.');
       ts.sys.write(ts.sys.newLine);
       return 1;
