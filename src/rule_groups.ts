@@ -16,6 +16,7 @@ import {AbstractRule} from './third_party/tsetse/rule';
 
 import {RuleConfiguration} from './rule_configuration';
 import {Rule as TTBanBaseHrefAssignments} from './rules/dom_security/ban_base_href_assignments';
+import {Rule as TTBanDocumentExecCommand} from './rules/dom_security/ban_document_execcommand';
 import {Rule as TTBanDocumentWriteCalls} from './rules/dom_security/ban_document_write_calls';
 import {Rule as TTBanDocumentWritelnCalls} from './rules/dom_security/ban_document_writeln_calls';
 import {Rule as TTBanDomParserParseFromString} from './rules/dom_security/ban_domparser_parsefromstring';
@@ -50,6 +51,7 @@ export interface RuleConstructor {
 /** Conformance rules related to Trusted Types adoption */
 export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanBaseHrefAssignments,  // https://github.com/w3c/webappsec-trusted-types/issues/172
+  TTBanDocumentExecCommand,
   TTBanDocumentWritelnCalls,
   TTBanDocumentWriteCalls,
   TTBanEvalCalls,

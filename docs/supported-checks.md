@@ -5,6 +5,7 @@
 Rule Name                         | Checks Against
 --------------------------------- | --------------
 ban-base-href-assignments         | Assignments to `.href` on <base>
+ban-document-execcommand          | Calls to `document.execCommand('insertHTML')`
 ban-document-write-calls          | Calls to `document.write`
 ban-document-writeln-calls        | Calls to `document.writeln`
 ban-domparser-parsefromstring     | Calls to `DOMParser.parseFromString`
