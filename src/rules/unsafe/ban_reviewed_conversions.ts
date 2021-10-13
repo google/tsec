@@ -20,6 +20,11 @@ let errMsg =
     'Use of reviewed conversions to safe values requires security reviews and approval.';
 
 let bannedValues = [
+  '/node_modules/safevalues/restricted/reviewed|htmlFromStringKnownToSatisfyTypeContract',
+  '/node_modules/safevalues/restricted/reviewed|scriptFromStringKnownToSatisfyTypeContract',
+  '/node_modules/safevalues/restricted/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
+  // Deprecated API, keep banning for now in case people are using an older
+  // version of safevalues
   '/node_modules/safevalues/unsafe/reviewed|htmlFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/unsafe/reviewed|scriptFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/unsafe/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
