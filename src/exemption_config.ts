@@ -15,6 +15,7 @@
 import * as glob from 'glob';
 import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/allowlist';
 import * as minimatch from 'minimatch';
+import * as os from 'os';
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -135,6 +136,7 @@ export function parseExemptionConfig(exemptionConfigPath: string):
   const exemption = new ExemptionList();
   const baseDir = path.dirname(exemptionConfigPath);
   const globOptions = {cwd: baseDir, absolute: true, silent: true};
+  const isWin = os.platform() === 'win32';
 
   for (const prop of jsonObj.properties) {
     if (!ts.isPropertyAssignment(prop)) {
@@ -173,13 +175,16 @@ export function parseExemptionConfig(exemptionConfigPath: string):
                 ruleName}' requires values of type string`));
         continue;
       }
+      let pathLike = path.resolve(baseDir, elem.text);
+      if (isWin) {
+        pathLike = pathLike.replace(/\\/g, '/');
+      }
       if (glob.hasMagic(elem.text, globOptions)) {
-        const pattern = path.resolve(baseDir, elem.text);
         patterns.push(
             // Strip the leading and trailing '/' from the stringified regexp.
-            minimatch.makeRe(pattern, {}).toString().slice(1, -1));
+            minimatch.makeRe(pathLike, {}).toString().slice(1, -1));
       } else {
-        fileNames.push(path.resolve(baseDir, elem.text));
+        fileNames.push(pathLike);
       }
     }
 

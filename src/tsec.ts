@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {runfiles} from '@bazel/runfiles';
 import * as path from 'path';
 import * as ts from 'typescript';
 
 import {isInBuildMode, performBuild, performCheck} from './build';
+import {createCompilerHost} from './compiler_host';
 import {createDiagnosticsReporter, FORMAT_DIAGNOSTIC_HOST} from './report';
 
 /**
@@ -50,14 +50,6 @@ function main(args: string[]) {
         return 1;
       }
     }
-    // tsec may run as a nodejs_binary in a bazel project. In that case,
-    // `tsConfigFilePath` can be a source file, which isn't available as a
-    // runfile on Windows where source tree symlinking is not enabled by
-    // default. Try resolving the path to the source tree.
-    try {
-      tsConfigFilePath = runfiles.resolveWorkspaceRelative(tsConfigFilePath);
-    } catch {
-    }
     if (ts.sys.directoryExists(tsConfigFilePath)) {
       tsConfigFilePath = path.resolve(tsConfigFilePath, 'tsconfig.json');
     }
@@ -78,7 +70,7 @@ function main(args: string[]) {
   }
 
   const diagnostics = [...parsedConfig.errors];
-  const compilerHost = ts.createCompilerHost(parsedConfig.options, true);
+  const compilerHost = createCompilerHost(parsedConfig);
 
   const program = ts.createProgram(
       parsedConfig.fileNames, parsedConfig.options, compilerHost);
