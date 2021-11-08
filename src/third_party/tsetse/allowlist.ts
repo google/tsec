@@ -22,11 +22,8 @@ export interface AllowlistEntry {
    * ConformancePattern. Beware, escaping can be tricky.
    */
   readonly regexp?: readonly string[];
-  /**
-   * Prefixes for the paths of files that will be ignored by the
-   * ConformancePattern.
-   */
-  readonly prefix?: readonly string[];
+  /** Exact path of the file that will be ignored by the ConformancePattern. */
+  readonly path?: readonly string[];
 }
 
 /**
@@ -51,7 +48,7 @@ export enum ExemptionReason {
  * ExemptionReason ignored since it is purely for documentary purposes.
  */
 export class Allowlist {
-  private readonly allowlistedPrefixes: readonly string[] = [];
+  private readonly allowlistedPaths: readonly string[] = [];
   private readonly allowlistedRegExps: readonly RegExp[] = [];
   // To avoid repeated computation for allowlisting queries with the same file
   // path, create a memoizer to cache known results. This is useful in watch
@@ -63,9 +60,8 @@ export class Allowlist {
       allowlistEntries?: AllowlistEntry[], removePrefixes: string[] = []) {
     if (allowlistEntries) {
       for (const e of allowlistEntries) {
-        if (e.prefix) {
-          this.allowlistedPrefixes =
-              this.allowlistedPrefixes.concat(...e.prefix);
+        if (e.path) {
+          this.allowlistedPaths = this.allowlistedPaths.concat(...e.path);
         }
         if (e.regexp) {
           this.allowlistedRegExps = this.allowlistedRegExps.concat(
@@ -79,8 +75,8 @@ export class Allowlist {
     if (this.allowlistMemoizer.has(filePath)) {
       return this.allowlistMemoizer.get(filePath)!;
     }
-    for (const p of this.allowlistedPrefixes) {
-      if (filePath.startsWith(p)) {
+    for (const p of this.allowlistedPaths) {
+      if (filePath === p) {
         this.allowlistMemoizer.set(filePath, true);
         return true;
       }

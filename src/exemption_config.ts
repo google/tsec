@@ -190,7 +190,7 @@ export function parseExemptionConfig(exemptionConfigPath: string):
 
     exemption.set(ruleName, {
       reason: ExemptionReason.UNSPECIFIED,
-      prefix: fileNames,
+      path: fileNames,
       regexp: patterns,
     });
   }
