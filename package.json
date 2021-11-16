@@ -44,7 +44,7 @@
     "minimatch": "^3.0.3"
   },
   "peerDependencies": {
-    "@bazel/runfiles": ">=4.0.0",
+    "@bazel/bazelisk": ">=1.7.5",
     "typescript": ">=3.9.2"
   }
 }
