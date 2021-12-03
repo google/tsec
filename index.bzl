@@ -86,17 +86,21 @@ def _generate_tsconfig(bin_dir_path, target, base_tsconfig, use_runfiles):
         if f.extension not in ["ts", "tsx"]:
             continue
 
-        # Do not include declarations in node_modules
-        if f.owner.workspace_name == "npm":
-            continue
-
         path = f.short_path
 
         # Do not include ngc produced files
         if path.endswith(".ngfactory.d.ts") or path.endswith(".ngsummary.d.ts"):
             continue
 
-        base = src_base_dir if f.is_source else pkg_base_dir
+        if not use_runfiles and f.owner.workspace_name == "npm":
+            # For npm hosted source files, we need to go further back two levels
+            # of directories (workspace and execroot) from `src_base_dir`, and
+            # then go to node_modules_root (and trim off the redundant "npm"
+            # segment that exists in both `path` and `node_modules_root`.
+            base = "../../%s/%s/.." % (src_base_dir, node_modules_root)
+        else:
+            base = src_base_dir if f.is_source else pkg_base_dir
+
         sets.insert(files, base + "/" + path)
 
     tsconfig["files"] = sets.to_list(files)
