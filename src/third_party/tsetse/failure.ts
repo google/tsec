@@ -117,11 +117,20 @@ export class Failure {
       } else if (c.start === this.start && c.end === this.end) {
         // We assume the replacement is the main part of the fix, so put that
         // individual change first in `fixText`.
-        fixText = `- Replace the full match with: ${printableReplacement}\n` +
-            fixText;
+        if (printableReplacement === '') {
+          fixText = `- Delete the full match\n` + fixText;
+        } else {
+          fixText = `- Replace the full match with: ${printableReplacement}\n` +
+              fixText;
+        }
       } else {
-        fixText = `- Replace ${this.readableRange(c.start, c.end)} with: ` +
-            `${printableReplacement}\n${fixText}`;
+        if (printableReplacement === '') {
+          fixText =
+              `- Delete ${this.readableRange(c.start, c.end)}\n` + fixText;
+        } else {
+          fixText = `- Replace ${this.readableRange(c.start, c.end)} with: ` +
+              `${printableReplacement}\n${fixText}`;
+        }
       }
     }
 
@@ -155,6 +164,18 @@ export interface Fix {
    * The individual text replacements composing that fix.
    */
   changes: IndividualChange[];
+}
+
+/** Creates a fix that replaces the given node with the new text. */
+export function replaceNode(node: ts.Node, replacement: string): Fix {
+  return {
+    changes: [{
+      sourceFile: node.getSourceFile(),
+      start: node.getStart(),
+      end: node.getEnd(),
+      replacement,
+    }],
+  };
 }
 
 /**
