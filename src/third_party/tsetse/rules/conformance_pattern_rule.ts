@@ -21,7 +21,7 @@ export class ConformancePatternRule implements AbstractRule {
   readonly code: number;
   private readonly engine: PatternEngine;
 
-  constructor(config: PatternRuleConfig, fixers?: Fixer[]) {
+  constructor(readonly config: PatternRuleConfig, fixers?: Fixer[]) {
     this.code = config.errorCode;
     // Avoid undefined rule names.
     this.ruleName = config.name ?? '';
