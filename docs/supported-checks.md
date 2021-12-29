@@ -22,6 +22,7 @@ ban-shared-worker-calls           | Calls to the constructor of `SharedWorker`
 ban-worker-calls                  | Calls to the constructor of `Worker`
 ban-window-stringfunctiondef      | Calls to `setInternal` and `setTimeout` with strings as the first argument
 ban-trustedtypes-createpolicy     | Calls to `TrustedTypePolicyFactory.createPolicy`
+ban-range-createcontextualfragment| Calls to `Range.createContextualFragment`
 
 <!-- mdformat on -->
 

@@ -27,6 +27,7 @@ import {Rule as TTBanElementSetAttribute} from './rules/dom_security/ban_element
 import {Rule as TTBanEvalCalls} from './rules/dom_security/ban_eval_calls';
 import {Rule as TTBanFunctionCalls} from './rules/dom_security/ban_function_calls';
 import {Rule as TTBanIFrameSrcdocAssignments} from './rules/dom_security/ban_iframe_srcdoc_assignments';
+import {Rule as TTBanRangeCreateContextualFragment} from './rules/dom_security/ban_range_createcontextualfragment';
 import {Rule as TTBanScriptAppendChildCalls} from './rules/dom_security/ban_script_appendchild_calls';
 import {Rule as TTBanScriptContentAssignments} from './rules/dom_security/ban_script_content_assignments';
 import {Rule as TTBanScriptSrcAssignments} from './rules/dom_security/ban_script_src_assignments';
@@ -70,6 +71,8 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanElementInsertAdjacentHTML,
   TTBanDomParserParseFromString,
   TTBanElementSetAttribute,
+  TTBanRangeCreateContextualFragment,
+
   BanLegacyConversions,
   BanUncheckedConversions,
 ];
