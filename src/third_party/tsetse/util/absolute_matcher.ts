@@ -117,7 +117,7 @@ export class AbsoluteMatcher {
     if (p !== undefined) {
       // Check if the node is being declared. Declaration may be imported
       // without programmer being aware of. We should not alert them about that.
-      // Since import statments are also declarations, this have two notable
+      // Since import statments are also declarations, this has two notable
       // consequences.
       // - Match is negative for imports without renaming
       // - Match is positive for imports with renaming, when the imported name
@@ -136,7 +136,8 @@ export class AbsoluteMatcher {
     const s = dealias(tc.getSymbolAtLocation(n), tc);
     if (!s) {
       debugLog(() => `cannot get symbol`);
-      return false;
+      return this.filePath === GLOBAL &&
+          matchGoogGlobal(n, this.bannedName, tc);
     }
 
     // The TS-provided FQN tells us the full identifier, and the origin file
@@ -187,4 +188,35 @@ export class AbsoluteMatcher {
       return filePath.match(this.filePath) !== null;
     }
   }
+}
+
+function matchGoogGlobal(n: ts.Node, bannedName: string, tc: ts.TypeChecker) {
+  if (n.parent === undefined) return false;
+
+  let accessExpr = n.parent;
+
+  const ids = bannedName.split('.').reverse();
+  for (const id of ids) {
+    let memberName;
+    if (ts.isPropertyAccessExpression(accessExpr)) {
+      memberName = accessExpr.name.text;
+      accessExpr = accessExpr.expression;
+    } else if (ts.isElementAccessExpression(accessExpr)) {
+      const argType = tc.getTypeAtLocation(accessExpr.argumentExpression);
+      if (argType.isStringLiteral()) {
+        memberName = argType.value;
+      } else {
+        return false;
+      }
+      accessExpr = accessExpr.expression;
+    } else {
+      return false;
+    }
+    if (id !== memberName) return false;
+  }
+
+  const s = dealias(tc.getSymbolAtLocation(accessExpr), tc);
+  if (s === undefined) return false;
+
+  return tc.getFullyQualifiedName(s) === 'goog.global';
 }
