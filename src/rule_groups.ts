@@ -31,6 +31,7 @@ import {Rule as TTBanRangeCreateContextualFragment} from './rules/dom_security/b
 import {Rule as TTBanScriptAppendChildCalls} from './rules/dom_security/ban_script_appendchild_calls';
 import {Rule as TTBanScriptContentAssignments} from './rules/dom_security/ban_script_content_assignments';
 import {Rule as TTBanScriptSrcAssignments} from './rules/dom_security/ban_script_src_assignments';
+import {Rule as TTBanServiceWorkerContainerRegister} from './rules/dom_security/ban_serviceworkercontainer_register';
 import {Rule as TTBanSharedWorkerCalls} from './rules/dom_security/ban_shared_worker_calls';
 import {Rule as TTBanTrustedTypesCreatepolicy} from './rules/dom_security/ban_trustedtypes_createpolicy';
 import {Rule as TTBanWindowStringfunctiondef} from './rules/dom_security/ban_window_stringfunctiondef';
@@ -61,6 +62,7 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanScriptAppendChildCalls,
   TTBanScriptContentAssignments,
   TTBanScriptSrcAssignments,
+  TTBanServiceWorkerContainerRegister,
   TTBanSharedWorkerCalls,
   TTBanTrustedTypesCreatepolicy,
   TTBanWindowStringfunctiondef,
@@ -72,7 +74,6 @@ export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
   TTBanDomParserParseFromString,
   TTBanElementSetAttribute,
   TTBanRangeCreateContextualFragment,
-
   BanLegacyConversions,
   BanUncheckedConversions,
 ];
