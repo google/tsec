@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {Fix} from '../../third_party/tsetse/failure';
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {maybeAddNamedImport} from '../../third_party/tsetse/util/fixer';
 import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_HTML} from '../../third_party/tsetse/util/trusted_types_configuration';
+import * as ts from 'typescript';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
