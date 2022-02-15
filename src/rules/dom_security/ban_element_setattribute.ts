@@ -42,6 +42,11 @@ export const SECURITY_SENSITIVE_ATTRIBUTES = new Set([
   'srcdoc',
 ]);
 
+function isSecuritySensitiveAttrName(attr: string) {
+  return (attr.startsWith('on') && attr !== 'on') ||
+      SECURITY_SENSITIVE_ATTRIBUTES.has(attr);
+}
+
 function matchNode(
     tc: ts.TypeChecker,
     n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
@@ -60,7 +65,7 @@ function matchNode(
     if (n.parent.arguments.length !== 2) return;
     const ty = tc.getTypeAtLocation(n.parent.arguments[0]);
     if (ty.isStringLiteral() &&
-        !SECURITY_SENSITIVE_ATTRIBUTES.has(ty.value.toLowerCase()) &&
+        !isSecuritySensitiveAttrName(ty.value.toLowerCase()) &&
         isLiteral(tc, n.parent.arguments[0])) {
       return;
     }
