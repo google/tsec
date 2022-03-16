@@ -20,11 +20,14 @@ let errMsg =
     'Use of legacy conversions to safe values requires security reviews and approval.';
 
 let bannedValues = [
+  '/node_modules/safevalues/restricted/legacy|legacyUnsafeHtml',
+  '/node_modules/safevalues/restricted/legacy|legacyUnsafeScript',
+  '/node_modules/safevalues/restricted/legacy|legacyUnsafeScriptUrl',
+  // Deprecated API, keep banning for now in case people are using an older
+  // version of safevalues
   '/node_modules/safevalues/restricted/legacy|legacyConversionToHtml',
   '/node_modules/safevalues/restricted/legacy|legacyConversionToScript',
   '/node_modules/safevalues/restricted/legacy|legacyConversionToScriptUrl',
-  // Deprecated API, keep banning for now in case people are using an older
-  // version of safevalues
   '/node_modules/safevalues/unsafe/legacy|legacyConversionToHtml',
   '/node_modules/safevalues/unsafe/legacy|legacyConversionToScript',
   '/node_modules/safevalues/unsafe/legacy|legacyConversionToScriptUrl',
