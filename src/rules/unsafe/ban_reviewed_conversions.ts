@@ -20,14 +20,17 @@ let errMsg =
     'Use of reviewed conversions to safe values requires security reviews and approval.';
 
 let bannedValues = [
+  '/node_modules/safevalues/restricted/reviewed|htmlSafeByReview',
+  '/node_modules/safevalues/restricted/reviewed|scriptSafeByReview',
+  '/node_modules/safevalues/restricted/reviewed|scriptUrlSafeByReview',
+  // Deprecated API, keep banning for now in case people are using an older
+  // version of safevalues
   '/node_modules/safevalues/restricted/reviewed|htmlFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/restricted/reviewed|scriptFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/restricted/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
-  // Deprecated API, keep banning for now in case people are using an older
-  // version of safevalues
   '/node_modules/safevalues/unsafe/reviewed|htmlFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/unsafe/reviewed|scriptFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/unsafe/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
+  '/node_modules/safevalues/unsafe/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract'
 ];
 
 /** A Rule that bans the use of reviewed conversions to safe values. */
