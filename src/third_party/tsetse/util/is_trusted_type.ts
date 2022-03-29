@@ -14,7 +14,9 @@ export function isExpressionOfAllowedTrustedType(
     tc: ts.TypeChecker, expr: ts.Expression,
     allowedType: TrustedTypesConfig): boolean {
   if (isIntersectionOfTrustedType(tc, expr, allowedType)) return true;
+  if (isTrustedType(tc, expr, allowedType)) return true;
   if (isTrustedTypeCastToUnknownToString(tc, expr, allowedType)) return true;
+  if (isTrustedTypeUnionWithString(tc, expr, allowedType)) return true;
   if (isTrustedTypeUnionWithStringCastToString(tc, expr, allowedType)) return true;
   if (isTrustedTypeUnwrapperFunction(tc, expr, allowedType)) return true;
   return false;
@@ -32,6 +34,7 @@ function isAllowedSymbol(
 
   const fqn = tc.getFullyQualifiedName(symbol);
   debugLog(() => `fully qualified name is ${fqn}`);
+  if (fqn === allowedType.typeName) return true;
   if (!fqn.endsWith('.' + allowedType.typeName)) return false;
 
   // check that the type is comes allowed declaration file
@@ -122,4 +125,30 @@ function isIntersectionOfTrustedType(
   if (!type.isIntersection()) return false;
 
   return type.types.some(t => isAllowedSymbol(tc, t.getSymbol(), allowedType));
+}
+
+/**
+ * Returns true if the expression matches the following format:
+ * "(AllowedTrustedType)"
+ */
+ function isTrustedType(
+    tc: ts.TypeChecker, expr: ts.Expression, allowedType: TrustedTypesConfig) {
+  const type = tc.getTypeAtLocation(expr);
+
+  return isAllowedSymbol(tc, type.getSymbol(), allowedType);
+}
+
+/**
+ * Returns true if the expression matches the following format:
+ * "(AllowedTrustedType | string)"
+ */
+ function isTrustedTypeUnionWithString(
+    tc: ts.TypeChecker, expr: ts.Expression, allowedType: TrustedTypesConfig) {
+  const type = tc.getTypeAtLocation(expr);
+
+  return type.isUnion() &&
+    // string type
+    type.types.some(type => (type.flags & (ts.TypeFlags.String | ts.TypeFlags.StringLike | ts.TypeFlags.StringLiteral)) !== 0 ) &&
+    // allowed Trusted Type
+    type.types.some(type => isAllowedSymbol(tc, type.getSymbol(), allowedType));
 }
