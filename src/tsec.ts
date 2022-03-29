@@ -91,8 +91,10 @@ function main(args: string[]) {
   const result = program.emit();
   diagnostics.push(...result.diagnostics);
 
+  const sortedDiagnostics = ts.sortAndDeduplicateDiagnostics(diagnostics);
+
   const reportDiagnostics = createDiagnosticsReporter(parsedConfig.options);
-  const errorCount = reportDiagnostics(diagnostics, /*withSummary*/ true);
+  const errorCount = reportDiagnostics(sortedDiagnostics, /*withSummary*/ true);
 
   return errorCount === 0 ? 0 : 1;
 }
