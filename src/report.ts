@@ -15,6 +15,11 @@
 import * as path from 'path';
 import * as ts from 'typescript';
 
+import {ENABLED_RULES} from './rule_groups';
+
+const ALL_TSEC_RULE_NAMES =
+    new Set<string|undefined>(ENABLED_RULES.map(r => r.RULE_NAME));
+
 /** The default FormatDiagnosticsHost for tsec. */
 export const FORMAT_DIAGNOSTIC_HOST: ts.FormatDiagnosticsHost = {
   getCurrentDirectory: ts.sys.getCurrentDirectory,
@@ -40,14 +45,18 @@ export function reportErrorSummary(errorCount: number) {
 /** Report a list of Diagnostic with an optional trailing error summary. */
 function reportDiagnostics(
     diagnostics: readonly ts.Diagnostic[], withSummary: boolean,
-    pretty: boolean): number {
+    pretty: boolean,
+    ignoreBuildErrors: boolean): number {
+
+  const filteredDiagnostics = ignoreBuildErrors === true ? diagnostics.filter(d => ALL_TSEC_RULE_NAMES.has(d.source)) : diagnostics;
+
   const formatter =
       pretty ? ts.formatDiagnosticsWithColorAndContext : ts.formatDiagnostics;
-  ts.sys.write(formatter(diagnostics, FORMAT_DIAGNOSTIC_HOST));
+  ts.sys.write(formatter(filteredDiagnostics, FORMAT_DIAGNOSTIC_HOST));
 
 
   const errorCount =
-      diagnostics.filter(d => d.category === ts.DiagnosticCategory.Error)
+      filteredDiagnostics.filter(d => d.category === ts.DiagnosticCategory.Error)
           .length;
 
   if (withSummary && errorCount !== 0) {
@@ -56,6 +65,26 @@ function reportDiagnostics(
   }
 
   return errorCount;
+}
+
+interface TsecPluginOptions extends ts.PluginImport {
+  exemptionConfig?: string,
+  ignoreBuildErrors: boolean,
+}
+
+function getTsecPluginOptions(options: ts.CompilerOptions) : TsecPluginOptions {
+  const pluginName = 'tsec';
+  const tsecPluginOptions: TsecPluginOptions = {
+    name: pluginName,
+    ignoreBuildErrors: false,
+  };
+  if (Array.isArray(options?.plugins)) {
+    const pluginOptions = (options.plugins as ts.PluginImport[]).find(p => p.name === pluginName);
+    if (pluginOptions) {
+      Object.assign(tsecPluginOptions, pluginOptions);
+    }
+  }
+  return tsecPluginOptions;
 }
 
 /**
@@ -67,6 +96,7 @@ export function createDiagnosticsReporter(options: ts.CompilerOptions|
   let pretty =
       ts.sys.writeOutputIsTTY === undefined ? false : ts.sys.writeOutputIsTTY();
   if (options['pretty'] !== undefined) pretty = options['pretty'] as boolean;
+  const tsecOptions = getTsecPluginOptions(options);
   return (diagnostics: readonly ts.Diagnostic[], withSummary: boolean) =>
-             reportDiagnostics(diagnostics, withSummary, pretty);
+             reportDiagnostics(diagnostics, withSummary, pretty, tsecOptions.ignoreBuildErrors);
 }
