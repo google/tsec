@@ -1,6 +1,6 @@
 """Bazel rules and macros for running tsec over a ng_module or ts_library."""
 
-load("@npm//@bazel/typescript/internal:ts_config.bzl", "TsConfigInfo")
+load("@npm//@bazel/concatjs/internal:ts_config.bzl", "TsConfigInfo")
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
 load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
