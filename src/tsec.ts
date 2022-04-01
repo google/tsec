@@ -92,7 +92,8 @@ function main(args: string[]) {
   diagnostics.push(...result.diagnostics);
 
   const reportDiagnostics = createDiagnosticsReporter(parsedConfig.options);
-  const errorCount = reportDiagnostics(diagnostics, /*withSummary*/ true);
+  const errorCount = reportDiagnostics(
+      ts.sortAndDeduplicateDiagnostics(diagnostics), /*withSummary*/ true);
 
   return errorCount === 0 ? 0 : 1;
 }
