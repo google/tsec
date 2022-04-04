@@ -1,0 +1,542 @@
+diff --git a/node_modules/typescript/lib/lib.dom.d.ts b/node_modules/typescript/lib/lib.dom.d.ts
+index c5cd8c3..092889a 100644
+--- a/node_modules/typescript/lib/lib.dom.d.ts
++++ b/node_modules/typescript/lib/lib.dom.d.ts
+@@ -1870,6 +1870,12 @@ interface TransitionEventInit extends EventInit {
+     pseudoElement?: string;
+ }
+ 
++interface TrustedTypePolicyOptions {
++    createHTML?: CreateHTMLCallback | null;
++    createScript?: CreateScriptCallback | null;
++    createScriptURL?: CreateScriptURLCallback | null;
++}
++
+ interface UIEventInit extends EventInit {
+     detail?: number;
+     view?: Window | null;
+@@ -3534,13 +3540,13 @@ interface ChildNode extends Node {
+      *
+      * Throws a "HierarchyRequestError" DOMException if the constraints of the node tree are violated.
+      */
+-    after(...nodes: (Node | string)[]): void;
++    after(...nodes: (Node | string | TrustedScript)[]): void;
+     /**
+      * Inserts nodes just before node, while replacing strings in nodes with equivalent Text nodes.
+      *
+      * Throws a "HierarchyRequestError" DOMException if the constraints of the node tree are violated.
+      */
+-    before(...nodes: (Node | string)[]): void;
++    before(...nodes: (Node | string | TrustedScript)[]): void;
+     /**
+      * Removes node.
+      */
+@@ -3550,7 +3556,7 @@ interface ChildNode extends Node {
+      *
+      * Throws a "HierarchyRequestError" DOMException if the constraints of the node tree are violated.
+      */
+-    replaceWith(...nodes: (Node | string)[]): void;
++    replaceWith(...nodes: (Node | string | TrustedScript)[]): void;
+ }
+ 
+ interface ClientRect {
+@@ -3968,7 +3974,7 @@ interface DOMParser {
+      *
+      * Values other than the above for type will cause a TypeError exception to be thrown.
+      */
+-    parseFromString(string: string, type: DOMParserSupportedType): Document;
++    parseFromString(string: string | TrustedHTML, type: DOMParserSupportedType): Document;
+ }
+ 
+ declare var DOMParser: {
+@@ -4779,7 +4785,7 @@ interface Document extends Node, DocumentAndElementEventHandlers, DocumentOrShad
+      * @param showUI Display the user interface, defaults to false.
+      * @param value Value to assign.
+      */
+-    execCommand(commandId: string, showUI?: boolean, value?: string): boolean;
++    execCommand(commandId: string, showUI?: boolean, value?: string | TrustedHTML): boolean;
+     /**
+      * Stops document's fullscreen element from being displayed fullscreen and resolves promise when done.
+      */
+@@ -4872,11 +4878,13 @@ interface Document extends Node, DocumentAndElementEventHandlers, DocumentOrShad
+      * Writes one or more HTML expressions to a document in the specified window.
+      * @param content Specifies the text and HTML tags to write.
+      */
++    write(text: TrustedHTML): void;
+     write(...text: string[]): void;
+     /**
+      * Writes one or more HTML expressions, followed by a carriage return, to a document in the specified window.
+      * @param content The text and HTML tags to write.
+      */
++    writeln(text: TrustedHTML): void;
+     writeln(...text: string[]): void;
+     addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: Document, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+@@ -5119,7 +5127,8 @@ interface Element extends Node, Animatable, ChildNode, InnerHTML, NonDocumentTyp
+     readonly namespaceURI: string | null;
+     onfullscreenchange: ((this: Element, ev: Event) => any) | null;
+     onfullscreenerror: ((this: Element, ev: Event) => any) | null;
+-    outerHTML: string;
++    get outerHTML(): string;
++    set outerHTML(outerHTML: string | TrustedHTML);
+     readonly ownerDocument: Document;
+     /**
+      * Returns the namespace prefix.
+@@ -5191,7 +5200,7 @@ interface Element extends Node, Animatable, ChildNode, InnerHTML, NonDocumentTyp
+     hasAttributes(): boolean;
+     hasPointerCapture(pointerId: number): boolean;
+     insertAdjacentElement(position: InsertPosition, insertedElement: Element): Element | null;
+-    insertAdjacentHTML(where: InsertPosition, html: string): void;
++    insertAdjacentHTML(where: InsertPosition, html: string | TrustedHTML): void;
+     insertAdjacentText(where: InsertPosition, text: string): void;
+     /**
+      * Returns true if matching selectors against element's root yields element, and false otherwise.
+@@ -6595,7 +6604,8 @@ interface HTMLElement extends Element, DocumentAndElementEventHandlers, ElementC
+     dir: string;
+     draggable: boolean;
+     hidden: boolean;
+-    innerText: string;
++    get innerText(): string;
++    set innerText(innerText: string | TrustedScript);
+     lang: string;
+     readonly offsetHeight: number;
+     readonly offsetLeft: number;
+@@ -6633,7 +6643,8 @@ interface HTMLEmbedElement extends HTMLElement {
+     /**
+      * Sets or retrieves a URL to be loaded by the object.
+      */
+-    src: string;
++    get src(): string;
++    set src(src: string | TrustedScriptURL);
+     type: string;
+     /**
+      * Sets or retrieves the width of the object.
+@@ -7047,7 +7058,8 @@ interface HTMLIFrameElement extends HTMLElement {
+     /**
+      * Sets or retrives the content of the page that is to contain.
+      */
+-    srcdoc: string;
++    get srcdoc(): string;
++    set srcdoc(srcdoc: string | TrustedHTML);
+     /**
+      * Sets or retrieves the width of the object.
+      */
+@@ -7817,7 +7829,8 @@ interface HTMLObjectElement extends HTMLElement {
+      * Sets or retrieves the URL of the component.
+      */
+     /** @deprecated */
+-    codeBase: string;
++    get codeBase(): string;
++    set codeBase(codeBase: string | TrustedHTML);
+     /**
+      * Sets or retrieves the Internet media type for the code associated with the object.
+      */
+@@ -7831,7 +7844,8 @@ interface HTMLObjectElement extends HTMLElement {
+     /**
+      * Sets or retrieves the URL that references the data of the object.
+      */
+-    data: string;
++    get data(): string;
++    set data(data: string | TrustedHTML);
+     /** @deprecated */
+     declare: boolean;
+     /**
+@@ -8189,11 +8203,13 @@ interface HTMLScriptElement extends HTMLElement {
+     /**
+      * Retrieves the URL to an external file that contains the source code or data.
+      */
+-    src: string;
++    get src(): string;
++    set src(src: string | TrustedScriptURL);
+     /**
+      * Retrieves or sets the text of the object as a string.
+      */
+-    text: string;
++    get text(): string;
++    set text(text: string | TrustedScript);
+     /**
+      * Sets or retrieves the MIME type for the associated scripting engine.
+      */
+@@ -9585,7 +9601,8 @@ declare var ImageData: {
+ };
+ 
+ interface InnerHTML {
+-    innerHTML: string;
++    get innerHTML(): string;
++    set innerHTML(innerHTML: string | TrustedHTML);
+ }
+ 
+ interface InputDeviceInfo extends MediaDeviceInfo {
+@@ -10722,7 +10739,8 @@ interface Node extends EventTarget {
+      * Returns the previous sibling.
+      */
+     readonly previousSibling: ChildNode | null;
+-    textContent: string | null;
++    get textContent(): string | null;
++    set textContent(textContent: string | TrustedScript | null);
+     appendChild<T extends Node>(newChild: T): T;
+     /**
+      * Returns a copy of node. If deep is true, the copy also includes the node's descendants.
+@@ -11248,13 +11266,13 @@ interface ParentNode {
+      *
+      * Throws a "HierarchyRequestError" DOMException if the constraints of the node tree are violated.
+      */
+-    append(...nodes: (Node | string)[]): void;
++    append(...nodes: (Node | string | TrustedScript)[]): void;
+     /**
+      * Inserts nodes before the first child of node, while replacing strings in nodes with equivalent Text nodes.
+      *
+      * Throws a "HierarchyRequestError" DOMException if the constraints of the node tree are violated.
+      */
+-    prepend(...nodes: (Node | string)[]): void;
++    prepend(...nodes: (Node | string | TrustedScript)[]): void;
+     /**
+      * Returns the first element that is a descendant of node that matches selectors.
+      */
+@@ -12362,7 +12380,7 @@ interface Range extends AbstractRange {
+      * Returns −1 if the point is before the range, 0 if the point is in the range, and 1 if the point is after the range.
+      */
+     comparePoint(node: Node, offset: number): number;
+-    createContextualFragment(fragment: string): DocumentFragment;
++    createContextualFragment(fragment: string | TrustedHTML): DocumentFragment;
+     deleteContents(): void;
+     detach(): void;
+     extractContents(): DocumentFragment;
+@@ -12758,7 +12776,8 @@ declare var SVGAnimatedRect: {
+ /** The SVGAnimatedString interface represents string attributes which can be animated from each SVG declaration. You need to create SVG attribute before doing anything else, everything should be declared inside this. */
+ interface SVGAnimatedString {
+     readonly animVal: string;
+-    baseVal: string;
++    get baseVal(): string;
++    set baseVal(baseVal: string | TrustedScriptURL);
+ }
+ 
+ declare var SVGAnimatedString: {
+@@ -14756,7 +14775,7 @@ interface ServiceWorkerContainer extends EventTarget {
+     readonly ready: Promise<ServiceWorkerRegistration>;
+     getRegistration(clientURL?: string): Promise<ServiceWorkerRegistration | undefined>;
+     getRegistrations(): Promise<ReadonlyArray<ServiceWorkerRegistration>>;
+-    register(scriptURL: string | URL, options?: RegistrationOptions): Promise<ServiceWorkerRegistration>;
++    register(scriptURL: string | URL | TrustedScriptURL, options?: RegistrationOptions): Promise<ServiceWorkerRegistration>;
+     startMessages(): void;
+     addEventListener<K extends keyof ServiceWorkerContainerEventMap>(type: K, listener: (this: ServiceWorkerContainer, ev: ServiceWorkerContainerEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+@@ -14825,7 +14844,7 @@ interface SharedWorker extends EventTarget, AbstractWorker {
+ 
+ declare var SharedWorker: {
+     prototype: SharedWorker;
+-    new(scriptURL: string, options?: string | WorkerOptions): SharedWorker;
++    new(scriptURL: string | TrustedScriptURL, options?: string | WorkerOptions): SharedWorker;
+ };
+ 
+ interface Slottable {
+@@ -15737,6 +15756,66 @@ declare var TreeWalker: {
+     new(): TreeWalker;
+ };
+ 
++interface TrustedHTML {
++    toJSON(): string;
++    toString(): string;
++}
++
++declare var TrustedHTML: {
++    prototype: TrustedHTML;
++    fromLiteral(templateStringsArray: any): TrustedHTML;
++    toString(): string;
++};
++
++interface TrustedScript {
++    toJSON(): string;
++    toString(): string;
++}
++
++declare var TrustedScript: {
++    prototype: TrustedScript;
++    fromLiteral(templateStringsArray: any): TrustedScript;
++    toString(): string;
++};
++
++interface TrustedScriptURL {
++    toJSON(): string;
++    toString(): string;
++}
++
++declare var TrustedScriptURL: {
++    prototype: TrustedScriptURL;
++    fromLiteral(templateStringsArray: any): TrustedScriptURL;
++    toString(): string;
++};
++
++interface TrustedTypePolicy {
++    readonly name: string;
++    createHTML(input: string, ...arguments: any[]): TrustedHTML;
++    createScript(input: string, ...arguments: any[]): TrustedScript;
++    createScriptURL(input: string, ...arguments: any[]): TrustedScriptURL;
++}
++
++declare var TrustedTypePolicy: {
++    prototype: TrustedTypePolicy;
++};
++
++interface TrustedTypePolicyFactory {
++    readonly defaultPolicy: TrustedTypePolicy | null;
++    readonly emptyHTML: TrustedHTML;
++    readonly emptyScript: TrustedScript;
++    createPolicy(policyName: string, policyOptions?: TrustedTypePolicyOptions): TrustedTypePolicy;
++    getAttributeType(tagName: string, attribute: string, elementNs?: string, attrNs?: string): string | null;
++    getPropertyType(tagName: string, property: string, elementNs?: string): string | null;
++    isHTML(value: any): boolean;
++    isScript(value: any): boolean;
++    isScriptURL(value: any): boolean;
++}
++
++declare var TrustedTypePolicyFactory: {
++    prototype: TrustedTypePolicyFactory;
++};
++
+ /** Simple user interface events. */
+ interface UIEvent extends Event {
+     readonly detail: number;
+@@ -18369,6 +18448,7 @@ interface WindowOrWorkerGlobalScope {
+     readonly isSecureContext: boolean;
+     readonly origin: string;
+     readonly performance: Performance;
++    readonly trustedTypes: TrustedTypePolicyFactory;
+     atob(data: string): string;
+     btoa(data: string): string;
+     clearInterval(handle?: number): void;
+@@ -18411,7 +18491,7 @@ interface Worker extends EventTarget, AbstractWorker {
+ 
+ declare var Worker: {
+     prototype: Worker;
+-    new(stringUrl: string | URL, options?: WorkerOptions): Worker;
++    new(scriptURL: string | URL | TrustedScriptURL, options?: WorkerOptions): Worker;
+ };
+ 
+ interface Worklet {
+@@ -18899,6 +18979,18 @@ interface BlobCallback {
+     (blob: Blob | null): void;
+ }
+ 
++interface CreateHTMLCallback {
++    (input: string, ...arguments: any[]): string;
++}
++
++interface CreateScriptCallback {
++    (input: string, ...arguments: any[]): string;
++}
++
++interface CreateScriptURLCallback {
++    (input: string, ...arguments: any[]): string;
++}
++
+ interface CustomElementConstructor {
+     new (...params: any[]): HTMLElement;
+ }
+@@ -19615,6 +19707,7 @@ declare var indexedDB: IDBFactory;
+ declare var isSecureContext: boolean;
+ declare var origin: string;
+ declare var performance: Performance;
++declare var trustedTypes: TrustedTypePolicyFactory;
+ declare function atob(data: string): string;
+ declare function btoa(data: string): string;
+ declare function clearInterval(handle?: number): void;
+@@ -19660,7 +19753,7 @@ type ImageBitmapSource = CanvasImageSource | Blob | ImageData;
+ type MediaProvider = MediaStream | MediaSource | Blob;
+ type OnErrorEventHandler = OnErrorEventHandlerNonNull | null;
+ type OnBeforeUnloadEventHandler = OnBeforeUnloadEventHandlerNonNull | null;
+-type TimerHandler = string | Function;
++type TimerHandler = string | Function | TrustedScript;
+ type ConstrainULong = number | ConstrainULongRange;
+ type ConstrainDouble = number | ConstrainDoubleRange;
+ type ConstrainBoolean = boolean | ConstrainBooleanParameters;
+@@ -19701,6 +19794,7 @@ type IDBValidKey = number | string | Date | BufferSource | IDBArrayKey;
+ type MutationRecordType = "attributes" | "characterData" | "childList";
+ type IDBKeyPath = string;
+ type Transferable = ArrayBuffer | MessagePort | ImageBitmap | OffscreenCanvas;
++type TrustedType = TrustedHTML | TrustedScript | TrustedScriptURL;
+ type RTCIceGatherCandidate = RTCIceCandidateDictionary | RTCIceCandidateComplete;
+ type RTCTransport = RTCDtlsTransport | RTCSrtpSdesTransport;
+ /** @deprecated */
+diff --git a/node_modules/typescript/lib/lib.webworker.d.ts b/node_modules/typescript/lib/lib.webworker.d.ts
+index 528778f..3181590 100644
+--- a/node_modules/typescript/lib/lib.webworker.d.ts
++++ b/node_modules/typescript/lib/lib.webworker.d.ts
+@@ -577,6 +577,12 @@ interface Transformer<I = any, O = any> {
+     writableType?: undefined;
+ }
+ 
++interface TrustedTypePolicyOptions {
++    createHTML?: CreateHTMLCallback | null;
++    createScript?: CreateScriptCallback | null;
++    createScriptURL?: CreateScriptURLCallback | null;
++}
++
+ interface UnderlyingSink<W = any> {
+     abort?: UnderlyingSinkAbortCallback;
+     close?: UnderlyingSinkCloseCallback;
+@@ -2895,7 +2901,7 @@ interface ServiceWorkerContainer extends EventTarget {
+     readonly ready: Promise<ServiceWorkerRegistration>;
+     getRegistration(clientURL?: string): Promise<ServiceWorkerRegistration | undefined>;
+     getRegistrations(): Promise<ReadonlyArray<ServiceWorkerRegistration>>;
+-    register(scriptURL: string | URL, options?: RegistrationOptions): Promise<ServiceWorkerRegistration>;
++    register(scriptURL: string | URL | TrustedScriptURL, options?: RegistrationOptions): Promise<ServiceWorkerRegistration>;
+     startMessages(): void;
+     addEventListener<K extends keyof ServiceWorkerContainerEventMap>(type: K, listener: (this: ServiceWorkerContainer, ev: ServiceWorkerContainerEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+@@ -2989,7 +2995,7 @@ interface SharedWorker extends EventTarget, AbstractWorker {
+ 
+ declare var SharedWorker: {
+     prototype: SharedWorker;
+-    new(scriptURL: string, options?: string | WorkerOptions): SharedWorker;
++    new(scriptURL: string | TrustedScriptURL, options?: string | WorkerOptions): SharedWorker;
+ };
+ 
+ interface SharedWorkerGlobalScopeEventMap extends WorkerGlobalScopeEventMap {
+@@ -3209,6 +3215,66 @@ declare var TransformStreamDefaultController: {
+     new(): TransformStreamDefaultController;
+ };
+ 
++interface TrustedHTML {
++    toJSON(): string;
++    toString(): string;
++}
++
++declare var TrustedHTML: {
++    prototype: TrustedHTML;
++    fromLiteral(templateStringsArray: any): TrustedHTML;
++    toString(): string;
++};
++
++interface TrustedScript {
++    toJSON(): string;
++    toString(): string;
++}
++
++declare var TrustedScript: {
++    prototype: TrustedScript;
++    fromLiteral(templateStringsArray: any): TrustedScript;
++    toString(): string;
++};
++
++interface TrustedScriptURL {
++    toJSON(): string;
++    toString(): string;
++}
++
++declare var TrustedScriptURL: {
++    prototype: TrustedScriptURL;
++    fromLiteral(templateStringsArray: any): TrustedScriptURL;
++    toString(): string;
++};
++
++interface TrustedTypePolicy {
++    readonly name: string;
++    createHTML(input: string, ...arguments: any[]): TrustedHTML;
++    createScript(input: string, ...arguments: any[]): TrustedScript;
++    createScriptURL(input: string, ...arguments: any[]): TrustedScriptURL;
++}
++
++declare var TrustedTypePolicy: {
++    prototype: TrustedTypePolicy;
++};
++
++interface TrustedTypePolicyFactory {
++    readonly defaultPolicy: TrustedTypePolicy | null;
++    readonly emptyHTML: TrustedHTML;
++    readonly emptyScript: TrustedScript;
++    createPolicy(policyName: string, policyOptions?: TrustedTypePolicyOptions): TrustedTypePolicy;
++    getAttributeType(tagName: string, attribute: string, elementNs?: string, attrNs?: string): string | null;
++    getPropertyType(tagName: string, property: string, elementNs?: string): string | null;
++    isHTML(value: any): boolean;
++    isScript(value: any): boolean;
++    isScriptURL(value: any): boolean;
++}
++
++declare var TrustedTypePolicyFactory: {
++    prototype: TrustedTypePolicyFactory;
++};
++
+ /** The URL interface represents an object providing static methods used for creating object URLs. */
+ interface URL {
+     hash: string;
+@@ -5347,6 +5413,7 @@ interface WindowOrWorkerGlobalScope {
+     readonly isSecureContext: boolean;
+     readonly origin: string;
+     readonly performance: Performance;
++    readonly trustedTypes: TrustedTypePolicyFactory;
+     atob(data: string): string;
+     btoa(data: string): string;
+     clearInterval(handle?: number): void;
+@@ -5417,7 +5484,7 @@ interface WorkerGlobalScope extends EventTarget, WindowOrWorkerGlobalScope {
+     /**
+      * Fetches each URL in urls, executes them one-by-one in the order they are passed, and then returns (or throws if something went amiss).
+      */
+-    importScripts(...urls: string[]): void;
++    importScripts(...urls: (string | TrustedScriptURL)[]): void;
+     addEventListener<K extends keyof WorkerGlobalScopeEventMap>(type: K, listener: (this: WorkerGlobalScope, ev: WorkerGlobalScopeEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+     removeEventListener<K extends keyof WorkerGlobalScopeEventMap>(type: K, listener: (this: WorkerGlobalScope, ev: WorkerGlobalScopeEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+@@ -5778,6 +5845,18 @@ declare namespace WebAssembly {
+     function validate(bytes: BufferSource): boolean;
+ }
+ 
++interface CreateHTMLCallback {
++    (input: string, ...arguments: any[]): string;
++}
++
++interface CreateScriptCallback {
++    (input: string, ...arguments: any[]): string;
++}
++
++interface CreateScriptURLCallback {
++    (input: string, ...arguments: any[]): string;
++}
++
+ interface FrameRequestCallback {
+     (time: number): void;
+ }
+@@ -5875,7 +5954,7 @@ declare var self: WorkerGlobalScope & typeof globalThis;
+ /**
+  * Fetches each URL in urls, executes them one-by-one in the order they are passed, and then returns (or throws if something went amiss).
+  */
+-declare function importScripts(...urls: string[]): void;
++declare function importScripts(...urls: (string | TrustedScriptURL)[]): void;
+ /**
+  * Dispatches a synthetic event event to target and returns true if either event's cancelable attribute value is false or its preventDefault() method was not invoked, and false otherwise.
+  */
+@@ -5886,6 +5965,7 @@ declare var indexedDB: IDBFactory;
+ declare var isSecureContext: boolean;
+ declare var origin: string;
+ declare var performance: Performance;
++declare var trustedTypes: TrustedTypePolicyFactory;
+ declare function atob(data: string): string;
+ declare function btoa(data: string): string;
+ declare function clearInterval(handle?: number): void;
+@@ -5912,7 +5992,7 @@ type OffscreenRenderingContext = OffscreenCanvasRenderingContext2D | ImageBitmap
+ type MessageEventSource = MessagePort | ServiceWorker;
+ type ImageBitmapSource = CanvasImageSource | Blob | ImageData;
+ type OnErrorEventHandler = OnErrorEventHandlerNonNull | null;
+-type TimerHandler = string | Function;
++type TimerHandler = string | Function | TrustedScript;
+ type PerformanceEntryList = PerformanceEntry[];
+ type PushMessageDataInit = BufferSource | string;
+ type ReadableStreamReader<T> = ReadableStreamDefaultReader<T>;
+@@ -5943,6 +6023,7 @@ type DOMTimeStamp = number;
+ type FormDataEntryValue = File | string;
+ type IDBValidKey = number | string | Date | BufferSource | IDBArrayKey;
+ type Transferable = ArrayBuffer | MessagePort | ImageBitmap | OffscreenCanvas;
++type TrustedType = TrustedHTML | TrustedScript | TrustedScriptURL;
+ type ReadableStreamDefaultReadResult<T> = ReadableStreamDefaultReadValueResult<T> | ReadableStreamDefaultReadDoneResult;
+ type BinaryType = "arraybuffer" | "blob";
+ type CanvasDirection = "inherit" | "ltr" | "rtl";
+diff --git a/node_modules/typescript/lib/lib.webworker.importscripts.d.ts b/node_modules/typescript/lib/lib.webworker.importscripts.d.ts
+index 73bd281..34a4f58 100644
+--- a/node_modules/typescript/lib/lib.webworker.importscripts.d.ts
++++ b/node_modules/typescript/lib/lib.webworker.importscripts.d.ts
+@@ -23,4 +23,4 @@ and limitations under the License.
+ /// WorkerGlobalScope APIs
+ /////////////////////////////
+ // These are only available in a Web Worker
+-declare function importScripts(...urls: string[]): void;
++declare function importScripts(...urls: (string | TrustedScriptURL)[]): void;

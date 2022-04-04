@@ -22,6 +22,7 @@
     "test": "yarn jasmine-ts --config=jasmine.json",
     "test:coverage": "yarn nyc -e .ts -x \"test/*.ts\" jasmine-ts --config=jasmine.json",
     "clean": "yarn rimraf ./lib",
+    "postinstall": "patch-package",
     "prepublishOnly": "yarn clean && yarn build && yarn test"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
     "jasmine-spec-reporter": "^6.0.0",
     "jasmine-ts": "^0.3.0",
     "nyc": "^15.1.0",
+    "patch-package": "6.4.7",
     "rimraf": "^3.0.2",
     "safevalues": "^0.1.1",
     "ts-node": "^7.0.1",
