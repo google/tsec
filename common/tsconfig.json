@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig-compile.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["node", "glob"],
+    "outDir": "lib"
+  },
+  "include": ["*.ts", "rules", "third_party"]
+}

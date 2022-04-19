@@ -1,21 +1,4 @@
 {
-  "compilerOptions": {
-    "strict": true,
-    "module": "CommonJS",
-    "target": "ES2015",
-    "outDir": "lib",
-    "types": [
-      "node", "glob"
-    ],
-    "typeRoots": [
-      "./node_modules/@types"
-    ],
-    "lib": [
-      "dom",
-      "es2015",
-      "es2017.object"
-    ],
-    "sourceMap": true
-  },
-  "include": ["src"]
+  "extends": "./tsconfig-compile.json",
+  "include": ["**/*.ts"]
 }

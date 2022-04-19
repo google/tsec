@@ -20,7 +20,7 @@ export function createCompilerHost(config: ts.ParsedCommandLine):
     ts.CompilerHost {
   const host = ts.createCompilerHost(config.options, true);
 
-  if (config.raw.bazel) {
+  if (config.raw?.bazel) {
     // When running as a Bazel nodejs_test, we want to resolve relative modules
     // to Bazel-generated .d.ts files whenever possible. Therefore, we need to
     // make sure .ts files not listed in "files" of tsconfig are not visible to

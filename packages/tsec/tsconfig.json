@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig-compile.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "lib/packages/tsec"
+  },
+  "references": [
+    {"path": "./../../common/tsconfig.json"}
+  ],
+  "include": ["*.ts"]
+}

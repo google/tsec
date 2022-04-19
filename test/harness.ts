@@ -34,7 +34,7 @@ function simplifyFailure(failure: Failure): SimpleFailure {
   return {ruleName, start, end};
 }
 
-/** Compile intergation test assets and run security rules on them. */
+/** Compile integration test assets and run security rules on them. */
 export function compileAndCheck(testDir: string): SimpleFailure[] {
   const sourceFiles =
       fs.readdirSync(testDir).map(f => path.resolve(testDir, f));

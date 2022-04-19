@@ -1,0 +1,49 @@
+{
+  "name": "tsec",
+  "version": "0.2.2",
+  "description": "Extended TypeScript compiler checking Trusted Types compatibility.",
+  "author": "Google ISE Hardening Team",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/google/tsec",
+  "bugs": {
+    "url": "https://github.com/google/tsec/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google/tsec.git"
+  },
+  "main": "lib/packages/tsec/language_service_plugin.js",
+  "bin": {
+    "tsec": "bin/tsec"
+  },
+  "scripts": {
+    "build": "yarn tsc -b ./tsconfig.json && yarn symlink-dir ../../common/lib lib/common",
+    "clean": "yarn rimraf ./lib",
+    "prepublishOnly": "yarn clean && yarn build && yarn test"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/jasmine": "^3.6.3",
+    "@types/minimatch": "^3.0.3",
+    "@types/node": "^13.13.5",
+    "@types/trusted-types": "^2.0.0",
+    "jasmine": "^3.6.4",
+    "jasmine-spec-reporter": "^6.0.0",
+    "jasmine-ts": "^0.3.0",
+    "nyc": "^15.1.0",
+    "rimraf": "^3.0.2",
+    "safevalues": "^0.1.1",
+    "symlink-dir": "5.0.1",
+    "ts-node": "^7.0.1",
+    "typescript": "4.3.2"
+  },
+  "dependencies": {
+    "glob": "^7.1.1",
+    "minimatch": "^3.0.3"
+  },
+  "peerDependencies": {
+    "@bazel/bazelisk": ">=1.7.5",
+    "@bazel/concatjs": ">=5.3.0",
+    "typescript": ">=3.9.2"
+  }
+}

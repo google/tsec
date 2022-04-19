@@ -10,9 +10,9 @@
       "request": "launch",
       "name": "Debug tsec",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/tsec.ts",
+      "program": "${workspaceFolder}/packages/tsec/tsec.ts",
       "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": ["${workspaceFolder}/lib/**/*.js"]
+      "outFiles": ["${workspaceFolder}/packages/tsec/lib/**/*.js"]
     }
   ]
 }
