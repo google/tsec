@@ -17,8 +17,8 @@
  * directly in the editor.
  */
 
-import {ErrorCode} from './third_party/tsetse/error_code';
-import {DiagnosticWithFixes} from './third_party/tsetse/failure';
+import {ErrorCode} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/error_code';
+import {DiagnosticWithFixes} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/failure';
 import * as ts from 'typescript/lib/tsserverlibrary';
 
 import {getConfiguredChecker} from './build';

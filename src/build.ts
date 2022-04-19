@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {ENABLED_RULES} from './rule_groups';
-import {Checker} from './third_party/tsetse/checker';
+import {ENABLED_RULES} from 'google3/javascript/typescript/compiler/conformance/rule_groups';
+import {Checker} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/checker';
 import * as ts from 'typescript';
 
 import {ExemptionList, parseExemptionConfig, resolveExemptionConfigPath} from './exemption_config';
