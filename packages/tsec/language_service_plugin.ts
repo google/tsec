@@ -17,11 +17,11 @@
  * directly in the editor.
  */
 
+import {getConfiguredChecker} from '../../common/configured_checker';
 import {ErrorCode} from '../../common/third_party/tsetse/error_code';
 import {DiagnosticWithFixes} from '../../common/third_party/tsetse/failure';
 import * as ts from 'typescript/lib/tsserverlibrary';
 
-import {getConfiguredChecker} from './build';
 import {createProxy} from './utils';
 
 function diagnosticToCodeFixActions(d: DiagnosticWithFixes):

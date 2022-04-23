@@ -1,0 +1,25 @@
+{
+  "name": "eslint-plugin-tsec",
+  "version": "0.2.2",
+  "description": "ESLint plugin that checks Trusted Types compatibility.",
+  "author": "Google ISE Hardening Team",
+  "main": "lib/packages/eslint_plugin_tsec/index.js",
+  "scripts": {
+    "build": "yarn tsc -b ./tsconfig.json && yarn symlink-dir ../../common/lib lib/common",
+    "clean": "yarn rimraf ./lib"
+  },
+  "dependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/minimatch": "^3.0.3",
+    "@typescript-eslint/utils": "^5.20.0"
+  },
+  "devDependencies": {
+    "@types/glob": "^7.1.1",
+    "@types/node": "^13.13.5",
+    "symlink-dir": "5.0.1",
+    "typescript": "^4.6.3"
+  },
+  "peerDependencies": {
+    "eslint": ">=6"
+  }
+}

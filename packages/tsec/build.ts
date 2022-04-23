@@ -13,10 +13,8 @@
 // limitations under the License.
 
 import {ENABLED_RULES} from '../../common/rule_groups';
-import {Checker} from '../../common/third_party/tsetse/checker';
+import {getConfiguredChecker} from '../../common/configured_checker';
 import * as ts from 'typescript';
-
-import {ExemptionList, parseExemptionConfig, resolveExemptionConfigPath} from '../../common/exemption_config';
 
 import {createDiagnosticsReporter} from './report';
 import {createProxy} from './utils';
@@ -30,51 +28,6 @@ export function isInBuildMode(cmdArgs: string[]) {
     return firstOption === 'build' || firstOption === 'b';
   }
   return false;
-}
-
-/**
- * Create a new cheker with all enabled rules registered and the exemption list
- * configured.
- */
-export function getConfiguredChecker(program: ts.Program):
-    {checker: Checker, errors: ts.Diagnostic[]} {
-  let exemptionList: ExemptionList|undefined = undefined;
-
-  const exemptionConfigPath = resolveExemptionConfigPath(
-      program.getCompilerOptions()['configFilePath'] as string);
-
-  const errors = [];
-
-  if (exemptionConfigPath) {
-    const projExemptionConfigOrErr = parseExemptionConfig(exemptionConfigPath);
-    if (projExemptionConfigOrErr instanceof ExemptionList) {
-      exemptionList = projExemptionConfigOrErr;
-    } else {
-      errors.push(...projExemptionConfigOrErr);
-    }
-  }
-
-  // Create all enabled rules with corresponding exemption list entries.
-  const checker = new Checker(program);
-  const wildcardAllowListEntry = exemptionList?.get('*');
-  const rules = ENABLED_RULES.map(ruleCtr => {
-    const allowlistEntries = [];
-    const allowlistEntry = exemptionList?.get(ruleCtr.RULE_NAME);
-    if (allowlistEntry) {
-      allowlistEntries.push(allowlistEntry);
-    }
-    if (wildcardAllowListEntry) {
-      allowlistEntries.push(wildcardAllowListEntry);
-    }
-    return new ruleCtr({allowlistEntries});
-  });
-
-  // Register all rules.
-  for (const rule of rules) {
-    rule.register(checker);
-  }
-
-  return {checker, errors};
 }
 
 /** Perform security checks on a single project. */
