@@ -32,6 +32,11 @@ function isAllowedSymbol(
 
   const fqn = tc.getFullyQualifiedName(symbol);
   debugLog(() => `fully qualified name is ${fqn}`);
+  if (allowedType.allowAmbientTrustedTypesDeclaration &&
+      fqn === allowedType.typeName) {
+    return true;
+  }
+
   if (!fqn.endsWith('.' + allowedType.typeName)) return false;
 
   // check that the type is comes allowed declaration file

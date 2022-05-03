@@ -5,6 +5,7 @@ export type TrustedTypes = 'TrustedHTML'|'TrustedScript'|'TrustedScriptURL';
  * to sinks.
  */
 export interface TrustedTypesConfig {
+  allowAmbientTrustedTypesDeclaration: boolean;
   /**
    * A characteristic component of the absolute path of the definition file.
    */
@@ -22,6 +23,7 @@ export interface TrustedTypesConfig {
 function createDefaultTrustedTypeConfig(type: TrustedTypes):
     TrustedTypesConfig {
   const config = {
+    allowAmbientTrustedTypesDeclaration: true,
     // the module path may look like
     // "/home/username/.../node_modules/@types/trusted-types/"
     modulePathMatcher: '/node_modules/@types/trusted-types/',
