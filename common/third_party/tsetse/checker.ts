@@ -140,7 +140,7 @@ export class Checker {
    * Add a failure with a span.
    * @param source the origin of the failure, e.g., the name of a rule reporting
    *     the failure
-   * @param fix an optional, automatically generated fix that can remediate the
+   * @param fixes optional, automatically generated fixes that can remediate the
    *     failure
    */
   addFailure(
@@ -149,7 +149,7 @@ export class Checker {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
     }
-    if (start >= end || end > this.currentSourceFile.end || start < 0) {
+    if (start > end || end > this.currentSourceFile.end || start < 0) {
       // Since only addFailureAtNode() is exposed for now this shouldn't happen.
       throw new Error(
           `Invalid start and end position: [${start}, ${end}]` +
