@@ -176,7 +176,7 @@ _all_transitive_deps = rule(
     doc = """Expand all transitive dependencies needed to run `_tsec_test`.""",
 )
 
-def tsec_test(name, target, tsconfig):
+def tsec_test(name, target, tsconfig, use_runfiles_on_windows = False):
     """Run tsec over a ts_library or ng_module target to check its compatibility with Trusted Types.
 
     This rule DOES NOT check transitive dependencies.
@@ -184,9 +184,15 @@ def tsec_test(name, target, tsconfig):
         name: name of the tsec test
         target: the ts_library or ng_module target to be checked
         tsconfig: the ts_config target used for configuring tsec
+        use_runfiles_on_windows: whether to use runfiles on windows (requires --enable_runfiles flag to be set)
     """
     tsec_tsconfig_name = "%s_tsec_tsconfig" % name
     generated_tsconfig = "%s_tsconfig.json" % name
+
+    use_runfiles = True if use_runfiles_on_windows else select({
+        "@platforms//os:windows": False,
+        "//conditions:default": True,
+    })
 
     _tsec_config(
         name = tsec_tsconfig_name,
@@ -194,10 +200,7 @@ def tsec_test(name, target, tsconfig):
         tags = ["tsec"],
         target = target,
         base = tsconfig,
-        use_runfiles = select({
-            "@platforms//os:windows": False,
-            "//conditions:default": True,
-        }),
+        use_runfiles = use_runfiles,
         out = generated_tsconfig,
     )
 
