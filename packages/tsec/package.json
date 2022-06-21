@@ -1,6 +1,6 @@
 {
   "name": "tsec",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "description": "Extended TypeScript compiler checking Trusted Types compatibility.",
   "author": "Google ISE Hardening Team",
   "license": "Apache-2.0",

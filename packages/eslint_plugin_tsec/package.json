@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-tsec",
-  "version": "0.2.3",
+  "version": "0.2.5",
   "description": "ESLint plugin that checks Trusted Types compatibility.",
   "author": "Google ISE Hardening Team",
   "main": "lib/packages/eslint_plugin_tsec/index.js",
