@@ -17,9 +17,9 @@
     "tsec": "bin/tsec"
   },
   "scripts": {
-    "build": "yarn tsc -b ./tsconfig.json && yarn symlink-dir ../../common/lib lib/common",
+    "build": "yarn tsc -b ./tsconfig.json && cp -r ../../common/lib lib/common",
     "clean": "yarn rimraf ./lib",
-    "prepublishOnly": "yarn clean && yarn build && yarn test"
+    "prepublishOnly": "yarn clean && yarn build && yarn --cwd=\"../..\" test"
   },
   "devDependencies": {
     "@types/glob": "^7.1.1",
