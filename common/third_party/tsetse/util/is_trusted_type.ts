@@ -13,7 +13,7 @@ import {TrustedTypesConfig} from './trusted_types_configuration';
 export function isExpressionOfAllowedTrustedType(
     tc: ts.TypeChecker, expr: ts.Expression,
     allowedType: TrustedTypesConfig): boolean {
-  if (isIntersectionOfTrustedType(tc, expr, allowedType)) return true;
+  if (isTrustedType(tc, expr, allowedType)) return true;
   if (isTrustedTypeCastToUnknownToString(tc, expr, allowedType)) return true;
   if (isTrustedTypeUnionWithStringCastToString(tc, expr, allowedType)) return true;
   if (isTrustedTypeUnwrapperFunction(tc, expr, allowedType)) return true;
@@ -26,13 +26,15 @@ export function isExpressionOfAllowedTrustedType(
  */
 function isAllowedSymbol(
     tc: ts.TypeChecker, symbol: ts.Symbol|undefined,
-    allowedType: TrustedTypesConfig) {
+    allowedType: TrustedTypesConfig,
+    allowAmbientTrustedTypesDeclaration: boolean) {
   debugLog(() => `isAllowedSymbol called with symbol ${symbol?.getName()}`);
   if (!symbol) return false;
 
   const fqn = tc.getFullyQualifiedName(symbol);
   debugLog(() => `fully qualified name is ${fqn}`);
-  if (allowedType.allowAmbientTrustedTypesDeclaration &&
+  if (allowAmbientTrustedTypesDeclaration &&
+      allowedType.allowAmbientTrustedTypesDeclaration &&
       fqn === allowedType.typeName) {
     return true;
   }
@@ -73,7 +75,7 @@ function isTrustedTypeCastToUnknownToString(
   const castSource = innerExpr.expression;
   debugLog(() => `looking at cast source ${castSource.getText()}`);
   return isAllowedSymbol(
-      tc, tc.getTypeAtLocation(castSource).getSymbol(), allowedType);
+      tc, tc.getTypeAtLocation(castSource).getSymbol(), allowedType, false);
 }
 
 /**
@@ -94,7 +96,7 @@ function isTrustedTypeUnionWithStringCastToString(
       // do not care how many types are in the union. As long as one of them is
       // the configured Trusted type we are happy.
       innerExprType.types.some(
-          type => isAllowedSymbol(tc, type.getSymbol(), allowedType));
+          type => isAllowedSymbol(tc, type.getSymbol(), allowedType, false));
 }
 
 /**
@@ -113,18 +115,22 @@ function isTrustedTypeUnwrapperFunction(
 
   return expr.arguments.length > 0 &&
       isAllowedSymbol(
-             tc, tc.getTypeAtLocation(expr.arguments[0]).getSymbol(), allowedType);
+             tc, tc.getTypeAtLocation(expr.arguments[0]).getSymbol(),
+             allowedType, false);
 }
 
 /**
- * Returns true if the expression is a value of a type that is the
- * intersection of Trusted Types and other types.
+ * Returns true if the expression is a value of Trusted Types, or a type that is
+ * the intersection of Trusted Types and other types.
  */
-function isIntersectionOfTrustedType(
+function isTrustedType(
     tc: ts.TypeChecker, expr: ts.Expression, allowedType: TrustedTypesConfig) {
   const type = tc.getTypeAtLocation(expr);
 
+  if (isAllowedSymbol(tc, type.getSymbol(), allowedType, true)) return true;
+
   if (!type.isIntersection()) return false;
 
-  return type.types.some(t => isAllowedSymbol(tc, t.getSymbol(), allowedType));
+  return type.types.some(
+      t => isAllowedSymbol(tc, t.getSymbol(), allowedType, true));
 }
