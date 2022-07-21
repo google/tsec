@@ -76,7 +76,8 @@ function main(args: string[]) {
       parsedConfig.fileNames, parsedConfig.options, compilerHost);
 
   diagnostics.push(
-      ...ts.getPreEmitDiagnostics(program), ...performCheck(program));
+      ...ts.getPreEmitDiagnostics(program),
+      ...performCheck(program, compilerHost));
 
   // If there are conformance errors while noEmitOnError is set, refrain from
   // emitting code.

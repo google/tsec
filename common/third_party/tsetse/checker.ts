@@ -53,12 +53,17 @@ export class Checker {
   // currentCode will be set before invoking any handler functions so the value
   // initialized here is never used.
   private currentCode = 0;
+
+  private readonly options: ts.CompilerOptions;
+
   /** Allow typed rules via typeChecker. */
   typeChecker: ts.TypeChecker;
 
-  constructor(program: ts.Program) {
+  constructor(
+      program: ts.Program, private readonly host: ts.ModuleResolutionHost) {
     // Avoid the cost for each rule to create a new TypeChecker.
     this.typeChecker = program.getTypeChecker();
+    this.options = program.getCompilerOptions();
   }
 
   /**
@@ -272,5 +277,10 @@ export class Checker {
 
       ts.forEachChild(node, run);
     }
+  }
+
+  resolveModuleName(moduleName: string, sourceFile: ts.SourceFile) {
+    return ts.resolveModuleName(
+        moduleName, sourceFile.fileName, this.options, this.host);
   }
 }

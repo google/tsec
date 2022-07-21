@@ -31,8 +31,9 @@ export function isInBuildMode(cmdArgs: string[]) {
 }
 
 /** Perform security checks on a single project. */
-export function performCheck(program: ts.Program): ts.Diagnostic[] {
-  const {checker, errors} = getConfiguredChecker(program);
+export function performCheck(
+    program: ts.Program, host: ts.ModuleResolutionHost): ts.Diagnostic[] {
+  const {checker, errors} = getConfiguredChecker(program, host);
 
   // Run all enabled checks and collect errors.
   for (const sf of program.getSourceFiles()) {
@@ -133,7 +134,8 @@ export function performBuild(args: string[]): number {
         projectReferences);
     const program = builderProgram.getProgram();
 
-    const tsecErrorsInThisProgram = performCheck(program);
+    const tsecErrorsInThisProgram = performCheck(
+        program, host ?? ts.createCompilerHost(program.getCompilerOptions()));
     allTsecErrors.push(...tsecErrorsInThisProgram);
 
     const tsecErrorsByFile = new Map<string, ts.Diagnostic[]>();

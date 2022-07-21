@@ -39,7 +39,8 @@ export function compileAndCheck(testDir: string): SimpleFailure[] {
   const sourceFiles =
       fs.readdirSync(testDir).map(f => path.resolve(testDir, f));
   const program = ts.createProgram(sourceFiles, {});
-  const checker = new Checker(program);
+  const checker =
+      new Checker(program, ts.createCompilerHost(program.getCompilerOptions()));
   for (const ruleCtr of ENABLED_RULES) {
     new ruleCtr().register(checker);
   }

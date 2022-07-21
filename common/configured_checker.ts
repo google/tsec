@@ -22,7 +22,8 @@ import {ExemptionList, parseExemptionConfig, resolveExemptionConfigPath} from '.
  * Create a new cheker with all enabled rules registered and the exemption list
  * configured.
  */
-export function getConfiguredChecker(program: ts.Program):
+export function getConfiguredChecker(
+    program: ts.Program, host: ts.ModuleResolutionHost):
     {checker: Checker, errors: ts.Diagnostic[]} {
   let exemptionList: ExemptionList|undefined = undefined;
 
@@ -41,7 +42,7 @@ export function getConfiguredChecker(program: ts.Program):
   }
 
   // Create all enabled rules with corresponding exemption list entries.
-  const checker = new Checker(program);
+  const checker = new Checker(program, host);
   const wildcardAllowListEntry = exemptionList?.get('*');
   const rules = ENABLED_RULES.map(ruleCtr => {
     const allowlistEntries = [];

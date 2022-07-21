@@ -69,12 +69,14 @@ interface TsWithCodefix {
 class TsecLanguageServicePlugin {
   codeFixActions: Map<string, Map<string, ts.CodeFixAction[]>>;
   oldService: ts.LanguageService;
+  project: ts.server.Project;
 
   constructor(readonly info: ts.server.PluginCreateInfo) {
     // to avoid running tsetse twice, we store the code actions while running
     // the checker on `getSemanticDiagnostics`.
     this.codeFixActions = new Map();
     this.oldService = info.languageService;
+    this.project = info.project;
   }
 
   boundGetSemanticDiagnostics =
@@ -86,7 +88,7 @@ class TsecLanguageServicePlugin {
           );
         }
 
-        const {checker} = getConfiguredChecker(program);
+        const {checker} = getConfiguredChecker(program, this.project);
         const failures = checker.execute(program.getSourceFile(fileName)!);
 
         this.codeFixActions.set(fileName, new Map());

@@ -50,7 +50,11 @@ export const trustedTypesChecks: unknown = createRule({
 
     // Instantiates the checker if it has not been defined yet
     if (!checker) {
-      checker = getConfiguredChecker(parserServices.program).checker;
+      checker = getConfiguredChecker(
+                    parserServices.program,
+                    ts.createCompilerHost(
+                        parserServices.program.getCompilerOptions()))
+                    .checker;
     }
 
     return {
