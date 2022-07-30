@@ -37,15 +37,27 @@ check its Trusted Types compatibility.
 
 Add `--noEmit` flag to skip emitting JS code from compilation.
 
-## Trusted Type awareness in tsec rules
+## Writing Trusted Type compatible code
 
-Using Trusted Types in TypeScript has
-[a limitation](https://github.com/microsoft/TypeScript/issues/30024) and
-currently you must use workarounds to TS compiler to bypass its checks. We've
-implemented various patterns you can use in order to satisfy both `tsc` and
-`tsec` rules.
+At the moment, there is
+[no official support](https://github.com/microsoft/TypeScript/issues/30024) for
+Trusted Types in TypeScript, meaning it can be tricky to write code that passes
+the checks of both `tsec` and the TS type checker. There are several solutions
+to this problem.
 
-#### Casting Trusted Type to unknown to string
+#### Using the safevalues library
+
+We have released the Trusted Types utility library
+[safevalues](https://github.com/google/safevalues) to help developers write
+TT-compatible code. Please refer to its documentation for details.
+
+This is our recommended way to work with Trusted Types. All other workarounds
+have some limitations, e.g., not supporting function sinks like the constructor
+of `Worker`.
+
+#### Workarounds without safevalues
+
+##### Casting Trusted Type to unknown to string
 
 For example:
 
@@ -55,7 +67,7 @@ declare const trustedHTML: TrustedHTML;
 document.body.innerHTML = trustedHTML as unknown as string;
 ```
 
-#### Using Trusted Type union with string and casting to string
+##### Using Trusted Type union with string and casting to string
 
 For example:
 
@@ -67,7 +79,7 @@ declare const trustedHTML: TrustedHTML | string;
 document.body.innerHTML = trustedHTML as string;
 ```
 
-#### Using unwrapper function
+##### Using unwrapper function
 
 The first argument to the unwrapper function must be the Trusted Type that is
 required by the specific sink and must return value accepted by the sink
@@ -93,6 +105,39 @@ const castedTrustedHTML = trustedHTML as unknown as string;
 // tsec is flow insensitive and treats `castedTrustedHTML` as a regular string
 document.body.innerHTML = castedTrustedHTML; // tsec violation!
 ```
+
+##### Patching lib.dom.d.ts
+
+We have seen some developers patching their local `lib.dom.d.ts` with Trusted
+Types support. For example, you may redefine the `innerHTML` property like this
+with TS 4.3 or above,
+
+```diff
++interface TrustedHTML {}
+
+ interface InnerHTML {
+-    innerHTML: string;
++    get innerHTML(): string;
++    set innerHTML(innerHTML: string | TrustedHTML);
+ }
+```
+
+With this patch, `declare const trusted: TrustedHTML; elem.innerHTML = trusted`
+becomes valid code and no additional type casts are needed. In that case, *tsec
+will no longer consider the previous workarounds as safe code*. Likewise, the
+pattern below will be flagged by tsec since a string *may* flow into the sink:
+
+```typescript
+declare const trustedHtml: string | TrustedHTML;
+elem.innerHTML = trustedHtml;
+```
+
+**Note:** We try to make tsec as smart as possible to recognize patched
+`lib.dom.d.ts`, but the heuristics likely will not cover all setups. Also, your
+local patch may not be compatible with official TT support from TypeScript in
+the future. Therefore, we strongly discourage patching `lib.dom.d.ts`. Please
+use the [safevalues](https://github.com/google/safevalues) library whenever
+possible.
 
 ## Language service plugin
 
@@ -135,8 +180,8 @@ following these steps:
 
 3.  Use `Developer: Open Logs Folder` to open the log folder
 
-4.  Find `tsserver.log` inside the folder _(you can use `find` command line
-    utility)_ and open the file(s). There should be an error somewhere in the
+4.  Find `tsserver.log` inside the folder *(you can use `find` command line
+    utility)* and open the file(s). There should be an error somewhere in the
     logs which should get you started.
 
 ## Configure exemptions
@@ -211,8 +256,8 @@ your project include files for testing.
 
 We recommend developing using [VS Code](https://code.visualstudio.com/). We have
 preconfigured the project such that debugging works out of the box. If you press
-F5 _(Debug: Start debugging)_ `tsec` will be freshly built and executed on the
-project files _(files included in tsconfig)_. Currently, we have tests only
+F5 *(Debug: Start debugging)* `tsec` will be freshly built and executed on the
+project files *(files included in tsconfig)*. Currently, we have tests only
 internally at Google, but you can create a `test.ts` file with some violationg
 code anywhere in the project to get started. You can then add breakpoints in any
 tsec source file.
