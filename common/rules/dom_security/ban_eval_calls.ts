@@ -20,8 +20,12 @@ import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg = 'Do not use eval, as this can lead to XSS.';
 
+const bannedValues = [
+  'GLOBAL|eval',
+];
+
 /**
- * A Rule that looks for refereces to the built-in eval() and window.eval()
+ * A Rule that looks for references to the built-in eval() and window.eval()
  * methods. window.eval performs an indirect call to eval(), so a single check
  * for eval() bans both calls.
  */
@@ -34,7 +38,7 @@ export class Rule extends ConformancePatternRule {
           errorCode: ErrorCode.CONFORMANCE_PATTERN,
           errorMessage: errMsg,
           kind: PatternKind.BANNED_NAME,
-          values: ['GLOBAL|eval'],
+          values: bannedValues,
           name: Rule.RULE_NAME,
           allowedTrustedType: TRUSTED_SCRIPT,
           ...configuration,
