@@ -15,6 +15,7 @@ ban-element-outerhtml-assignments   | Assignments to `.outerHTML` on any element
 ban-element-insertadjacenthtml      | Calls to `.insertAdjacentHTML` on any element
 ban-element-setattribute            | Calls to `.setAttribute` on any element with dangerous attribute names
 ban-iframe-srcdoc-assignments       | Assignments to `.srcdoc` on <iframe>
+ban-object-data-assignments         | Assignments to `.data` on <object>
 ban-script-appendchild-calls        | Calls to `.appendChild` on <script>
 ban-script-content-assignments      | Assignments to `.text` and `.textContent` on <script>
 ban-script-src-assignments          | Assignments to `.src` on <script>
