@@ -1,6 +1,6 @@
 // Calls that should trigger an error
-Function(`alert('uhoh');`);
-window.Function(`alert('uhoh');`);
+// tslint:disable-next-line:no-unused-expression
+new Function(`alert('uhoh');`);
 
 const test = {
   custom: Function
@@ -12,7 +12,7 @@ indirect(`alert('ouch')`);
 
 (Function)(`alert('ouch')`);
 window.Function(`alert('ouch')`);
-globalThis.Function(`alert('ouch')`);
+globalThis.Function.prototype.constructor(`alert('ouch')`);
 
 window['Function'](`alert('ouch')`);
 

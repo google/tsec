@@ -56,6 +56,19 @@
       }
     }
   ],
+  "dom_security/ban_document_execcommand": [
+    {
+      "ruleName": "ban-document-execcommand",
+      "start": {
+        "line": 3,
+        "character": 0
+      },
+      "end": {
+        "line": 3,
+        "character": 15
+      }
+    }
+  ],
   "dom_security/ban_document_write_calls": [
     {
       "ruleName": "ban-document-write-calls",
@@ -273,6 +286,63 @@
       }
     }
   ],
+  "dom_security/ban_element_insertadjacenthtml": [
+    {
+      "ruleName": "ban-element-insertadjacenthtml",
+      "start": {
+        "line": 3,
+        "character": 0
+      },
+      "end": {
+        "line": 3,
+        "character": 26
+      }
+    },
+    {
+      "ruleName": "ban-element-insertadjacenthtml",
+      "start": {
+        "line": 6,
+        "character": 27
+      },
+      "end": {
+        "line": 6,
+        "character": 53
+      }
+    },
+    {
+      "ruleName": "ban-element-insertadjacenthtml",
+      "start": {
+        "line": 11,
+        "character": 0
+      },
+      "end": {
+        "line": 11,
+        "character": 12
+      }
+    },
+    {
+      "ruleName": "ban-element-insertadjacenthtml",
+      "start": {
+        "line": 13,
+        "character": 0
+      },
+      "end": {
+        "line": 13,
+        "character": 29
+      }
+    },
+    {
+      "ruleName": "ban-element-insertadjacenthtml",
+      "start": {
+        "line": 15,
+        "character": 0
+      },
+      "end": {
+        "line": 15,
+        "character": 29
+      }
+    }
+  ],
   "dom_security/ban_element_outerhtml_assignments": [
     {
       "ruleName": "ban-element-outerhtml-assignments",
@@ -398,74 +468,6 @@
       }
     }
   ],
-  "dom_security/ban_iframe_srcdoc_assignments": [
-    {
-      "ruleName": "ban-iframe-srcdoc-assignments",
-      "start": {
-        "line": 3,
-        "character": 0
-      },
-      "end": {
-        "line": 3,
-        "character": 21
-      }
-    },
-    {
-      "ruleName": "ban-iframe-srcdoc-assignments",
-      "start": {
-        "line": 6,
-        "character": 0
-      },
-      "end": {
-        "line": 6,
-        "character": 23
-      }
-    },
-    {
-      "ruleName": "ban-iframe-srcdoc-assignments",
-      "start": {
-        "line": 7,
-        "character": 0
-      },
-      "end": {
-        "line": 7,
-        "character": 38
-      }
-    },
-    {
-      "ruleName": "ban-iframe-srcdoc-assignments",
-      "start": {
-        "line": 8,
-        "character": 0
-      },
-      "end": {
-        "line": 8,
-        "character": 39
-      }
-    },
-    {
-      "ruleName": "ban-iframe-srcdoc-assignments",
-      "start": {
-        "line": 9,
-        "character": 0
-      },
-      "end": {
-        "line": 9,
-        "character": 26
-      }
-    },
-    {
-      "ruleName": "ban-iframe-srcdoc-assignments",
-      "start": {
-        "line": 10,
-        "character": 0
-      },
-      "end": {
-        "line": 10,
-        "character": 36
-      }
-    }
-  ],
   "dom_security/ban_eval_calls": [
     {
       "ruleName": "ban-eval-calls",
@@ -571,56 +573,23 @@
     {
       "ruleName": "ban-function-calls",
       "start": {
-        "line": 1,
-        "character": 0
-      },
-      "end": {
-        "line": 1,
-        "character": 8
-      }
-    },
-    {
-      "ruleName": "ban-function-calls",
-      "start": {
         "line": 2,
         "character": 0
       },
       "end": {
         "line": 2,
-        "character": 15
-      }
-    },
-    {
-      "ruleName": "ban-function-calls",
-      "start": {
-        "line": 5,
-        "character": 10
-      },
-      "end": {
-        "line": 5,
-        "character": 18
-      }
-    },
-    {
-      "ruleName": "ban-function-calls",
-      "start": {
-        "line": 9,
-        "character": 17
-      },
-      "end": {
-        "line": 9,
-        "character": 25
+        "character": 30
       }
     },
     {
       "ruleName": "ban-function-calls",
       "start": {
         "line": 12,
-        "character": 1
+        "character": 0
       },
       "end": {
         "line": 12,
-        "character": 9
+        "character": 27
       }
     },
     {
@@ -631,7 +600,7 @@
       },
       "end": {
         "line": 13,
-        "character": 15
+        "character": 32
       }
     },
     {
@@ -642,7 +611,7 @@
       },
       "end": {
         "line": 14,
-        "character": 19
+        "character": 58
       }
     },
     {
@@ -653,7 +622,7 @@
       },
       "end": {
         "line": 16,
-        "character": 18
+        "character": 35
       }
     },
     {
@@ -664,7 +633,88 @@
       },
       "end": {
         "line": 19,
-        "character": 12
+        "character": 29
+      }
+    }
+  ],
+  "dom_security/ban_iframe_srcdoc_assignments": [
+    {
+      "ruleName": "ban-iframe-srcdoc-assignments",
+      "start": {
+        "line": 3,
+        "character": 0
+      },
+      "end": {
+        "line": 3,
+        "character": 21
+      }
+    },
+    {
+      "ruleName": "ban-iframe-srcdoc-assignments",
+      "start": {
+        "line": 6,
+        "character": 0
+      },
+      "end": {
+        "line": 6,
+        "character": 23
+      }
+    },
+    {
+      "ruleName": "ban-iframe-srcdoc-assignments",
+      "start": {
+        "line": 7,
+        "character": 0
+      },
+      "end": {
+        "line": 7,
+        "character": 38
+      }
+    },
+    {
+      "ruleName": "ban-iframe-srcdoc-assignments",
+      "start": {
+        "line": 8,
+        "character": 0
+      },
+      "end": {
+        "line": 8,
+        "character": 39
+      }
+    },
+    {
+      "ruleName": "ban-iframe-srcdoc-assignments",
+      "start": {
+        "line": 9,
+        "character": 0
+      },
+      "end": {
+        "line": 9,
+        "character": 26
+      }
+    },
+    {
+      "ruleName": "ban-iframe-srcdoc-assignments",
+      "start": {
+        "line": 10,
+        "character": 0
+      },
+      "end": {
+        "line": 10,
+        "character": 36
+      }
+    }
+  ],
+  "dom_security/ban_range_createcontextualfragment": [
+    {
+      "ruleName": "ban-range-createcontextualfragment",
+      "start": {
+        "line": 2,
+        "character": 0
+      },
+      "end": {
+        "line": 2,
+        "character": 30
       }
     }
   ],
@@ -847,6 +897,41 @@
       "end": {
         "line": 28,
         "character": 22
+      }
+    }
+  ],
+  "dom_security/ban_serviceworkercontainer_register": [
+    {
+      "ruleName": "ban-serviceworkercontainer-register",
+      "start": {
+        "line": 3,
+        "character": 0
+      },
+      "end": {
+        "line": 3,
+        "character": 18
+      }
+    },
+    {
+      "ruleName": "ban-serviceworkercontainer-register",
+      "start": {
+        "line": 6,
+        "character": 12
+      },
+      "end": {
+        "line": 6,
+        "character": 30
+      }
+    },
+    {
+      "ruleName": "ban-serviceworkercontainer-register",
+      "start": {
+        "line": 12,
+        "character": 0
+      },
+      "end": {
+        "line": 12,
+        "character": 14
       }
     }
   ],
