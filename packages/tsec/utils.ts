@@ -19,7 +19,7 @@
  * it can be mutated without affecting other users of the original object. See
  * https://en.wikipedia.org/wiki/Proxy_pattern
  */
-export function createProxy<T>(delegate: T): T {
+export function createProxy<T extends {}>(delegate: T): T {
   const proxy = Object.create(null);
   for (const [key, value] of Object.entries(delegate)) {
     if (typeof value === 'function') {
