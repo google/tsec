@@ -11,5 +11,20 @@ elem.setAttributeNodeNS(attr);
 elem.setAttribute('data-custom', '');
 elem.setAttribute('role', '');
 
-// Only exempt real string literal attribute names
+// Only exempt real string literal attribute names.
 elem.setAttribute('src' as 'data-custom', '');
+
+// Renaming it is not allowed.
+let renamed = elem.setAttribute;
+renamed.call(elem, 'src', '');
+
+// Renaming it is not allowed.
+renamed = elem.setAttribute.bind(elem);
+renamed('src', '');
+
+// Renaming it is not allowed.
+function grabMyRef(ref: Function) {
+  return ref;
+}
+let renamedRef = grabMyRef(elem.setAttribute);
+renamedRef.call(elem, 'src', '');

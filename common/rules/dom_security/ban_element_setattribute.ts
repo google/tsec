@@ -51,28 +51,55 @@ function matchNode(
     tc: ts.TypeChecker,
     n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
     matcher: PropertyMatcher) {
-  if (!shouldExamineNode(n)) return;
-  if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression))) return;
+  if (!shouldExamineNode(n)) {
+    return undefined;
+  }
 
-  // Check if the matched node is a call to `setAttribute` and
-  // if the attribute name is a literal. We will skip matching if
-  // the attribute name is not in the blocklist.
-  if (!ts.isCallExpression(n.parent)) return n;
-  if (n.parent.expression !== n) return n;
-  if (matcher.bannedProperty === 'setAttribute') {
-    // It's OK if someone provided the wrong number of arguments because the
-    // code will have other compiler errors.
-    if (n.parent.arguments.length !== 2) return;
-    const ty = tc.getTypeAtLocation(n.parent.arguments[0]);
-    if (ty.isStringLiteral() &&
-        !isSecuritySensitiveAttrName(ty.value.toLowerCase()) &&
-        isLiteral(tc, n.parent.arguments[0])) {
-      return;
-    }
+  if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression))) {
+    // Allowed: it is a different type.
+    return undefined;
+  }
+
+  if (!ts.isCallExpression(n.parent)) {
+    // Not allowed: not calling it (may be renaming it).
+    return n;
+  }
+
+  if (n.parent.expression !== n) {
+    // Not allowed: calling a different function with it (may be renaming it).
+    return n;
+  }
+
+  // If the matched node is a call to `setAttribute` (not setAttributeNS, etc)
+  // and it's not setting a security sensitive attribute.
+  if (matcher.bannedProperty === 'setAttribute' &&
+      isCalledWithAllowedAttribute(tc, n.parent)) {
+    // Allowed: it is not a security sensitive attribute.
+    return undefined;
   }
 
   return n;
 }
+
+/**
+ * Check if the attribute name is a literal. We will skip matching if
+ * the attribute name is not in the blocklist.
+ */
+export function isCalledWithAllowedAttribute(
+    tc: ts.TypeChecker, n: ts.CallExpression): boolean {
+  // The 'setAttribute' function expects exactly two arguments: an attribute
+  // name and a value. It's OK if someone provided the wrong number of arguments
+  // because the code will have other compiler errors.
+  if (n.arguments.length !== 2) return true;
+  const ty = tc.getTypeAtLocation(n.arguments[0]);
+  if (ty.isStringLiteral() &&
+      !isSecuritySensitiveAttrName(ty.value.toLowerCase()) &&
+      isLiteral(tc, n.arguments[0])) {
+    return true;
+  }
+  return false;
+}
+
 
 /** A Rule that looks for use of Element#setAttribute and similar properties. */
 export class Rule extends AbstractRule {

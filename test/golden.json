@@ -466,6 +466,39 @@
         "line": 14,
         "character": 17
       }
+    },
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 17,
+        "character": 14
+      },
+      "end": {
+        "line": 17,
+        "character": 31
+      }
+    },
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 21,
+        "character": 10
+      },
+      "end": {
+        "line": 21,
+        "character": 27
+      }
+    },
+    {
+      "ruleName": "ban-element-setattribute",
+      "start": {
+        "line": 28,
+        "character": 27
+      },
+      "end": {
+        "line": 28,
+        "character": 44
+      }
     }
   ],
   "dom_security/ban_eval_calls": [
