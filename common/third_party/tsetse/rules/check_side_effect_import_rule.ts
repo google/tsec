@@ -8,6 +8,11 @@ function checkImport(checker: Checker, node: ts.ImportDeclaration) {
   const modSpec = node.moduleSpecifier;
   if (!modSpec) return;
 
+  // Code with syntax errors can cause moduleSpecifier to be something other
+  // than a string literal. Early return to avoid a crash when
+  // `moduleSpecifier.name` is undefined.
+  if (!ts.isStringLiteral(modSpec)) return;
+
   const sym = checker.typeChecker.getSymbolAtLocation(modSpec);
   if (sym) return;
 
@@ -15,7 +20,7 @@ function checkImport(checker: Checker, node: ts.ImportDeclaration) {
   // is actually resolvable - e.g. when the imported file is empty (i.e. it is a
   // script, not a module). Therefore we have to check with resolveModuleName.
 
-  const modName = (modSpec as ts.StringLiteral).text;
+  const modName = modSpec.text;
   const source = node.getSourceFile();
   const resolvingResult = checker.resolveModuleName(modName, source);
   if (resolvingResult && resolvingResult.resolvedModule) return;
