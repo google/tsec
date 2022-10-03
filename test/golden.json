@@ -459,44 +459,44 @@
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 14,
+        "line": 16,
         "character": 0
       },
       "end": {
-        "line": 14,
+        "line": 16,
         "character": 17
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 17,
+        "line": 19,
         "character": 14
       },
       "end": {
-        "line": 17,
+        "line": 19,
         "character": 31
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 21,
+        "line": 23,
         "character": 10
       },
       "end": {
-        "line": 21,
+        "line": 23,
         "character": 27
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 28,
+        "line": 30,
         "character": 27
       },
       "end": {
-        "line": 28,
+        "line": 30,
         "character": 44
       }
     }

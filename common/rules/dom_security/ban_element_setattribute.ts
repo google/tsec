@@ -78,26 +78,54 @@ function matchNode(
     return undefined;
   }
 
+  // If the matched node is a call to `setAttributeNS` with a null namespace and
+  // it's not setting a security sensitive attribute.
+  if (matcher.bannedProperty === 'setAttributeNS' &&
+      isCalledWithAllowedAttributeNS(tc, n.parent)) {
+    // Allowed: it is not a security sensitive attribute.
+    return undefined;
+  }
+
   return n;
 }
 
 /**
- * Check if the attribute name is a literal. We will skip matching if
- * the attribute name is not in the blocklist.
+ * Check if the attribute name is a literal that is not in the blocklist.
+ */
+function isAllowedAttribute(
+    typeChecker: ts.TypeChecker, attr: ts.Expression): boolean {
+  const attrType = typeChecker.getTypeAtLocation(attr);
+  return attrType.isStringLiteral() &&
+      !isSecuritySensitiveAttrName(attrType.value.toLowerCase()) &&
+      isLiteral(typeChecker, attr);
+}
+
+/**
+ * Check if the attribute name is a literal in a setAttribute call. We will skip
+ * matching if the attribute name is not in the blocklist.
  */
 export function isCalledWithAllowedAttribute(
-    tc: ts.TypeChecker, n: ts.CallExpression): boolean {
+    typeChecker: ts.TypeChecker, node: ts.CallExpression): boolean {
   // The 'setAttribute' function expects exactly two arguments: an attribute
   // name and a value. It's OK if someone provided the wrong number of arguments
   // because the code will have other compiler errors.
-  if (n.arguments.length !== 2) return true;
-  const ty = tc.getTypeAtLocation(n.arguments[0]);
-  if (ty.isStringLiteral() &&
-      !isSecuritySensitiveAttrName(ty.value.toLowerCase()) &&
-      isLiteral(tc, n.arguments[0])) {
-    return true;
-  }
-  return false;
+  if (node.arguments.length !== 2) return true;
+  return isAllowedAttribute(typeChecker, node.arguments[0]);
+}
+
+/**
+ * Check if the attribute name is a literal and the namespace is null in a
+ * setAttributeNS call. We will skip matching if the attribute name is not in
+ * the blocklist.
+ */
+function isCalledWithAllowedAttributeNS(
+    typeChecker: ts.TypeChecker, node: ts.CallExpression): boolean {
+  // The 'setAttributeNS' function expects exactly three arguments: a namespace,
+  // an attribute name and a value. It's OK if someone provided the wrong number
+  // of arguments because the code will have other compiler errors.
+  if (node.arguments.length !== 3) return true;
+  return node.arguments[0].kind === ts.SyntaxKind.NullKeyword &&
+      isAllowedAttribute(typeChecker, node.arguments[1]);
 }
 
 

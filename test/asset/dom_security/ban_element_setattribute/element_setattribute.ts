@@ -10,6 +10,8 @@ elem.setAttributeNodeNS(attr);
 // Setting attributes that are not security sensitive is OK.
 elem.setAttribute('data-custom', '');
 elem.setAttribute('role', '');
+elem.setAttributeNS(null, 'data-custom', '');
+elem.setAttributeNS(null, 'role', '');
 
 // Only exempt real string literal attribute names.
 elem.setAttribute('src' as 'data-custom', '');
