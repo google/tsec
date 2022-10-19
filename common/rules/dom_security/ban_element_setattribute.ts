@@ -40,6 +40,8 @@ const BANNED_APIS = [
 export const SECURITY_SENSITIVE_ATTRIBUTES = new Set([
   'src',
   'srcdoc',
+  'data',
+  'codebase',
 ]);
 
 function isSecuritySensitiveAttrName(attr: string) {
