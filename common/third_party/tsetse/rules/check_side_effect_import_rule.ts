@@ -5,9 +5,6 @@ import {ErrorCode} from '../error_code';
 import {AbstractRule} from '../rule';
 
 function checkImport(checker: Checker, node: ts.ImportDeclaration) {
-  // Check only side-effect imports as other imports are checked by TSC.
-  if (node.importClause !== undefined) return;
-
   const modSpec = node.moduleSpecifier;
   if (!modSpec) return;
 
