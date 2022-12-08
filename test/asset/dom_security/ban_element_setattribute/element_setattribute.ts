@@ -7,9 +7,9 @@ elem.setAttributeNS(null, 'src', '');
 elem.setAttributeNode(attr);
 elem.setAttributeNodeNS(attr);
 
-// Setting attributes that are not security sensitive is OK.
+// Setting attributes that are not TT related is OK.
 elem.setAttribute('data-custom', '');
-elem.setAttribute('role', '');
+elem.setAttribute('aria-label', '');
 elem.setAttributeNS(null, 'data-custom', '');
 elem.setAttributeNS(null, 'role', '');
 
