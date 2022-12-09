@@ -32,7 +32,7 @@
     "jasmine-ts": "^0.3.0",
     "nyc": "^15.1.0",
     "rimraf": "^3.0.2",
-    "safevalues": "^0.1.1",
+    "safevalues": "0.4.2",
     "symlink-dir": "5.0.1",
     "ts-node": "^7.0.1",
     "typescript": "^4.6.3"
