@@ -9,8 +9,8 @@ window.setTimeout(`alsert('XSS!');`);
 window.parent.setInterval(`alsert('XSS!');`);
 window.parent.setTimeout(`alsert('XSS!');`);
 
-// direct use of the functions or properties also triggers, no matter
-// how it is used later.
+// Direct use of the functions or properties no longer triggers. Rely on TT to
+// capture bypasses.
 const si = setInterval;
 si(() => {});
 

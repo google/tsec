@@ -1184,50 +1184,7 @@
         "character": 24
       }
     },
-    {
-      "ruleName": "ban-window-stringfunctiondef",
-      "start": {
-        "line": 13,
-        "character": 11
-      },
-      "end": {
-        "line": 13,
-        "character": 22
-      }
-    },
-    {
-      "ruleName": "ban-window-stringfunctiondef",
-      "start": {
-        "line": 16,
-        "character": 11
-      },
-      "end": {
-        "line": 16,
-        "character": 21
-      }
-    },
-    {
-      "ruleName": "ban-window-stringfunctiondef",
-      "start": {
-        "line": 19,
-        "character": 12
-      },
-      "end": {
-        "line": 19,
-        "character": 37
-      }
-    },
-    {
-      "ruleName": "ban-window-stringfunctiondef",
-      "start": {
-        "line": 22,
-        "character": 12
-      },
-      "end": {
-        "line": 22,
-        "character": 36
-      }
-    },
+    
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {

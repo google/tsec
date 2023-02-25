@@ -58,15 +58,12 @@ function formatErrorMessage(bannedEntity: string): string {
  * are enabled (and it's up to the developer to make sure it
  * the value can't be misused). These patterns are safe to use, so we want to
  * exclude them from the reported errors.
- *
- * Also checks whether the unsafe API is not reassigned (e.g. `const st =
- * setTimeout`) because we are not able to detect whether the usage is safe or
- * not.
  */
 function isUsedWithNonStringArgument(n: ts.Node, tc: ts.TypeChecker) {
   const par = n.parent;
-  // Early return on pattern like `const st = setTimeout`
-  if (!ts.isCallExpression(par) || par.expression !== n) return false;
+  // Early return on pattern like `const st = setTimeout;` We now consider this
+  // pattern acceptable to reduce false positives.
+  if (!ts.isCallExpression(par) || par.expression !== n) return true;
   // Having zero arguments will trigger other compiler errors. We should not
   // bother emitting a Tsetse error.
   if (par.arguments.length === 0) return true;
