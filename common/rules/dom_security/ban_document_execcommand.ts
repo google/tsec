@@ -36,8 +36,8 @@ function matchNode(
   // Check if the matched node is a call to `execCommand` and if the command
   // name is a literal. We will skip matching if the command name is not in
   // the blocklist.
-  if (!ts.isCallExpression(n.parent)) return n;
-  if (n.parent.expression !== n) return n;
+  if (!ts.isCallExpression(n.parent)) return;
+  if (n.parent.expression !== n) return;
   // It's OK if someone provided the wrong number of arguments because the code
   // will have other compiler errors.
   if (n.parent.arguments.length < 1) return;
