@@ -48,7 +48,6 @@ function computeKey(start: number, end: number): string {
   return `[${start},${end}]`;
 }
 
-/* @internal */
 // Work around for missing API to register a code fix.
 interface CodeFix {
   errorCodes: number[];
