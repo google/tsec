@@ -37,9 +37,8 @@ export class PropertyMatcher {
         this.typeMatches(tc.getTypeAtLocation(n.expression));
   }
 
-  private exactTypeMatches(inspectedType: ts.Type): boolean {
-    const typeSymbol = inspectedType.getSymbol() || false;
-    return typeSymbol && typeSymbol.getName() === this.bannedType;
+  private isSypObj(type: ts.Symbol): boolean {
+    return type.getName() === 'SpyObj';
   }
 
   /**
@@ -47,10 +46,20 @@ export class PropertyMatcher {
    * the result by considering union types and intersection types as the same.
    */
   typeMatches(inspectedType: ts.Type): boolean {
-    if (this.exactTypeMatches(inspectedType)) {
-      return true;
+    const typeSymbol = inspectedType.getSymbol();
+
+    if (typeof typeSymbol !== 'undefined') {
+      if (this.isSypObj(typeSymbol)) {
+        return false;
+      }
+
+      if (typeSymbol.getName() === this.bannedType) {
+        return true;
+      }
     }
-    // If the type is an intersection/union, check if any of the component matches
+
+    // If the type is an intersection/union, check if any of the component
+    // matches
     if (inspectedType.isUnionOrIntersection()) {
       return inspectedType.types.some(comp => this.typeMatches(comp));
     }
