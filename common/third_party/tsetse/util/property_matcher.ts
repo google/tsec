@@ -37,25 +37,17 @@ export class PropertyMatcher {
         this.typeMatches(tc.getTypeAtLocation(n.expression));
   }
 
-  private isSypObj(type: ts.Symbol): boolean {
-    return type.getName() === 'SpyObj';
-  }
-
   /**
    * Match types recursively in the lattice. This function over-approximates
    * the result by considering union types and intersection types as the same.
    */
   typeMatches(inspectedType: ts.Type): boolean {
-    const typeSymbol = inspectedType.getSymbol();
+    // Skip checking mocked objects
+    if (inspectedType.aliasSymbol?.escapedName === 'SpyObj') return false;
 
-    if (typeof typeSymbol !== 'undefined') {
-      if (this.isSypObj(typeSymbol)) {
-        return false;
-      }
-
-      if (typeSymbol.getName() === this.bannedType) {
-        return true;
-      }
+    // Exact type match
+    if (inspectedType.getSymbol()?.getName() === this.bannedType) {
+      return true;
     }
 
     // If the type is an intersection/union, check if any of the component
