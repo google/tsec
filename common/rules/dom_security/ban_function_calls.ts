@@ -94,7 +94,7 @@ export class Rule extends AbstractRule {
     // Check if the matched node is part of a `new Function(string)` or
     // `Function(string)` expression
     if (ts.isNewExpression(parent) || ts.isCallExpression(parent)) {
-      if (parent.expression === n && parent.arguments) {
+      if (parent.expression === n && parent.arguments?.length) {
         matched = parent as (Exclude<typeof matched, undefined>);
       }
     } else {
@@ -108,7 +108,7 @@ export class Rule extends AbstractRule {
           parent.parent.name.text === 'constructor' &&
           ts.isCallExpression(parent.parent.parent) &&
           parent.parent.parent.expression === parent.parent &&
-          parent.parent.parent.arguments) {
+          parent.parent.parent.arguments.length) {
         matched = parent.parent.parent;
       }
     }
