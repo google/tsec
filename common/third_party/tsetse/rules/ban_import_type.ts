@@ -16,7 +16,6 @@ export class Rule extends AbstractRule {
 
   register(checker: Checker) {
     checker.on(ts.SyntaxKind.ImportDeclaration, checkImport, this.code);
-    checker.on(ts.SyntaxKind.ExportDeclaration, checkExport, this.code);
     checker.on(
         ts.SyntaxKind.ImportEqualsDeclaration, checkImportEquals, this.code);
   }
@@ -26,25 +25,17 @@ function checkImport(
     checker: Checker, importDeclaration: ts.ImportDeclaration) {
   if (!importDeclaration.importClause) return;  // side effect import
   if (!importDeclaration.importClause.isTypeOnly) return;
-  return checkPort(checker, importDeclaration.importClause);
+  checkPort(checker, importDeclaration.importClause);
 }
 
 function checkImportEquals(
     checker: Checker, importEqualsDeclaration: ts.ImportEqualsDeclaration) {
   if (!importEqualsDeclaration.isTypeOnly) return;
-  return checkPort(checker, importEqualsDeclaration);
-}
-
-function checkExport(
-    checker: Checker, exportDeclaration: ts.ExportDeclaration) {
-  if (!exportDeclaration.isTypeOnly) return;
-  return checkPort(checker, exportDeclaration);
+  checkPort(checker, importEqualsDeclaration);
 }
 
 function checkPort(
-    checker: Checker,
-    parentNode: ts.ImportClause|ts.ExportDeclaration|
-    ts.ImportEqualsDeclaration) {
+    checker: Checker, parentNode: ts.ImportClause|ts.ImportEqualsDeclaration) {
   const sourceFile = parentNode.getSourceFile();
   const typeKeyword = parentNode.getChildren(sourceFile)
                           .find(t => t.kind === ts.SyntaxKind.TypeKeyword);
@@ -54,11 +45,9 @@ function checkPort(
   }
   // Remove the type keyword.
   const fix = replaceNode(typeKeyword, '');
-  const importExport =
-      parentNode.kind === ts.SyntaxKind.ImportClause ? 'import' : 'export';
   checker.addFailureAtNode(
       typeKeyword,
-      `do not use ${importExport} type, use regular ${importExport}s.`
+      `do not use import type, use regular imports.`
       ,
       Rule.RULE_NAME, undefined, [fix]);
 }
