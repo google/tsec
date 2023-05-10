@@ -178,6 +178,18 @@ export function replaceNode(node: ts.Node, replacement: string): Fix {
   };
 }
 
+/** Creates a fix that inserts new text in front of the given node. */
+export function insertBeforeNode(node: ts.Node, insertion: string): Fix {
+  return {
+    changes: [{
+      sourceFile: node.getSourceFile(),
+      start: node.getStart(),
+      end: node.getStart(),
+      replacement: insertion,
+    }],
+  };
+}
+
 /**
  * An individual text replacement/insertion in a source file. Used as part of a
  * `Fix`.
