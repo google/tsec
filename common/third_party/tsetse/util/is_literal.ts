@@ -40,7 +40,8 @@ export function isLiteral(typeChecker: ts.TypeChecker, node: ts.Node): boolean {
     return isUnderlyingValueAStringLiteral(node, typeChecker);
   }
 
-  const hasCasts = findInChildren(node, ts.isAsExpression);
+  const hasCasts = findInChildren(
+      node, (n) => ts.isAsExpression(n) && !ts.isConstTypeReference(n.type));
 
   return !hasCasts && isLiteralAccordingToItsType(typeChecker, node);
 }
