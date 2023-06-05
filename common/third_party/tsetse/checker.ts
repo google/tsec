@@ -150,7 +150,8 @@ export class Checker {
    */
   addFailure(
       start: number, end: number, failureText: string, source: string|undefined,
-      allowlist: Allowlist|undefined, fixes?: Fix[]) {
+      allowlist: Allowlist|undefined, fixes?: Fix[],
+      relatedInformation?: ts.DiagnosticRelatedInformation[]) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
     }
@@ -163,7 +164,7 @@ export class Checker {
 
     const failure = new Failure(
         this.currentSourceFile, start, end, failureText, this.currentCode,
-        source, fixes ?? []);
+        source, fixes ?? [], relatedInformation);
 
     let filePath = this.currentSourceFile.fileName;
     const isFailureAllowlisted = allowlist?.isAllowlisted(filePath);
@@ -175,12 +176,29 @@ export class Checker {
 
   addFailureAtNode(
       node: ts.Node, failureText: string, source: string|undefined,
-      allowlist: Allowlist|undefined, fixes?: Fix[]) {
+      allowlist: Allowlist|undefined, fixes?: Fix[],
+      relatedInformation?: ts.DiagnosticRelatedInformation[]) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
     this.addFailure(
         node.getStart(this.currentSourceFile), node.getEnd(), failureText,
-        source, allowlist, fixes);
+        source, allowlist, fixes, relatedInformation);
+  }
+
+  createRelatedInformation(node: ts.Node, messageText: string):
+      ts.DiagnosticRelatedInformation {
+    if (!this.currentSourceFile) {
+      throw new Error('Source file not defined');
+    }
+    const start = node.getStart(this.currentSourceFile);
+    return {
+      category: ts.DiagnosticCategory.Error,
+      code: this.currentCode,
+      file: this.currentSourceFile,
+      start,
+      length: node.getEnd() - start,
+      messageText,
+    };
   }
 
   /** Dispatch general handlers registered via `on` */

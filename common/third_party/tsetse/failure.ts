@@ -18,7 +18,9 @@ export class Failure {
        * failure. Can be empty.
        */
       private readonly failureSource: string|undefined,
-      private readonly suggestedFixes: Fix[] = []) {}
+      private readonly suggestedFixes: Fix[] = [],
+      private readonly relatedInformation?: ts.DiagnosticRelatedInformation[]) {
+  }
 
   /**
    * This returns a structure compatible with ts.Diagnostic, but with added
@@ -42,7 +44,8 @@ export class Failure {
       // Other tools like TSLint can use this field to decide the subcategory of
       // the diagnostic.
       source: this.failureSource,
-      fixes: this.suggestedFixes
+      fixes: this.suggestedFixes,
+      relatedInformation: this.relatedInformation,
     };
   }
 
