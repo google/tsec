@@ -252,6 +252,25 @@ your project include files for testing.
 }
 ```
 
+## Configure other diagnostic reporting options
+
+It is possible to ask tsec to ignore all errors that would have been reported by
+the vanilla TS compiler and keep only the tsec-specific ones. To do so, set the
+`reportTsecDiagnosticsOnly` field in plugin options:
+
+```json
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "tsec",
+        "reportTsecDiagnosticsOnly": true
+      }
+    ]
+  }
+}
+```
+
 ## Developing locally
 
 We recommend developing using [VS Code](https://code.visualstudio.com/). We have

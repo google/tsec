@@ -19,6 +19,10 @@ import {isInBuildMode, performBuild, performCheck} from './build';
 import {createCompilerHost} from './compiler_host';
 import {createDiagnosticsReporter, FORMAT_DIAGNOSTIC_HOST} from './report';
 
+interface TsecOptions {
+  reportTsecDiagnosticsOnly?: unknown;
+}
+
 /**
  * A simple tsc wrapper that runs TSConformance checks over the source files
  * and emits code for files without conformance violations.
@@ -69,15 +73,19 @@ function main(args: string[]) {
         tsConfigFilePath, parsedConfig.options, parseConfigFileHost)!;
   }
 
+  const pluginOptions = parseTsecOptions(parsedConfig);
+  const reportTsecDiagnosticsOnly = !!pluginOptions?.reportTsecDiagnosticsOnly;
+
   const diagnostics = [...parsedConfig.errors];
   const compilerHost = createCompilerHost(parsedConfig);
 
   const program = ts.createProgram(
       parsedConfig.fileNames, parsedConfig.options, compilerHost);
 
-  diagnostics.push(
-      ...ts.getPreEmitDiagnostics(program),
-      ...performCheck(program, compilerHost));
+  if (!reportTsecDiagnosticsOnly) {
+    diagnostics.push(...ts.getPreEmitDiagnostics(program));
+  }
+  diagnostics.push(...performCheck(program, compilerHost));
 
   // If there are conformance errors while noEmitOnError is set, refrain from
   // emitting code.
@@ -90,7 +98,10 @@ function main(args: string[]) {
   }
 
   const result = program.emit();
-  diagnostics.push(...result.diagnostics);
+
+  if (!reportTsecDiagnosticsOnly) {
+    diagnostics.push(...result.diagnostics);
+  }
 
   const reportDiagnostics = createDiagnosticsReporter(parsedConfig.options);
   const errorCount = reportDiagnostics(
@@ -100,3 +111,17 @@ function main(args: string[]) {
 }
 
 process.exitCode = main(process.argv.slice(2));
+
+function parseTsecOptions(parsedConfig: ts.ParsedCommandLine): TsecOptions|
+    undefined {
+  let pluginOptions: TsecOptions|undefined = undefined;
+  if (parsedConfig.options && Array.isArray(parsedConfig.options['plugins'])) {
+    for (const plugin of parsedConfig.options['plugins'] as ts.PluginImport[]) {
+      if (plugin.name === 'tsec') {
+        pluginOptions = plugin as unknown as TsecOptions;
+        break;
+      }
+    }
+  }
+  return pluginOptions;
+}
