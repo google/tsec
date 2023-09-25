@@ -55,8 +55,8 @@ export function findInChildren(
   return false;
 }
 
-function isOnRHSOfInstanceOf(n: ts.Node) {
-  return n.parent && ts.isBinaryExpression(n.parent) && n.parent.right === n &&
+function isOperandOfInstanceOf(n: ts.Node) {
+  return ts.isBinaryExpression(n.parent) &&
       n.parent.operatorToken.kind === ts.SyntaxKind.InstanceOfKeyword;
 }
 
@@ -66,8 +66,8 @@ function isOnRHSOfInstanceOf(n: ts.Node) {
  */
 export function shouldExamineNode(n: ts.Node) {
   return !(
-      (n.parent && ts.isTypeNode(n.parent)) || isOnRHSOfInstanceOf(n) ||
-      isInStockLibraries(n));
+      (n.parent && ts.isTypeNode(n.parent)) || isOperandOfInstanceOf(n) ||
+      ts.isTypeOfExpression(n.parent) || isInStockLibraries(n));
 }
 
 /**
