@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// g3-format-clang
 import {ENABLED_RULES} from './rule_groups';
 import {Checker} from './third_party/tsetse/checker';
 import * as ts from 'typescript';

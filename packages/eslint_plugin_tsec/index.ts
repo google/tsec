@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// g3-format-clang
 import {trustedTypesChecks} from './trusted_types_checks';
 
 /**

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// g3-format-clang
 import * as glob from 'glob';
 import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/allowlist';
 import * as minimatch from 'minimatch';

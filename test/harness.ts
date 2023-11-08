@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// g3-format-clang
 import * as fs from 'fs';
 import {ENABLED_RULES} from '../common/rule_groups';
 import {Checker} from '../common/third_party/tsetse/checker';
