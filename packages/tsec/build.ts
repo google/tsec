@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// g3-format-clang
 import {ENABLED_RULES} from '../../common/rule_groups';
 import {getConfiguredChecker} from '../../common/configured_checker';
 import * as ts from 'typescript';

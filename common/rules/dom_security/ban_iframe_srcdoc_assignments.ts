@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// g3-format-clang
 import {Fix} from '../../third_party/tsetse/failure';
 import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
 import {maybeAddNamedImport} from '../../third_party/tsetse/util/fixer';

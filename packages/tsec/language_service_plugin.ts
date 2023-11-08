@@ -13,6 +13,7 @@
 // limitations under the License.
 
 /**
+ * g3-format-clang
  * @fileoverview The language service plugin for tsec which shows violations
  * directly in the editor.
  */

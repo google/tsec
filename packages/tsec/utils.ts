@@ -13,6 +13,7 @@
 // limitations under the License.
 
 /**
+ * g3-format-clang
  * The proxy design pattern, allowing us to customize behavior of the delegate
  * object.
  * This creates a property-by-property copy of the functions of the object, so
