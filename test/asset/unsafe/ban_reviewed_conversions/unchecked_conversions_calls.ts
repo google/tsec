@@ -3,10 +3,10 @@ import {htmlSafeByReview, resourceUrlSafeByReview, scriptSafeByReview} from 'saf
 
 declare var unsafeValue: string;
 
-htmlSafeByReview(unsafeValue, 'for testing');
-resourceUrlSafeByReview(unsafeValue, 'for testing');
-scriptSafeByReview(unsafeValue, 'for testing');
+htmlSafeByReview(unsafeValue, {justification: 'for testing'});
+resourceUrlSafeByReview(unsafeValue, {justification: 'for testing'});
+scriptSafeByReview(unsafeValue, {justification: 'for testing'});
 
-reviewed.htmlSafeByReview(unsafeValue, 'for testing');
-reviewed.resourceUrlSafeByReview(unsafeValue, 'for testing');
-reviewed.scriptSafeByReview(unsafeValue, 'for testing');
+reviewed.htmlSafeByReview(unsafeValue, {justification: 'for testing'});
+reviewed.resourceUrlSafeByReview(unsafeValue, {justification: 'for testing'});
+reviewed.scriptSafeByReview(unsafeValue, {justification: 'for testing'});
