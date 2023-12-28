@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {ESLintUtils} from '@typescript-eslint/utils';
 import {getConfiguredChecker} from '../../common/configured_checker';
 import {Checker} from '../../common/third_party/tsetse/checker';
 import * as ts from 'typescript';
 
 const createRule = ESLintUtils.RuleCreator(
-    name => 'https://github.com/google/tsec',
+  (name) => 'https://github.com/google/tsec',
 );
 
 // The checker is defined here so that it can be instantiated once and re-used
@@ -52,10 +51,9 @@ export const trustedTypesChecks: unknown = createRule({
     // Instantiates the checker if it has not been defined yet
     if (!checker) {
       checker = getConfiguredChecker(
-                    parserServices.program,
-                    ts.createCompilerHost(
-                        parserServices.program.getCompilerOptions()))
-                    .checker;
+        parserServices.program,
+        ts.createCompilerHost(parserServices.program.getCompilerOptions()),
+      ).checker;
     }
 
     return {
@@ -70,15 +68,19 @@ export const trustedTypesChecks: unknown = createRule({
         // Report the detected errors
         for (const failure of failures) {
           const diagnostic = failure.toDiagnostic();
-          const start =
-              ts.getLineAndCharacterOfPosition(tsRootNode, diagnostic.start!);
-          const end =
-              ts.getLineAndCharacterOfPosition(tsRootNode, diagnostic.end);
+          const start = ts.getLineAndCharacterOfPosition(
+            tsRootNode,
+            diagnostic.start!,
+          );
+          const end = ts.getLineAndCharacterOfPosition(
+            tsRootNode,
+            diagnostic.end,
+          );
 
           context.report({
             loc: {
               start: {line: start.line + 1, column: start.character},
-              end: {line: end.line + 1, column: end.character}
+              end: {line: end.line + 1, column: end.character},
             },
             message: diagnostic.messageText,
             // Need to cast here because the type definition disallows the
@@ -87,7 +89,7 @@ export const trustedTypesChecks: unknown = createRule({
             // tslint:disable-next-line:no-any
           } as any);
         }
-      }
+      },
     };
   },
 });

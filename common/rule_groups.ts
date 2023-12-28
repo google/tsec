@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {AbstractRule} from './third_party/tsetse/rule';
 
 import {RuleConfiguration} from './rule_configuration';
@@ -49,12 +48,12 @@ import {Rule as BanUncheckedConversions} from './rules/unsafe/ban_reviewed_conve
  */
 export interface RuleConstructor {
   readonly RULE_NAME: string;
-  new(configuration?: RuleConfiguration): AbstractRule;
+  new (configuration?: RuleConfiguration): AbstractRule;
 }
 
 /** Conformance rules related to Trusted Types adoption */
 export const TRUSTED_TYPES_RELATED_RULES: readonly RuleConstructor[] = [
-  TTBanBaseHrefAssignments,  // https://github.com/w3c/webappsec-trusted-types/issues/172
+  TTBanBaseHrefAssignments, // https://github.com/w3c/webappsec-trusted-types/issues/172
   TTBanDocumentExecCommand,
   TTBanDocumentWritelnCalls,
   TTBanDocumentWriteCalls,

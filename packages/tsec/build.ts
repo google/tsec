@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {ENABLED_RULES} from '../../common/rule_groups';
 import {getConfiguredChecker} from '../../common/configured_checker';
 import * as ts from 'typescript';
@@ -33,7 +32,9 @@ export function isInBuildMode(cmdArgs: string[]) {
 
 /** Perform security checks on a single project. */
 export function performCheck(
-    program: ts.Program, host: ts.ModuleResolutionHost): ts.Diagnostic[] {
+  program: ts.Program,
+  host: ts.ModuleResolutionHost,
+): ts.Diagnostic[] {
   const {checker, errors} = getConfiguredChecker(program, host);
 
   // Run all enabled checks and collect errors.
@@ -41,23 +42,25 @@ export function performCheck(
     // We don't emit errors for delcarations, so might as well skip checking
     // declaration files all together.
     if (sf.isDeclarationFile) continue;
-    const tsecErrors = checker.execute(sf).map(
-        failure => failure.toDiagnosticWithStringifiedFixes());
+    const tsecErrors = checker
+      .execute(sf)
+      .map((failure) => failure.toDiagnosticWithStringifiedFixes());
     errors.push(...tsecErrors);
   }
 
   return errors;
 }
 
-const ALL_TSEC_RULE_NAMES =
-    new Set<string|undefined>(ENABLED_RULES.map(r => r.RULE_NAME));
+const ALL_TSEC_RULE_NAMES = new Set<string | undefined>(
+  ENABLED_RULES.map((r) => r.RULE_NAME),
+);
 
 /** Perform checks on a monorepo. */
 export function performBuild(args: string[]): number {
   // This is an internal interface used by the TS compiler.
   interface ParsedBuildCommand {
     buildOptions: ts.BuildOptions;
-    watchOptions: ts.WatchOptions|undefined;
+    watchOptions: ts.WatchOptions | undefined;
     projects: string[];
     errors: ts.Diagnostic[];
   }
@@ -66,10 +69,12 @@ export function performBuild(args: string[]): number {
   // reason it's not public. For now we would like to reuse this facility, so
   // we will use type casts to bypass visibility restrictions.
   const parseBuildCommand =
-      // tslint:disable-next-line:ban-module-namespace-object-escape
-      (ts as unknown as {
-        parseBuildCommand: (args: readonly string[]) => ParsedBuildCommand
-      }).parseBuildCommand;
+    // tslint:disable-next-line:ban-module-namespace-object-escape
+    (
+      ts as unknown as {
+        parseBuildCommand: (args: readonly string[]) => ParsedBuildCommand;
+      }
+    ).parseBuildCommand;
 
   const {buildOptions, projects, errors} = parseBuildCommand(args);
   const reportDiagnostics = createDiagnosticsReporter(buildOptions);
@@ -85,26 +90,28 @@ export function performBuild(args: string[]): number {
 
   const builderErrors: ts.Diagnostic[] = [];
   const builderHost = ts.createSolutionBuilderHost(
-      ts.sys,
-      instrumentedCreateProgram,
-      // Suppress the reporting of builder errors. We will report them with
-      // other errors together at the end of the build.
-      /*reportDiagnostic*/
-      diag => {
-        if (!ALL_TSEC_RULE_NAMES.has(diag.source)) {
-          builderErrors.push(diag);
-        }
-      },
-      /*reportSolutionBuilderStatus*/ undefined,
-      // Suppress the reporting of error summary. We will report it later.
-      /*reportErrorSummary*/ () => {},
+    ts.sys,
+    instrumentedCreateProgram,
+    // Suppress the reporting of builder errors. We will report them with
+    // other errors together at the end of the build.
+    /*reportDiagnostic*/
+    (diag) => {
+      if (!ALL_TSEC_RULE_NAMES.has(diag.source)) {
+        builderErrors.push(diag);
+      }
+    },
+    /*reportSolutionBuilderStatus*/ undefined,
+    // Suppress the reporting of error summary. We will report it later.
+    /*reportErrorSummary*/ () => {},
   );
 
   const builder = ts.createSolutionBuilder(builderHost, projects, buildOptions);
   buildOptions['clean'] ? builder.clean() : builder.build();
 
   const errorCount = reportDiagnostics(
-      [...builderErrors, ...allTsecErrors], /*withSummary*/ true);
+    [...builderErrors, ...allTsecErrors],
+    /*withSummary*/ true,
+  );
 
   return errorCount;
 
@@ -115,19 +122,27 @@ export function performBuild(args: string[]): number {
    * that tsec errors are respected during code emission.
    */
   function instrumentedCreateProgram(
-      rootNames: readonly string[]|undefined,
-      options: ts.CompilerOptions|undefined, host?: ts.CompilerHost,
-      oldProgram?: ts.EmitAndSemanticDiagnosticsBuilderProgram,
-      configFileParsingDiagnostics?: readonly ts.Diagnostic[],
-      projectReferences?: readonly ts.ProjectReference[]):
-      ts.EmitAndSemanticDiagnosticsBuilderProgram {
+    rootNames: readonly string[] | undefined,
+    options: ts.CompilerOptions | undefined,
+    host?: ts.CompilerHost,
+    oldProgram?: ts.EmitAndSemanticDiagnosticsBuilderProgram,
+    configFileParsingDiagnostics?: readonly ts.Diagnostic[],
+    projectReferences?: readonly ts.ProjectReference[],
+  ): ts.EmitAndSemanticDiagnosticsBuilderProgram {
     const builderProgram = ts.createEmitAndSemanticDiagnosticsBuilderProgram(
-        rootNames, options, host, oldProgram, configFileParsingDiagnostics,
-        projectReferences);
+      rootNames,
+      options,
+      host,
+      oldProgram,
+      configFileParsingDiagnostics,
+      projectReferences,
+    );
     const program = builderProgram.getProgram();
 
     const tsecErrorsInThisProgram = performCheck(
-        program, host ?? ts.createCompilerHost(program.getCompilerOptions()));
+      program,
+      host ?? ts.createCompilerHost(program.getCompilerOptions()),
+    );
     allTsecErrors.push(...tsecErrorsInThisProgram);
 
     const tsecErrorsByFile = new Map<string, ts.Diagnostic[]>();
@@ -153,16 +168,20 @@ export function performBuild(args: string[]): number {
      * is any tsec error in it.
      */
     function instrumentedEmit(
-        targetSourceFile?: ts.SourceFile, writeFile?: ts.WriteFileCallback,
-        cancellationToken?: ts.CancellationToken, emitOnlyDtsFiles?: boolean,
-        customTransformers?: ts.CustomTransformers): ts.EmitResult {
+      targetSourceFile?: ts.SourceFile,
+      writeFile?: ts.WriteFileCallback,
+      cancellationToken?: ts.CancellationToken,
+      emitOnlyDtsFiles?: boolean,
+      customTransformers?: ts.CustomTransformers,
+    ): ts.EmitResult {
       if (targetSourceFile === undefined) {
         if (tsecErrorsInThisProgram.length !== 0) {
           return {emitSkipped: true, diagnostics: tsecErrorsInThisProgram};
         }
       } else {
-        const tsecErrorsInThisFile =
-            tsecErrorsByFile.get(targetSourceFile.fileName);
+        const tsecErrorsInThisFile = tsecErrorsByFile.get(
+          targetSourceFile.fileName,
+        );
 
         if (tsecErrorsInThisFile?.length) {
           return {emitSkipped: true, diagnostics: tsecErrorsInThisFile};
@@ -170,8 +189,12 @@ export function performBuild(args: string[]): number {
       }
 
       return builderProgram.emit(
-          targetSourceFile, writeFile, cancellationToken, emitOnlyDtsFiles,
-          customTransformers);
+        targetSourceFile,
+        writeFile,
+        cancellationToken,
+        emitOnlyDtsFiles,
+        customTransformers,
+      );
     }
   }
 }

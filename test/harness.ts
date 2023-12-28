@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import * as fs from 'fs';
 import {ENABLED_RULES} from '../common/rule_groups';
 import {Checker} from '../common/third_party/tsetse/checker';
@@ -37,18 +36,22 @@ function simplifyFailure(failure: Failure): SimpleFailure {
 
 /** Compile integration test assets and run security rules on them. */
 export function compileAndCheck(testDir: string): SimpleFailure[] {
-  const sourceFiles =
-      fs.readdirSync(testDir).map(f => path.resolve(testDir, f));
+  const sourceFiles = fs
+    .readdirSync(testDir)
+    .map((f) => path.resolve(testDir, f));
   const program = ts.createProgram(sourceFiles, {});
-  const checker =
-      new Checker(program, ts.createCompilerHost(program.getCompilerOptions()));
+  const checker = new Checker(
+    program,
+    ts.createCompilerHost(program.getCompilerOptions()),
+  );
   for (const ruleCtr of ENABLED_RULES) {
     new ruleCtr().register(checker);
   }
-  return program.getSourceFiles()
-      .map(s => checker.execute(s))
-      .reduce((prev, cur) => prev.concat(cur))
-      .map(f => simplifyFailure(f));
+  return program
+    .getSourceFiles()
+    .map((s) => checker.execute(s))
+    .reduce((prev, cur) => prev.concat(cur))
+    .map((f) => simplifyFailure(f));
 }
 
 /**
@@ -61,15 +64,20 @@ function getCheckResultsForAllAssets(assetPath: string) {
     const categoryPath = path.resolve(assetPath, category);
     for (const ruleName of fs.readdirSync(categoryPath)) {
       const prefixedRuleName = `${category}/${ruleName}`;
-      goldenReference[prefixedRuleName] =
-          compileAndCheck(path.resolve(assetPath, prefixedRuleName));
+      goldenReference[prefixedRuleName] = compileAndCheck(
+        path.resolve(assetPath, prefixedRuleName),
+      );
     }
   }
   return goldenReference;
 }
 
 if (require.main === module) {
-  console.log(JSON.stringify(
-      getCheckResultsForAllAssets(path.resolve(__dirname, 'asset')), undefined,
-      2));
+  console.log(
+    JSON.stringify(
+      getCheckResultsForAllAssets(path.resolve(__dirname, 'asset')),
+      undefined,
+      2,
+    ),
+  );
 }

@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import * as path from 'path';
 import * as ts from 'typescript';
 
 import {isInBuildMode, performBuild, performCheck} from './build';
 import {createCompilerHost} from './compiler_host';
-import {createDiagnosticsReporter, FORMAT_DIAGNOSTIC_HOST} from './report';
+import {FORMAT_DIAGNOSTIC_HOST, createDiagnosticsReporter} from './report';
 
 interface TsecOptions {
   reportTsecDiagnosticsOnly?: unknown;
@@ -38,7 +37,8 @@ function main(args: string[]) {
     // Same as tsc, do not emit colorful diagnostic texts for command line
     // parsing errors.
     ts.sys.write(
-        ts.formatDiagnostics(parsedConfig.errors, FORMAT_DIAGNOSTIC_HOST));
+      ts.formatDiagnostics(parsedConfig.errors, FORMAT_DIAGNOSTIC_HOST),
+    );
     return 1;
   }
 
@@ -46,7 +46,7 @@ function main(args: string[]) {
   // must be a configuration file that tells the compiler what to do. Try
   // looking for this file and parse it.
   if (parsedConfig.fileNames.length === 0) {
-    let tsConfigFilePath: string|undefined = parsedConfig.options.project;
+    let tsConfigFilePath: string | undefined = parsedConfig.options.project;
     if (tsConfigFilePath === undefined) {
       tsConfigFilePath = ts.findConfigFile('.', ts.sys.fileExists);
       if (tsConfigFilePath === undefined) {
@@ -68,10 +68,13 @@ function main(args: string[]) {
       onUnRecoverableConfigFileDiagnostic: (diagnostic: ts.Diagnostic) => {
         ts.sys.write(ts.formatDiagnostic(diagnostic, FORMAT_DIAGNOSTIC_HOST));
         ts.sys.exit(1);
-      }
+      },
     };
     parsedConfig = ts.getParsedCommandLineOfConfigFile(
-        tsConfigFilePath, parsedConfig.options, parseConfigFileHost)!;
+      tsConfigFilePath,
+      parsedConfig.options,
+      parseConfigFileHost,
+    )!;
   }
 
   const pluginOptions = parseTsecOptions(parsedConfig);
@@ -81,7 +84,10 @@ function main(args: string[]) {
   const compilerHost = createCompilerHost(parsedConfig);
 
   const program = ts.createProgram(
-      parsedConfig.fileNames, parsedConfig.options, compilerHost);
+    parsedConfig.fileNames,
+    parsedConfig.options,
+    compilerHost,
+  );
 
   if (!reportTsecDiagnosticsOnly) {
     diagnostics.push(...ts.getPreEmitDiagnostics(program));
@@ -106,16 +112,19 @@ function main(args: string[]) {
 
   const reportDiagnostics = createDiagnosticsReporter(parsedConfig.options);
   const errorCount = reportDiagnostics(
-      ts.sortAndDeduplicateDiagnostics(diagnostics), /*withSummary*/ true);
+    ts.sortAndDeduplicateDiagnostics(diagnostics),
+    /*withSummary*/ true,
+  );
 
   return errorCount === 0 ? 0 : 1;
 }
 
 process.exitCode = main(process.argv.slice(2));
 
-function parseTsecOptions(parsedConfig: ts.ParsedCommandLine): TsecOptions|
-    undefined {
-  let pluginOptions: TsecOptions|undefined = undefined;
+function parseTsecOptions(
+  parsedConfig: ts.ParsedCommandLine,
+): TsecOptions | undefined {
+  let pluginOptions: TsecOptions | undefined = undefined;
   if (parsedConfig.options && Array.isArray(parsedConfig.options['plugins'])) {
     for (const plugin of parsedConfig.options['plugins'] as ts.PluginImport[]) {
       if (plugin.name === 'tsec') {

@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {
+  ConformancePatternRule,
+  ErrorCode,
+  PatternKind,
+} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
-    'Use of reviewed conversions to safe values requires security reviews and approval.';
+  'Use of reviewed conversions to safe values requires security reviews and approval.';
 
 let bannedValues = [
   '/node_modules/safevalues/restricted/reviewed|htmlSafeByReview',
@@ -31,7 +34,7 @@ let bannedValues = [
   '/node_modules/safevalues/restricted/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/unsafe/reviewed|htmlFromStringKnownToSatisfyTypeContract',
   '/node_modules/safevalues/unsafe/reviewed|scriptFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/unsafe/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract'
+  '/node_modules/safevalues/unsafe/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
 ];
 
 /** A Rule that bans the use of reviewed conversions to safe values. */

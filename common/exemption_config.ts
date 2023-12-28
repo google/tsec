@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import * as glob from 'glob';
-import {AllowlistEntry, ExemptionReason} from './third_party/tsetse/allowlist';
+import {
+  AllowlistEntry,
+  ExemptionReason,
+} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/allowlist';
 import * as minimatch from 'minimatch';
 import * as os from 'os';
 import * as path from 'path';
@@ -32,7 +34,7 @@ export class ExemptionList {
     this.map = new Map(copyFrom?.map.entries() ?? []);
   }
 
-  get(rule: string): AllowlistEntry|undefined {
+  get(rule: string): AllowlistEntry | undefined {
     return this.map.get(rule);
   }
 
@@ -50,8 +52,9 @@ export class ExemptionList {
 }
 
 /** Get the path of the exemption configuration file from compiler options. */
-export function resolveExemptionConfigPath(configFilePath: string): string|
-    undefined {
+export function resolveExemptionConfigPath(
+  configFilePath: string,
+): string | undefined {
   if (!ts.sys.fileExists(configFilePath)) {
     configFilePath += ts.Extension.Json;
     if (!ts.sys.fileExists(configFilePath)) {
@@ -82,7 +85,8 @@ export function resolveExemptionConfigPath(configFilePath: string): string|
 
   if (typeof config.extends === 'string') {
     return resolveExemptionConfigPath(
-        path.resolve(configFileDir, config.extends));
+      path.resolve(configFileDir, config.extends),
+    );
   }
 
   return undefined;
@@ -90,8 +94,10 @@ export function resolveExemptionConfigPath(configFilePath: string): string|
 
 /** Create a Diagnostic for a JSON node from a configuration file */
 function getDiagnosticErrorFromJsonNode(
-    node: ts.Node, file: ts.JsonSourceFile,
-    messageText: string): ts.Diagnostic {
+  node: ts.Node,
+  file: ts.JsonSourceFile,
+  messageText: string,
+): ts.Diagnostic {
   const start = node.getStart(file);
   const length = node.getEnd() - start;
   return {
@@ -106,8 +112,9 @@ function getDiagnosticErrorFromJsonNode(
 }
 
 /** Parse the content of the exemption configuration file. */
-export function parseExemptionConfig(exemptionConfigPath: string):
-    ExemptionList|ts.Diagnostic[] {
+export function parseExemptionConfig(
+  exemptionConfigPath: string,
+): ExemptionList | ts.Diagnostic[] {
   const errors: ts.Diagnostic[] = [];
 
   const jsonContent = ts.sys.readFile(exemptionConfigPath)!;
@@ -128,9 +135,13 @@ export function parseExemptionConfig(exemptionConfigPath: string):
 
   const jsonObj = jsonSourceFile.statements[0].expression;
   if (!ts.isObjectLiteralExpression(jsonObj)) {
-    errors.push(getDiagnosticErrorFromJsonNode(
-        jsonObj, jsonSourceFile,
-        'Exemption configuration requires a value of type object'));
+    errors.push(
+      getDiagnosticErrorFromJsonNode(
+        jsonObj,
+        jsonSourceFile,
+        'Exemption configuration requires a value of type object',
+      ),
+    );
     return errors;
   }
 
@@ -141,27 +152,42 @@ export function parseExemptionConfig(exemptionConfigPath: string):
 
   for (const prop of jsonObj.properties) {
     if (!ts.isPropertyAssignment(prop)) {
-      errors.push(getDiagnosticErrorFromJsonNode(
-          prop, jsonSourceFile, 'Property assignment expected'));
+      errors.push(
+        getDiagnosticErrorFromJsonNode(
+          prop,
+          jsonSourceFile,
+          'Property assignment expected',
+        ),
+      );
       continue;
     }
 
     if (prop.name === undefined) continue;
 
-    if (!ts.isStringLiteral(prop.name) ||
-        !prop.name.getText(jsonSourceFile).startsWith(`"`)) {
-      errors.push(getDiagnosticErrorFromJsonNode(
-          prop.name, jsonSourceFile,
-          'String literal with double quotes expected'));
+    if (
+      !ts.isStringLiteral(prop.name) ||
+      !prop.name.getText(jsonSourceFile).startsWith(`"`)
+    ) {
+      errors.push(
+        getDiagnosticErrorFromJsonNode(
+          prop.name,
+          jsonSourceFile,
+          'String literal with double quotes expected',
+        ),
+      );
       continue;
     }
 
     const ruleName = prop.name.text;
 
     if (!ts.isArrayLiteralExpression(prop.initializer)) {
-      errors.push(getDiagnosticErrorFromJsonNode(
-          prop.initializer, jsonSourceFile,
-          `Exemption entry '${ruleName}' requires a value of type Array`));
+      errors.push(
+        getDiagnosticErrorFromJsonNode(
+          prop.initializer,
+          jsonSourceFile,
+          `Exemption entry '${ruleName}' requires a value of type Array`,
+        ),
+      );
       continue;
     }
 
@@ -170,10 +196,13 @@ export function parseExemptionConfig(exemptionConfigPath: string):
 
     for (const elem of prop.initializer.elements) {
       if (!ts.isStringLiteral(elem)) {
-        errors.push(getDiagnosticErrorFromJsonNode(
-            elem, jsonSourceFile,
-            `Item of exemption entry '${
-                ruleName}' requires values of type string`));
+        errors.push(
+          getDiagnosticErrorFromJsonNode(
+            elem,
+            jsonSourceFile,
+            `Item of exemption entry '${ruleName}' requires values of type string`,
+          ),
+        );
         continue;
       }
       let pathLike = path.resolve(baseDir, elem.text);
@@ -182,8 +211,9 @@ export function parseExemptionConfig(exemptionConfigPath: string):
       }
       if (glob.hasMagic(elem.text, globOptions)) {
         patterns.push(
-            // Strip the leading and trailing '/' from the stringified regexp.
-            minimatch.makeRe(pathLike, {}).toString().slice(1, -1));
+          // Strip the leading and trailing '/' from the stringified regexp.
+          minimatch.makeRe(pathLike, {}).toString().slice(1, -1),
+        );
       } else {
         fileNames.push(pathLike);
       }

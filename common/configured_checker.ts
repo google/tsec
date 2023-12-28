@@ -12,24 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {ENABLED_RULES} from './rule_groups';
 import {Checker} from './third_party/tsetse/checker';
 import * as ts from 'typescript';
 
-import {ExemptionList, parseExemptionConfig, resolveExemptionConfigPath} from './exemption_config';
+import {
+  ExemptionList,
+  parseExemptionConfig,
+  resolveExemptionConfigPath,
+} from './exemption_config';
 
 /**
  * Create a new cheker with all enabled rules registered and the exemption list
  * configured.
  */
 export function getConfiguredChecker(
-    program: ts.Program, host: ts.ModuleResolutionHost):
-    {checker: Checker, errors: ts.Diagnostic[]} {
-  let exemptionList: ExemptionList|undefined = undefined;
+  program: ts.Program,
+  host: ts.ModuleResolutionHost,
+): {checker: Checker; errors: ts.Diagnostic[]} {
+  let exemptionList: ExemptionList | undefined = undefined;
 
   const exemptionConfigPath = resolveExemptionConfigPath(
-      program.getCompilerOptions()['configFilePath'] as string);
+    program.getCompilerOptions()['configFilePath'] as string,
+  );
 
   const errors = [];
 
@@ -45,7 +50,7 @@ export function getConfiguredChecker(
   // Create all enabled rules with corresponding exemption list entries.
   const checker = new Checker(program, host);
   const wildcardAllowListEntry = exemptionList?.get('*');
-  const rules = ENABLED_RULES.map(ruleCtr => {
+  const rules = ENABLED_RULES.map((ruleCtr) => {
     const allowlistEntries = [];
     const allowlistEntry = exemptionList?.get(ruleCtr.RULE_NAME);
     if (allowlistEntry) {

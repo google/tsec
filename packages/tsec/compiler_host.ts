@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {resolve} from 'path';
 import * as ts from 'typescript';
 
 /** Create compiler host based on the content of tsconfig. */
-export function createCompilerHost(config: ts.ParsedCommandLine):
-    ts.CompilerHost {
+export function createCompilerHost(
+  config: ts.ParsedCommandLine,
+): ts.CompilerHost {
   const host = ts.createCompilerHost(config.options, true);
 
   if (config.raw?.bazel) {
@@ -26,7 +26,7 @@ export function createCompilerHost(config: ts.ParsedCommandLine):
     // to Bazel-generated .d.ts files whenever possible. Therefore, we need to
     // make sure .ts files not listed in "files" of tsconfig are not visible to
     // the compiler host.
-    const files = new Set(config.fileNames.map(p => resolve(p)));
+    const files = new Set(config.fileNames.map((p) => resolve(p)));
 
     const originalFileExists = host.fileExists;
 

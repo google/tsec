@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {trustedTypesChecks} from './trusted_types_checks';
 
 /**
@@ -20,5 +19,5 @@ import {trustedTypesChecks} from './trusted_types_checks';
  * can access it
  */
 export const rules = {
-  'trusted-types-checks': trustedTypesChecks
+  'trusted-types-checks': trustedTypesChecks,
 };
