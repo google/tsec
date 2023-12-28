@@ -12,15 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {
+  buildSafeDomFixerForPropertyWriteViolation,
+  SafeValueConversionKind,
+import {
+  ConformancePatternRule,
+  ErrorCode,
+  PatternKind,
+} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
 import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_HTML} from '../../third_party/tsetse/util/trusted_types_configuration';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
-    'Assigning directly to Element#outerHTML can result in XSS vulnerabilities.';
+  'Assigning directly to Element#outerHTML can result in XSS vulnerabilities.';
 
 /**
  * A Rule that looks for assignments to an Element's innerHTML property.
@@ -29,15 +35,15 @@ export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-element-outerhtml-assignments';
   constructor(configuration: RuleConfiguration = {}) {
     super(
-        overridePatternConfig({
-          errorCode: ErrorCode.CONFORMANCE_PATTERN,
-          errorMessage: errMsg,
-          kind: PatternKind.BANNED_PROPERTY_WRITE,
-          values: ['Element.prototype.outerHTML'],
-          name: Rule.RULE_NAME,
-          allowedTrustedType: TRUSTED_HTML,
-          ...configuration,
-        }),
+      overridePatternConfig({
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
+        errorMessage: errMsg,
+        kind: PatternKind.BANNED_PROPERTY_WRITE,
+        values: ['Element.prototype.outerHTML'],
+        name: Rule.RULE_NAME,
+        allowedTrustedType: TRUSTED_HTML,
+        ...configuration,
+      }),
     );
   }
 }

@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {
+  ConformancePatternRule,
+  ErrorCode,
+  PatternKind,
+} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg = 'Creating a Trusted Types policy requires a security review.';

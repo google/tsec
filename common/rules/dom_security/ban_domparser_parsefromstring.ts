@@ -12,26 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {
+  ConformancePatternRule,
+  ErrorCode,
+  PatternKind,
+} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
 import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
-    'Using DOMParser#parseFromString to parse untrusted input into DOM elements can lead to XSS.';
+  'Using DOMParser#parseFromString to parse untrusted input into DOM elements can lead to XSS.';
 
 /** A rule that bans any use of DOMParser.prototype.parseFromString. */
 export class Rule extends ConformancePatternRule {
   static readonly RULE_NAME = 'ban-domparser-parsefromstring';
 
   constructor(configuration: RuleConfiguration = {}) {
-    super(overridePatternConfig({
-      errorCode: ErrorCode.CONFORMANCE_PATTERN,
-      errorMessage: errMsg,
-      kind: PatternKind.BANNED_PROPERTY,
-      values: ['DOMParser.prototype.parseFromString'],
-      name: Rule.RULE_NAME,
-      ...configuration,
-    }));
+    super(
+      overridePatternConfig({
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
+        errorMessage: errMsg,
+        kind: PatternKind.BANNED_PROPERTY,
+        values: ['DOMParser.prototype.parseFromString'],
+        name: Rule.RULE_NAME,
+        ...configuration,
+      }),
+    );
   }
 }

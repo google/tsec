@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {Allowlist} from '../../third_party/tsetse/allowlist';
 import {Checker} from '../../third_party/tsetse/checker';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
@@ -55,20 +54,23 @@ export class Rule extends AbstractRule {
         checker.addFailureAtNode(node, errMsg, Rule.RULE_NAME, this.allowlist);
       }
     };
-    checker.onNamedIdentifier(
-        this.nameMatcher.bannedName,
-        check,
-        this.code,
+    checker.onNamedIdentifier(this.nameMatcher.bannedName, check, this.code);
+    checker.onStringLiteralElementAccess(
+      'Function',
+      (c, n) => {
+        check(c, n.argumentExpression);
+      },
+      this.code,
     );
-    checker.onStringLiteralElementAccess('Function', (c, n) => {
-      check(c, n.argumentExpression);
-    }, this.code);
   }
 
-  private checkNode(tc: ts.TypeChecker, n: ts.Node, matcher: AbsoluteMatcher):
-      ts.Node|undefined {
-    let matched: ts.Node&{arguments: readonly ts.Expression[]}|undefined =
-        undefined;
+  private checkNode(
+    tc: ts.TypeChecker,
+    n: ts.Node,
+    matcher: AbsoluteMatcher,
+  ): ts.Node | undefined {
+    let matched: (ts.Node & {arguments: readonly ts.Expression[]}) | undefined =
+      undefined;
 
     if (!shouldExamineNode(n)) return;
     if (!matcher.matches(n, tc)) return;
@@ -78,8 +80,10 @@ export class Rule extends AbstractRule {
     // Function can be accessed through window or other globalThis objects
     // through the dot or bracket syntax. Check if we are seeing one of these
     // cases
-    if ((ts.isPropertyAccessExpression(n.parent) && n.parent.name === n) ||
-        ts.isElementAccessExpression(n.parent)) {
+    if (
+      (ts.isPropertyAccessExpression(n.parent) && n.parent.name === n) ||
+      ts.isElementAccessExpression(n.parent)
+    ) {
       n = n.parent;
     }
     // Additionally cover the case `(Function)('bad script')`.
@@ -96,29 +100,35 @@ export class Rule extends AbstractRule {
     // `Function(string)` expression
     if (ts.isNewExpression(parent) || ts.isCallExpression(parent)) {
       if (parent.expression === n && parent.arguments?.length) {
-        matched = parent as (Exclude<typeof matched, undefined>);
+        matched = parent as Exclude<typeof matched, undefined>;
       }
     } else {
       if (!parent.parent || !parent.parent.parent) return;
 
       // Check if the matched node is part of a
       // `Function.prototype.constructor(string)` expression.
-      if (ts.isPropertyAccessExpression(parent) &&
-          parent.name.text === 'prototype' &&
-          ts.isPropertyAccessExpression(parent.parent) &&
-          parent.parent.name.text === 'constructor' &&
-          ts.isCallExpression(parent.parent.parent) &&
-          parent.parent.parent.expression === parent.parent &&
-          parent.parent.parent.arguments.length) {
+      if (
+        ts.isPropertyAccessExpression(parent) &&
+        parent.name.text === 'prototype' &&
+        ts.isPropertyAccessExpression(parent.parent) &&
+        parent.parent.name.text === 'constructor' &&
+        ts.isCallExpression(parent.parent.parent) &&
+        parent.parent.parent.expression === parent.parent &&
+        parent.parent.parent.arguments.length
+      ) {
         matched = parent.parent.parent;
       }
     }
 
     // If the constructor is called with TrustedScript arguments, do not flag it
     // (if the rule is confugired this way).
-    if (matched && this.allowTrustedTypes &&
-        matched.arguments.every(
-            arg => isExpressionOfAllowedTrustedType(tc, arg, TRUSTED_SCRIPT))) {
+    if (
+      matched &&
+      this.allowTrustedTypes &&
+      matched.arguments.every((arg) =>
+        isExpressionOfAllowedTrustedType(tc, arg, TRUSTED_SCRIPT),
+      )
+    ) {
       return;
     }
 

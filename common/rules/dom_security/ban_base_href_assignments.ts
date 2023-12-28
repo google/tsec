@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {
+  ConformancePatternRule,
+  ErrorCode,
+  PatternKind,
+} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
-    'Do not modify HTMLBaseElement#href elements, as this can compromise all other efforts to sanitize unsafe URLs and lead to XSS.';
+  'Do not modify HTMLBaseElement#href elements, as this can compromise all other efforts to sanitize unsafe URLs and lead to XSS.';
 
 /**
  * A Rule that looks for dynamic assignments to HTMLBaseElement#href property.
@@ -34,7 +37,7 @@ export class Rule extends ConformancePatternRule {
       kind: PatternKind.BANNED_PROPERTY_WRITE,
       values: ['HTMLBaseElement.prototype.href'],
       name: Rule.RULE_NAME,
-      ...configuration
+      ...configuration,
     });
   }
 }

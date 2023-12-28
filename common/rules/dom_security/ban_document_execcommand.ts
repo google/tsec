@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {Allowlist} from '../../third_party/tsetse/allowlist';
 import {Checker} from '../../third_party/tsetse/checker';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
@@ -25,12 +24,13 @@ import * as ts from 'typescript';
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
-    'Do not use document.execCommand(\'insertHTML\'), as this can lead to XSS.';
+  "Do not use document.execCommand('insertHTML'), as this can lead to XSS.";
 
 function matchNode(
-    tc: ts.TypeChecker,
-    n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
-    matcher: PropertyMatcher) {
+  tc: ts.TypeChecker,
+  n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
+  matcher: PropertyMatcher,
+) {
   if (!shouldExamineNode(n)) return;
   if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression))) return;
 
@@ -43,8 +43,11 @@ function matchNode(
   // will have other compiler errors.
   if (n.parent.arguments.length < 1) return;
   const ty = tc.getTypeAtLocation(n.parent.arguments[0]);
-  if (ty.isStringLiteral() && ty.value.toLowerCase() !== 'inserthtml' &&
-      isLiteral(tc, n.parent.arguments[0])) {
+  if (
+    ty.isStringLiteral() &&
+    ty.value.toLowerCase() !== 'inserthtml' &&
+    isLiteral(tc, n.parent.arguments[0])
+  ) {
     return;
   }
 
@@ -63,28 +66,45 @@ export class Rule extends AbstractRule {
 
   constructor(configuration: RuleConfiguration = {}) {
     super();
-    this.propMatcher =
-        PropertyMatcher.fromSpec('Document.prototype.execCommand');
+    this.propMatcher = PropertyMatcher.fromSpec(
+      'Document.prototype.execCommand',
+    );
     if (configuration.allowlistEntries) {
       this.allowlist = new Allowlist(configuration.allowlistEntries);
     }
   }
 
   register(checker: Checker) {
-    checker.onNamedPropertyAccess(this.propMatcher.bannedProperty, (c, n) => {
-      const node = matchNode(c.typeChecker, n, this.propMatcher);
-      if (node) {
-        checker.addFailureAtNode(node, errMsg, Rule.RULE_NAME, this.allowlist);
-      }
-    }, this.code);
+    checker.onNamedPropertyAccess(
+      this.propMatcher.bannedProperty,
+      (c, n) => {
+        const node = matchNode(c.typeChecker, n, this.propMatcher);
+        if (node) {
+          checker.addFailureAtNode(
+            node,
+            errMsg,
+            Rule.RULE_NAME,
+            this.allowlist,
+          );
+        }
+      },
+      this.code,
+    );
 
     checker.onStringLiteralElementAccess(
-        this.propMatcher.bannedProperty, (c, n) => {
-          const node = matchNode(c.typeChecker, n, this.propMatcher);
-          if (node) {
-            checker.addFailureAtNode(
-                node, errMsg, Rule.RULE_NAME, this.allowlist);
-          }
-        }, this.code);
+      this.propMatcher.bannedProperty,
+      (c, n) => {
+        const node = matchNode(c.typeChecker, n, this.propMatcher);
+        if (node) {
+          checker.addFailureAtNode(
+            node,
+            errMsg,
+            Rule.RULE_NAME,
+            this.allowlist,
+          );
+        }
+      },
+      this.code,
+    );
   }
 }

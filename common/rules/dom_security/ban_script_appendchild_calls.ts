@@ -12,12 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {
+  ConformancePatternRule,
+  ErrorCode,
+  PatternKind,
+} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
-    'Do not use HTMLScriptElement#appendChild because it is similar to eval and can cause code-injection security vulnerabilities.';
+  'Do not use HTMLScriptElement#appendChild because it is similar to eval and can cause code-injection security vulnerabilities.';
 
 /** A rule that bans the use of HTMLScriptElement#appendChild */
 export class Rule extends ConformancePatternRule {

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 /**
- * g3-format-clang
  * @fileoverview Turn on a TS security checker to ban setInverval and setTimeout
  * when they are called to evaluate strings as scripts.
  *
@@ -37,10 +36,7 @@ import * as ts from 'typescript';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
-const BANNED_NAMES = [
-  'GLOBAL|setInterval',
-  'GLOBAL|setTimeout',
-];
+const BANNED_NAMES = ['GLOBAL|setInterval', 'GLOBAL|setTimeout'];
 
 const BANNED_PROPERTIES = [
   'Window.prototype.setInterval',
@@ -48,8 +44,7 @@ const BANNED_PROPERTIES = [
 ];
 
 function formatErrorMessage(bannedEntity: string): string {
-  let errMsg = `Do not use ${
-      bannedEntity}, as calling it with a string argument can cause code-injection security vulnerabilities.`;
+  let errMsg = `Do not use ${bannedEntity}, as calling it with a string argument can cause code-injection security vulnerabilities.`;
   return errMsg;
 }
 
@@ -71,9 +66,12 @@ function isUsedWithNonStringArgument(n: ts.Node, tc: ts.TypeChecker) {
 
   const firstArgType = tc.getTypeAtLocation(par.arguments[0]);
 
-  const isFirstArgNonString = (firstArgType.flags &
-                               (ts.TypeFlags.String | ts.TypeFlags.StringLike |
-                                ts.TypeFlags.StringLiteral)) === 0;
+  const isFirstArgNonString =
+    (firstArgType.flags &
+      (ts.TypeFlags.String |
+        ts.TypeFlags.StringLike |
+        ts.TypeFlags.StringLiteral)) ===
+    0;
   if (isExpressionOfAllowedTrustedType(tc, par.arguments[0], TRUSTED_SCRIPT)) {
     return true;
   }
@@ -81,28 +79,35 @@ function isUsedWithNonStringArgument(n: ts.Node, tc: ts.TypeChecker) {
 }
 
 function isBannedStringLiteralAccess(
-    n: ts.ElementAccessExpression, tc: ts.TypeChecker,
-    propMatcher: PropertyMatcher) {
+  n: ts.ElementAccessExpression,
+  tc: ts.TypeChecker,
+  propMatcher: PropertyMatcher,
+) {
   const argExp = n.argumentExpression;
-  return propMatcher.typeMatches(tc.getTypeAtLocation(n.expression)) &&
-      ts.isStringLiteralLike(argExp) &&
-      argExp.text === propMatcher.bannedProperty;
+  return (
+    propMatcher.typeMatches(tc.getTypeAtLocation(n.expression)) &&
+    ts.isStringLiteralLike(argExp) &&
+    argExp.text === propMatcher.bannedProperty
+  );
 }
 
 /**
  * A type selector that resolves to AbsoluteMatcher or PropertyMatcher based on
  * the type of AST node to be matched.
  */
-type NodeMatcher<T extends ts.Node> = T extends ts.Identifier ?
-    AbsoluteMatcher :
-    T extends ts.PropertyAccessExpression ?
-    PropertyMatcher :
-    T extends ts.ElementAccessExpression ?
-    {matches: (n: ts.ElementAccessExpression, tc: ts.TypeChecker) => boolean} :
-    {matches: (n: ts.Node, tc: ts.TypeChecker) => never};
+type NodeMatcher<T extends ts.Node> = T extends ts.Identifier
+  ? AbsoluteMatcher
+  : T extends ts.PropertyAccessExpression
+  ? PropertyMatcher
+  : T extends ts.ElementAccessExpression
+  ? {matches: (n: ts.ElementAccessExpression, tc: ts.TypeChecker) => boolean}
+  : {matches: (n: ts.Node, tc: ts.TypeChecker) => never};
 
 function checkNode<T extends ts.Node>(
-    tc: ts.TypeChecker, n: T, matcher: NodeMatcher<T>): ts.Node|undefined {
+  tc: ts.TypeChecker,
+  n: T,
+  matcher: NodeMatcher<T>,
+): ts.Node | undefined {
   if (!shouldExamineNode(n)) return;
   if (!matcher.matches(n, tc)) return;
   if (isUsedWithNonStringArgument(n, tc)) return;
@@ -125,7 +130,7 @@ export class Rule extends AbstractRule {
 
   constructor(configuration: RuleConfiguration = {}) {
     super();
-    this.nameMatchers = BANNED_NAMES.map(name => new AbsoluteMatcher(name));
+    this.nameMatchers = BANNED_NAMES.map((name) => new AbsoluteMatcher(name));
     this.propMatchers = BANNED_PROPERTIES.map(PropertyMatcher.fromSpec);
     if (configuration?.allowlistEntries) {
       this.allowlist = new Allowlist(configuration?.allowlistEntries);
@@ -136,57 +141,66 @@ export class Rule extends AbstractRule {
     // Check global names
     for (const nameMatcher of this.nameMatchers) {
       checker.onNamedIdentifier(
-          nameMatcher.bannedName,
-          (c, n) => {
-            // window.id is automatically resolved to id, so the matcher will be
-            // able to match it. But we don't want redundant errors. Skip the
-            // node if it is part of a property access expression.
-            if (ts.isPropertyAccessExpression(n.parent)) return;
-            if (ts.isQualifiedName(n.parent)) return;
+        nameMatcher.bannedName,
+        (c, n) => {
+          // window.id is automatically resolved to id, so the matcher will be
+          // able to match it. But we don't want redundant errors. Skip the
+          // node if it is part of a property access expression.
+          if (ts.isPropertyAccessExpression(n.parent)) return;
+          if (ts.isQualifiedName(n.parent)) return;
 
-            const node = checkNode(c.typeChecker, n, nameMatcher);
-            if (node) {
-              checker.addFailureAtNode(
-                  node, formatErrorMessage(nameMatcher.bannedName),
-                  Rule.RULE_NAME, this.allowlist);
-            }
-          },
-          this.code,
+          const node = checkNode(c.typeChecker, n, nameMatcher);
+          if (node) {
+            checker.addFailureAtNode(
+              node,
+              formatErrorMessage(nameMatcher.bannedName),
+              Rule.RULE_NAME,
+              this.allowlist,
+            );
+          }
+        },
+        this.code,
       );
     }
     // Check properties
     for (const propMatcher of this.propMatchers) {
       checker.onNamedPropertyAccess(
-          propMatcher.bannedProperty,
-          (c, n) => {
-            const node = checkNode(c.typeChecker, n, propMatcher);
-            if (node) {
-              checker.addFailureAtNode(
-                  node,
-                  formatErrorMessage(`${propMatcher.bannedType}#${
-                      propMatcher.bannedProperty}`),
-                  Rule.RULE_NAME, this.allowlist);
-            }
-          },
-          this.code,
+        propMatcher.bannedProperty,
+        (c, n) => {
+          const node = checkNode(c.typeChecker, n, propMatcher);
+          if (node) {
+            checker.addFailureAtNode(
+              node,
+              formatErrorMessage(
+                `${propMatcher.bannedType}#${propMatcher.bannedProperty}`,
+              ),
+              Rule.RULE_NAME,
+              this.allowlist,
+            );
+          }
+        },
+        this.code,
       );
 
       checker.onStringLiteralElementAccess(
-          propMatcher.bannedProperty,
-          (c, n) => {
-            const node = checkNode(c.typeChecker, n, {
-              matches: () =>
-                  isBannedStringLiteralAccess(n, c.typeChecker, propMatcher)
-            });
-            if (node) {
-              checker.addFailureAtNode(
-                  node,
-                  formatErrorMessage(`${propMatcher.bannedType}#${
-                      propMatcher.bannedProperty}`),
-                  Rule.RULE_NAME, this.allowlist);
-            }
-          },
-          this.code,
+        propMatcher.bannedProperty,
+        (c, n) => {
+          const node = checkNode(c.typeChecker, n, {
+            matches: () =>
+              isBannedStringLiteralAccess(n, c.typeChecker, propMatcher),
+          });
+          if (node) {
+            checker.addFailureAtNode(
+              node,
+              formatErrorMessage(
+                `${propMatcher.bannedType}#${propMatcher.bannedProperty}`,
+              ),
+              Rule.RULE_NAME,
+              this.allowlist,
+            );
+          }
+        },
+        this.code,
       );
     }
   }

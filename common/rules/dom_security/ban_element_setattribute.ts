@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
 import {Allowlist} from '../../third_party/tsetse/allowlist';
 import {Checker} from '../../third_party/tsetse/checker';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
@@ -58,8 +57,9 @@ export abstract class BanSetAttributeRule extends AbstractRule {
   }
 
   protected abstract readonly errorMessage: string;
-  protected abstract readonly isSecuritySensitiveAttrName:
-      (attr: string) => boolean;
+  protected abstract readonly isSecuritySensitiveAttrName: (
+    attr: string,
+  ) => boolean;
 
   /**
    * The flag that controls whether the rule matches the "unsure" cases. For all
@@ -73,7 +73,9 @@ export abstract class BanSetAttributeRule extends AbstractRule {
    * skip matching if the attribute name is not in the blocklist.
    */
   private isCalledWithAllowedAttribute(
-      typeChecker: ts.TypeChecker, node: ts.CallExpression): boolean {
+    typeChecker: ts.TypeChecker,
+    node: ts.CallExpression,
+  ): boolean {
     // The 'setAttribute' function expects exactly two arguments: an attribute
     // name and a value. It's OK if someone provided the wrong number of
     // arguments because the code will have other compiler errors.
@@ -87,36 +89,48 @@ export abstract class BanSetAttributeRule extends AbstractRule {
    * the blocklist.
    */
   private isCalledWithAllowedAttributeNS(
-      typeChecker: ts.TypeChecker, node: ts.CallExpression): boolean {
+    typeChecker: ts.TypeChecker,
+    node: ts.CallExpression,
+  ): boolean {
     // The 'setAttributeNS' function expects exactly three arguments: a
     // namespace, an attribute name and a value. It's OK if someone provided the
     // wrong number of arguments because the code will have other compiler
     // errors.
     if (node.arguments.length !== 3) return true;
-    return node.arguments[0].kind === ts.SyntaxKind.NullKeyword &&
-        this.isAllowedAttribute(typeChecker, node.arguments[1]);
+    return (
+      node.arguments[0].kind === ts.SyntaxKind.NullKeyword &&
+      this.isAllowedAttribute(typeChecker, node.arguments[1])
+    );
   }
 
   /**
    * Check if the attribute name is a literal that is not in the blocklist.
    */
-  private isAllowedAttribute(typeChecker: ts.TypeChecker, attr: ts.Expression):
-      boolean {
+  private isAllowedAttribute(
+    typeChecker: ts.TypeChecker,
+    attr: ts.Expression,
+  ): boolean {
     const attrType = typeChecker.getTypeAtLocation(attr);
     if (this.looseMatch) {
-      return attrType.isStringLiteral() &&
-          !this.isSecuritySensitiveAttrName(attrType.value.toLowerCase()) &&
-          isLiteral(typeChecker, attr);
+      return (
+        attrType.isStringLiteral() &&
+        !this.isSecuritySensitiveAttrName(attrType.value.toLowerCase()) &&
+        isLiteral(typeChecker, attr)
+      );
     } else {
-      return !attrType.isStringLiteral() || !isLiteral(typeChecker, attr) ||
-          !this.isSecuritySensitiveAttrName(attrType.value.toLowerCase());
+      return (
+        !attrType.isStringLiteral() ||
+        !isLiteral(typeChecker, attr) ||
+        !this.isSecuritySensitiveAttrName(attrType.value.toLowerCase())
+      );
     }
   }
 
   private matchNode(
-      tc: ts.TypeChecker,
-      n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
-      matcher: PropertyMatcher) {
+    tc: ts.TypeChecker,
+    n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
+    matcher: PropertyMatcher,
+  ) {
     if (!shouldExamineNode(n)) {
       return undefined;
     }
@@ -166,27 +180,43 @@ export abstract class BanSetAttributeRule extends AbstractRule {
 
   register(checker: Checker) {
     for (const matcher of this.propMatchers) {
-      checker.onNamedPropertyAccess(matcher.bannedProperty, (c, n) => {
-        const node = this.matchNode(c.typeChecker, n, matcher);
-        if (node) {
-          checker.addFailureAtNode(
-              node, this.errorMessage, this.ruleName, this.allowlist);
-        }
-      }, this.code);
+      checker.onNamedPropertyAccess(
+        matcher.bannedProperty,
+        (c, n) => {
+          const node = this.matchNode(c.typeChecker, n, matcher);
+          if (node) {
+            checker.addFailureAtNode(
+              node,
+              this.errorMessage,
+              this.ruleName,
+              this.allowlist,
+            );
+          }
+        },
+        this.code,
+      );
 
-      checker.onStringLiteralElementAccess(matcher.bannedProperty, (c, n) => {
-        const node = this.matchNode(c.typeChecker, n, matcher);
-        if (node) {
-          checker.addFailureAtNode(
-              node, this.errorMessage, this.ruleName, this.allowlist);
-        }
-      }, this.code);
+      checker.onStringLiteralElementAccess(
+        matcher.bannedProperty,
+        (c, n) => {
+          const node = this.matchNode(c.typeChecker, n, matcher);
+          if (node) {
+            checker.addFailureAtNode(
+              node,
+              this.errorMessage,
+              this.ruleName,
+              this.allowlist,
+            );
+          }
+        },
+        this.code,
+      );
     }
   }
 }
 
 let errMsg =
-    'Do not use Element#setAttribute or similar APIs, as this can lead to XSS or cause Trusted Types violations.';
+  'Do not use Element#setAttribute or similar APIs, as this can lead to XSS or cause Trusted Types violations.';
 
 /** A Rule that looks for use of Element#setAttribute and similar properties. */
 export class Rule extends BanSetAttributeRule {
@@ -196,8 +226,7 @@ export class Rule extends BanSetAttributeRule {
 
   protected readonly errorMessage = errMsg;
   protected isSecuritySensitiveAttrName = (attr: string) =>
-      (attr.startsWith('on') && attr !== 'on') ||
-      TT_RELATED_ATTRIBUTES.has(attr);
+    (attr.startsWith('on') && attr !== 'on') || TT_RELATED_ATTRIBUTES.has(attr);
   protected readonly looseMatch = true;
 
   constructor(configuration: RuleConfiguration = {}) {

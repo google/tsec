@@ -12,15 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// g3-format-clang
-import {ConformancePatternRule, ErrorCode, PatternKind} from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {
+  buildSafeDomFixerForPropertyWriteViolation,
+  SafeValueConversionKind,
+import {
+  ConformancePatternRule,
+  ErrorCode,
+  PatternKind,
+} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
 import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
-    'Do not assign values to HTMLScriptElement#text or HTMLScriptElement#textContent, as this can lead to XSS.';
+  'Do not assign values to HTMLScriptElement#text or HTMLScriptElement#textContent, as this can lead to XSS.';
 
 /**
  * A rule that bans writing to HTMLScriptElement#text and
@@ -31,19 +37,19 @@ export class Rule extends ConformancePatternRule {
 
   constructor(configuration: RuleConfiguration = {}) {
     super(
-        overridePatternConfig({
-          errorCode: ErrorCode.CONFORMANCE_PATTERN,
-          errorMessage: errMsg,
-          kind: PatternKind.BANNED_PROPERTY_WRITE,
-          values: [
-            'HTMLScriptElement.prototype.innerText',
-            'HTMLScriptElement.prototype.text',
-            'HTMLScriptElement.prototype.textContent'
-          ],
-          name: Rule.RULE_NAME,
-          allowedTrustedType: TRUSTED_SCRIPT,
-          ...configuration,
-        }),
+      overridePatternConfig({
+        errorCode: ErrorCode.CONFORMANCE_PATTERN,
+        errorMessage: errMsg,
+        kind: PatternKind.BANNED_PROPERTY_WRITE,
+        values: [
+          'HTMLScriptElement.prototype.innerText',
+          'HTMLScriptElement.prototype.text',
+          'HTMLScriptElement.prototype.textContent',
+        ],
+        name: Rule.RULE_NAME,
+        allowedTrustedType: TRUSTED_SCRIPT,
+        ...configuration,
+      }),
     );
   }
 }
