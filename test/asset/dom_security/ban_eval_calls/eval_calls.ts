@@ -3,7 +3,7 @@ eval(`alert('uhoh');`);
 window.eval(`alert('uhoh');`);
 
 const test = {
-  custom: eval
+  custom: eval,
 };
 test.custom(`alert('uhoh');`);
 
@@ -39,7 +39,7 @@ export class CustomEvalProperty {
   eval = {
     doStuff(x: number) {
       return false;
-    }
+    },
   };
 }
 const customEvalProperty = new CustomEvalProperty();

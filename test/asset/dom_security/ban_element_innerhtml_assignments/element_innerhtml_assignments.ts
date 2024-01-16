@@ -8,7 +8,7 @@ document.body.innerHTML = `constant`;
 
 const PAYLOAD: string = 'str';
 const customObj = {
-  innerHTML: 'custom'
+  innerHTML: 'custom',
 };
 customObj.innerHTML = PAYLOAD;
 

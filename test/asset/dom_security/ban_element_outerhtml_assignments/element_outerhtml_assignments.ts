@@ -8,7 +8,7 @@ document.body.outerHTML = `constant`;
 
 const PAYLOAD: string = 'str';
 const customObj = {
-  outerHTML: 'custom'
+  outerHTML: 'custom',
 };
 customObj.outerHTML = PAYLOAD;
 

@@ -1,5 +1,9 @@
 import * as legacy from 'safevalues/restricted/legacy';
-import {legacyUnsafeHtml, legacyUnsafeResourceUrl, legacyUnsafeScript} from 'safevalues/restricted/legacy';
+import {
+  legacyUnsafeHtml,
+  legacyUnsafeResourceUrl,
+  legacyUnsafeScript,
+} from 'safevalues/restricted/legacy';
 
 declare var unsafeValue: string;
 

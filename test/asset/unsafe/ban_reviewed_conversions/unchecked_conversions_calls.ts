@@ -1,5 +1,9 @@
 import * as reviewed from 'safevalues/restricted/reviewed';
-import {htmlSafeByReview, resourceUrlSafeByReview, scriptSafeByReview} from 'safevalues/restricted/reviewed';
+import {
+  htmlSafeByReview,
+  resourceUrlSafeByReview,
+  scriptSafeByReview,
+} from 'safevalues/restricted/reviewed';
 
 declare var unsafeValue: string;
 

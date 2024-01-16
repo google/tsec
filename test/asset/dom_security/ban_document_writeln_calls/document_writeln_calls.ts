@@ -6,7 +6,7 @@ const writeln = document.writeln.bind(document);
 writeln('<p></p>');
 
 // other tests
-const NARROWED_WRITE: 'write'|'writeln' = 'writeln';
+const NARROWED_WRITE: 'write' | 'writeln' = 'writeln';
 
 // `NARROWED_WRITE` is narrowed by TS and has type `write` so
 // this results in a violation

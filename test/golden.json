@@ -622,7 +622,7 @@
       },
       "end": {
         "line": 12,
-        "character": 27
+        "character": 25
       }
     },
     {
@@ -970,11 +970,11 @@
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 28,
+        "line": 29,
         "character": 0
       },
       "end": {
-        "line": 28,
+        "line": 29,
         "character": 22
       }
     }
@@ -1112,8 +1112,8 @@
         "character": 11
       },
       "end": {
-        "line": 7,
-        "character": 40
+        "line": 9,
+        "character": 28
       }
     }
   ],

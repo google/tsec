@@ -7,7 +7,7 @@ write('<p></p>');
 
 // other tests
 const WRITE = 'write' as 'write' | 'writeln';
-const NARROWED_WRITE: 'write'|'writeln' = 'write';
+const NARROWED_WRITE: 'write' | 'writeln' = 'write';
 
 // no violation, this is a limitation of TS conformance. We
 // only check string literal element access. See b/171170880.

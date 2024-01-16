@@ -1,7 +1,7 @@
 // Calls to parseFromString that should trigger the check.
 // tslint:disable:no-unused-variable
 
-const HTML = '<script>alert(\'XSS\');</script>';
+const HTML = "<script>alert('XSS');</script>";
 const parser = new DOMParser();
 const doc1 = parser.parseFromString(HTML, 'text/html');
 

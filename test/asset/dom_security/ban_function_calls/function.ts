@@ -3,14 +3,14 @@
 new Function(`alert('uhoh');`);
 
 const test = {
-  custom: Function
+  custom: Function,
 };
 test.custom(`alert('uhoh');`);
 
 const indirect = Function;
 indirect(`alert('ouch')`);
 
-(Function)(`alert('ouch')`);
+Function(`alert('ouch')`);
 window.Function(`alert('ouch')`);
 globalThis.Function.prototype.constructor(`alert('ouch')`);
 
@@ -39,7 +39,7 @@ export class CustomEvalProperty {
   Function = {
     doStuff(x: number) {
       return false;
-    }
+    },
   };
 }
 const customEvalProperty = new CustomEvalProperty();

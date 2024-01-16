@@ -17,16 +17,14 @@ si(() => {});
 const st = setTimeout;
 st(() => {});
 
-const wsi = window.parent.setInterval.bind(window.parent);  // NOTYPO
+const wsi = window.parent.setInterval.bind(window.parent); // NOTYPO
 wsi(() => {});
 
-const wst = window.parent.setTimeout.bind(window.parent);  // NOTYPO
+const wst = window.parent.setTimeout.bind(window.parent); // NOTYPO
 wst(() => {});
 
 window['setTimeout'](`alert('xss')`);
 window[`setTimeout`](`alert('xss')`);
-
-
 
 // Tsetse should not emit errors for code after this line.
 function handler() {}
