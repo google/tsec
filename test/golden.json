@@ -1315,44 +1315,44 @@
     {
       "ruleName": "ban-legacy-conversions",
       "start": {
-        "line": 5,
+        "line": 9,
         "character": 0
       },
       "end": {
-        "line": 5,
+        "line": 9,
         "character": 16
       }
     },
     {
       "ruleName": "ban-legacy-conversions",
       "start": {
-        "line": 7,
+        "line": 11,
         "character": 0
       },
       "end": {
-        "line": 7,
+        "line": 11,
         "character": 18
       }
     },
     {
       "ruleName": "ban-legacy-conversions",
       "start": {
-        "line": 9,
+        "line": 13,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 13,
         "character": 23
       }
     },
     {
       "ruleName": "ban-legacy-conversions",
       "start": {
-        "line": 11,
+        "line": 15,
         "character": 0
       },
       "end": {
-        "line": 11,
+        "line": 15,
         "character": 25
       }
     }
@@ -1361,44 +1361,44 @@
     {
       "ruleName": "ban-reviewed-conversions",
       "start": {
-        "line": 5,
+        "line": 9,
         "character": 0
       },
       "end": {
-        "line": 5,
+        "line": 9,
         "character": 16
       }
     },
     {
       "ruleName": "ban-reviewed-conversions",
       "start": {
-        "line": 7,
+        "line": 11,
         "character": 0
       },
       "end": {
-        "line": 7,
+        "line": 11,
         "character": 18
       }
     },
     {
       "ruleName": "ban-reviewed-conversions",
       "start": {
-        "line": 9,
+        "line": 13,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 13,
         "character": 25
       }
     },
     {
       "ruleName": "ban-reviewed-conversions",
       "start": {
-        "line": 11,
+        "line": 15,
         "character": 0
       },
       "end": {
-        "line": 11,
+        "line": 15,
         "character": 27
       }
     }

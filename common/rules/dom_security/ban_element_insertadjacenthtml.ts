@@ -13,13 +13,10 @@
 // limitations under the License.
 
 import {
-  buildSafeDomFixerForFunctionCallViolation,
-  SafeValueConversionKind,
-import {
   ConformancePatternRule,
   ErrorCode,
   PatternKind,
-} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
+} from '../../third_party/tsetse/rules/conformance_pattern_rule';
 import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_HTML} from '../../third_party/tsetse/util/trusted_types_configuration';
 

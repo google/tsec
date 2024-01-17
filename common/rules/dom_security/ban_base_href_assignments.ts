@@ -16,7 +16,7 @@ import {
   ConformancePatternRule,
   ErrorCode,
   PatternKind,
-} from 'google3/third_party/bazel_rules/rules_typescript/internal/tsetse/rules/conformance_pattern_rule';
+} from '../../third_party/tsetse/rules/conformance_pattern_rule';
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
