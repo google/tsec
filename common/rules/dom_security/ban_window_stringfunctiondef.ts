@@ -13,6 +13,7 @@
 // limitations under the License.
 
 /**
+ * g3-format-changed-lines-during-prettier-version-upgrade
  * @fileoverview Turn on a TS security checker to ban setInverval and setTimeout
  * when they are called to evaluate strings as scripts.
  *
