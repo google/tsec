@@ -13,7 +13,6 @@
 // limitations under the License.
 
 /**
- * g3-format-changed-lines-during-prettier-version-upgrade
  * @fileoverview Turn on a TS security checker to ban setInverval and setTimeout
  * when they are called to evaluate strings as scripts.
  *
@@ -99,10 +98,15 @@ function isBannedStringLiteralAccess(
 type NodeMatcher<T extends ts.Node> = T extends ts.Identifier
   ? AbsoluteMatcher
   : T extends ts.PropertyAccessExpression
-  ? PropertyMatcher
-  : T extends ts.ElementAccessExpression
-  ? {matches: (n: ts.ElementAccessExpression, tc: ts.TypeChecker) => boolean}
-  : {matches: (n: ts.Node, tc: ts.TypeChecker) => never};
+    ? PropertyMatcher
+    : T extends ts.ElementAccessExpression
+      ? {
+          matches: (
+            n: ts.ElementAccessExpression,
+            tc: ts.TypeChecker,
+          ) => boolean;
+        }
+      : {matches: (n: ts.Node, tc: ts.TypeChecker) => never};
 
 function checkNode<T extends ts.Node>(
   tc: ts.TypeChecker,
