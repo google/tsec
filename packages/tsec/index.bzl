@@ -1,9 +1,10 @@
 """Bazel rules and macros for running tsec over a ng_module or ts_library."""
 
-load("@npm//@bazel/concatjs/internal:ts_config.bzl", "TsConfigInfo")
 load("@bazel_skylib//lib:new_sets.bzl", "sets")
-load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo")
 load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_test")
+load("@build_bazel_rules_nodejs//:providers.bzl", "DeclarationInfo", "NpmPackageInfo")
+
+load("@npm//@bazel/concatjs/internal:ts_config.bzl", "TsConfigInfo")
 
 TsecTargetInfo = provider("Attributes required for tsec_test to generate tsconfig.json", fields = ["srcs", "deps", "module_name", "paths", "node_modules_root"])
 
