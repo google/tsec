@@ -114,6 +114,9 @@ function checkNode<T extends ts.Node>(
   matcher: NodeMatcher<T>,
 ): ts.Node | undefined {
   if (!shouldExamineNode(n)) return;
+  // TODO: go/ts54upgrade - Auto-added to unblock TS5.4 migration.
+  // TS2345: Argument of type 'T' is not assignable to parameter of type 'never'.
+  // @ts-ignore
   if (!matcher.matches(n, tc)) return;
   if (isUsedWithNonStringArgument(n, tc)) return;
   return n;
