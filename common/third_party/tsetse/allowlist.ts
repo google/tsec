@@ -80,6 +80,10 @@ export class Allowlist {
         this.allowlistMemoizer.set(filePath, true);
         return true;
       }
+      if (p.endsWith('/') && filePath.startsWith(p)) {
+        this.allowlistMemoizer.set(filePath, true);
+        return true;
+      }
     }
     for (const re of this.allowlistedRegExps) {
       if (re.test(filePath)) {
