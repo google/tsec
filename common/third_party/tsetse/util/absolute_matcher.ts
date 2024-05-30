@@ -1,9 +1,14 @@
 import * as ts from 'typescript';
 
-import {dealias, debugLog, isAllowlistedNamedDeclaration, isInStockLibraries} from './ast_tools';
+import {
+  dealias,
+  debugLog,
+  isAllowlistedNamedDeclaration,
+  isInStockLibraries,
+} from './ast_tools';
 
-const PATH_NAME_FORMAT = '[/\\.\\w\\d_-]+';
-const JS_IDENTIFIER_FORMAT = '[\\w\\d_-]+';
+const PATH_NAME_FORMAT = '[/\\.\\w\\d_\\-$]+';
+const JS_IDENTIFIER_FORMAT = '[\\w\\d_\\-$]+';
 const FQN_FORMAT = `(${JS_IDENTIFIER_FORMAT}.)*${JS_IDENTIFIER_FORMAT}`;
 const GLOBAL = 'GLOBAL';
 const ANY_SYMBOL = 'ANY_SYMBOL';
@@ -83,7 +88,10 @@ export class AbsoluteMatcher {
   readonly filePath: string;
   readonly bannedName: string;
 
-  constructor(spec: string, readonly matchImport: boolean = false) {
+  constructor(
+    spec: string,
+    readonly matchImport: boolean = false,
+  ) {
     if (!spec.match(ABSOLUTE_RE)) {
       throw new Error('Malformed matcher selector.');
     }
@@ -96,9 +104,10 @@ export class AbsoluteMatcher {
     // properties.
     if (spec.match('.prototype.')) {
       throw new Error(
-          'Your pattern includes a .prototype, but the AbsoluteMatcher is ' +
+        'Your pattern includes a .prototype, but the AbsoluteMatcher is ' +
           'meant for non-object matches. Use the PropertyMatcher instead, or ' +
-          'the Property-based PatternKinds.');
+          'the Property-based PatternKinds.',
+      );
     }
 
     // Split spec by the separator "|".
@@ -136,8 +145,9 @@ export class AbsoluteMatcher {
     const s = dealias(tc.getSymbolAtLocation(n), tc);
     if (!s) {
       debugLog(() => `cannot get symbol`);
-      return this.filePath === GLOBAL &&
-          matchGoogGlobal(n, this.bannedName, tc);
+      return (
+        this.filePath === GLOBAL && matchGoogGlobal(n, this.bannedName, tc)
+      );
     }
 
     // The TS-provided FQN tells us the full identifier, and the origin file
