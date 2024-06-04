@@ -15,33 +15,38 @@ import {findInChildren} from './ast_tools';
  * - `x?y:z` constructions, if we accept `y` and `z`
  * - Variables that are const, and initialized with an expression we accept
  *
- * And to prevent bypasses, expressions that include casts are not accepted, and
- * this checker does not follow imports.
+ * And to prevent bypasses, expressions that include casts are not accepted.
  */
 export function isLiteral(typeChecker: ts.TypeChecker, node: ts.Node): boolean {
-  if (ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+  if (
+    ts.isBinaryExpression(node) &&
+    node.operatorToken.kind === ts.SyntaxKind.PlusToken
+  ) {
     // Concatenation is fine, if the parts are literals.
     return (
-        isLiteral(typeChecker, node.left) &&
-        isLiteral(typeChecker, node.right));
+      isLiteral(typeChecker, node.left) && isLiteral(typeChecker, node.right)
+    );
   } else if (ts.isTemplateExpression(node)) {
     // Same for template expressions.
-    return node.templateSpans.every(span => {
+    return node.templateSpans.every((span) => {
       return isLiteral(typeChecker, span.expression);
     });
   } else if (ts.isTemplateLiteral(node)) {
     // and literals (in that order).
     return true;
   } else if (ts.isConditionalExpression(node)) {
-    return isLiteral(typeChecker, node.whenTrue) &&
-        isLiteral(typeChecker, node.whenFalse);
+    return (
+      isLiteral(typeChecker, node.whenTrue) &&
+      isLiteral(typeChecker, node.whenFalse)
+    );
   } else if (ts.isIdentifier(node)) {
     return isUnderlyingValueAStringLiteral(node, typeChecker);
   }
 
   const hasCasts = findInChildren(
-      node, (n) => ts.isAsExpression(n) && !ts.isConstTypeReference(n.type));
+    node,
+    (n) => ts.isAsExpression(n) && !ts.isConstTypeReference(n.type),
+  );
 
   return !hasCasts && isLiteralAccordingToItsType(typeChecker, node);
 }
@@ -52,7 +57,9 @@ export function isLiteral(typeChecker: ts.TypeChecker, node: ts.Node): boolean {
  * is an approximation, but should never have false positives.
  */
 function isUnderlyingValueAStringLiteral(
-    identifier: ts.Identifier, tc: ts.TypeChecker) {
+  identifier: ts.Identifier,
+  tc: ts.TypeChecker,
+) {
   // The identifier references a value, and we try to follow the trail: if we
   // find a variable declaration for the identifier, and it was declared as a
   // const (so we know it wasn't altered along the way), then the value used
@@ -60,23 +67,37 @@ function isUnderlyingValueAStringLiteral(
   // should look at the value used in its initialization (by applying the same
   // rules as before).
   // Since we're best-effort, if a part of that operation failed due to lack
-  // of support (for instance, the identifier was imported), then we fail
-  // closed and don't consider the value a literal.
-  return getVariableDeclarationsInSameFile(identifier, tc)
+  // of support, then we fail closed and don't consider the value a literal.
+  const declarations = getDeclarations(identifier, tc);
+  const variableDeclarations = declarations.filter(ts.isVariableDeclaration);
+  if (variableDeclarations.length) {
+    return variableDeclarations
       .filter(isConst)
-      .some(d => d.initializer !== undefined && isLiteral(tc, d.initializer));
+      .some((d) => d.initializer !== undefined && isLiteral(tc, d.initializer));
+  }
+  const importDeclarations = declarations.filter(ts.isImportSpecifier);
+  if (importDeclarations.length) {
+    return isLiteralAccordingToItsType(tc, identifier);
+  }
+  return false;
 }
 
 /**
- * Returns whether this thing is a literal based on TS's understanding. This is
- * only looking at the local type, so there's no magic in that function.
+ * Returns whether this thing is a literal based on TS's understanding.
  */
 function isLiteralAccordingToItsType(
-    typeChecker: ts.TypeChecker, node: ts.Node): boolean {
+  typeChecker: ts.TypeChecker,
+  node: ts.Node,
+): boolean {
   const nodeType = typeChecker.getTypeAtLocation(node);
-  return (nodeType.flags &
-          (ts.TypeFlags.StringLiteral | ts.TypeFlags.NumberLiteral |
-           ts.TypeFlags.BooleanLiteral | ts.TypeFlags.EnumLiteral)) !== 0;
+  return (
+    (nodeType.flags &
+      (ts.TypeFlags.StringLiteral |
+        ts.TypeFlags.NumberLiteral |
+        ts.TypeFlags.BooleanLiteral |
+        ts.TypeFlags.EnumLiteral)) !==
+    0
+  );
 }
 
 /**
@@ -84,23 +105,23 @@ function isLiteralAccordingToItsType(
  * and return all the variable declarations we can find that match it in the
  * same file.
  */
-function getVariableDeclarationsInSameFile(
-    node: ts.Identifier, tc: ts.TypeChecker): ts.VariableDeclaration[] {
+function getDeclarations(
+  node: ts.Identifier,
+  tc: ts.TypeChecker,
+): ts.Declaration[] {
   const symbol = tc.getSymbolAtLocation(node);
   if (!symbol) {
     return [];
   }
-  const decls = symbol.getDeclarations();
-  if (!decls) {
-    return [];
-  }
-  return decls.filter(ts.isVariableDeclaration);
+  return symbol.getDeclarations() ?? [];
 }
 
 // Tests whether the given variable declaration is Const.
 function isConst(varDecl: ts.VariableDeclaration): boolean {
   return Boolean(
-      varDecl && varDecl.parent &&
+    varDecl &&
+      varDecl.parent &&
       ts.isVariableDeclarationList(varDecl.parent) &&
-      varDecl.parent.flags & ts.NodeFlags.Const);
+      varDecl.parent.flags & ts.NodeFlags.Const,
+  );
 }
