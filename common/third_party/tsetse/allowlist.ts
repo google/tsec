@@ -40,7 +40,7 @@ export enum ExemptionReason {
    */
   OUT_OF_SCOPE,
   /** Manually reviewed exceptions (supposedly okay). */
-  MANUALLY_REVIEWED
+  MANUALLY_REVIEWED,
 }
 
 /**
@@ -57,7 +57,9 @@ export class Allowlist {
   private readonly allowlistMemoizer = new Map<string, boolean>();
 
   constructor(
-      allowlistEntries?: AllowlistEntry[], removePrefixes: string[] = []) {
+    allowlistEntries?: AllowlistEntry[],
+    removePrefixes: string[] = [],
+  ) {
     if (allowlistEntries) {
       for (const e of allowlistEntries) {
         if (e.path) {
@@ -65,7 +67,8 @@ export class Allowlist {
         }
         if (e.regexp) {
           this.allowlistedRegExps = this.allowlistedRegExps.concat(
-              ...e.regexp.map(r => new RegExp(r)));
+            ...e.regexp.map((r) => new RegExp(r)),
+          );
         }
       }
     }

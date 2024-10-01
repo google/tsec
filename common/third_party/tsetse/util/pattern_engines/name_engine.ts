@@ -8,13 +8,17 @@ import {TrustedTypesConfig} from '../trusted_types_configuration';
 import {PatternEngine} from './pattern_engine';
 
 function isCalledWithAllowedTrustedType(
-    tc: ts.TypeChecker, n: ts.Node,
-    allowedTrustedType: TrustedTypesConfig|undefined) {
+  tc: ts.TypeChecker,
+  n: ts.Node,
+  allowedTrustedType: TrustedTypesConfig | undefined,
+) {
   const par = n.parent;
-  if (allowedTrustedType && ts.isCallExpression(par) &&
-      par.arguments.length > 0 &&
-      isExpressionOfAllowedTrustedType(
-          tc, par.arguments[0], allowedTrustedType)) {
+  if (
+    allowedTrustedType &&
+    ts.isCallExpression(par) &&
+    par.arguments.length > 0 &&
+    isExpressionOfAllowedTrustedType(tc, par.arguments[0], allowedTrustedType)
+  ) {
     return true;
   }
 
@@ -24,8 +28,12 @@ function isCalledWithAllowedTrustedType(
 function isPolyfill(n: ts.Node, matcher: AbsoluteMatcher) {
   if (matcher.filePath === 'GLOBAL') {
     const parent = n.parent;
-    if (parent && ts.isBinaryExpression(parent) && parent.left === n &&
-        parent.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+    if (
+      parent &&
+      ts.isBinaryExpression(parent) &&
+      parent.left === n &&
+      parent.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    ) {
       return true;
     }
   }
@@ -33,8 +41,11 @@ function isPolyfill(n: ts.Node, matcher: AbsoluteMatcher) {
 }
 
 function checkIdentifierNode(
-    tc: ts.TypeChecker, n: ts.Identifier, matcher: AbsoluteMatcher,
-    allowedTrustedType: TrustedTypesConfig|undefined): ts.Node|undefined {
+  tc: ts.TypeChecker,
+  n: ts.Identifier,
+  matcher: AbsoluteMatcher,
+  allowedTrustedType: TrustedTypesConfig | undefined,
+): ts.Node | undefined {
   const wholeExp = ts.isPropertyAccessExpression(n.parent) ? n.parent : n;
   if (isPolyfill(wholeExp, matcher)) return;
   if (!matcher.matches(n, tc)) return;
@@ -44,8 +55,11 @@ function checkIdentifierNode(
 }
 
 function checkElementAccessNode(
-    tc: ts.TypeChecker, n: ts.ElementAccessExpression, matcher: AbsoluteMatcher,
-    allowedTrustedType: TrustedTypesConfig|undefined): ts.Node|undefined {
+  tc: ts.TypeChecker,
+  n: ts.ElementAccessExpression,
+  matcher: AbsoluteMatcher,
+  allowedTrustedType: TrustedTypesConfig | undefined,
+): ts.Node | undefined {
   if (isPolyfill(n, matcher)) return;
   if (!matcher.matches(n.argumentExpression, tc)) return;
   if (isCalledWithAllowedTrustedType(tc, n, allowedTrustedType)) return;
@@ -66,11 +80,12 @@ export class NameEngine extends PatternEngine {
       // assert pop returns a non-null result.
       const bannedIdName = matcher.bannedName.split('.').pop()!;
       checker.onNamedIdentifier(
-          bannedIdName,
-          this.wrapCheckWithAllowlistingAndFixer(
-              (tc, n) => checkIdentifierNode(
-                  tc, n, matcher, this.config.allowedTrustedType)),
-          this.config.errorCode);
+        bannedIdName,
+        this.wrapCheckWithAllowlistingAndFixer((tc, n) =>
+          checkIdentifierNode(tc, n, matcher, this.config.allowedTrustedType),
+        ),
+        this.config.errorCode,
+      );
 
       // `checker.onNamedIdentifier` will not match the node if it is accessed
       // using property access expression (e.g. window['eval']).
@@ -80,11 +95,18 @@ export class NameEngine extends PatternEngine {
       // This engine is inteded to ban global name identifiers, but even these
       // can be property accessed using `globalThis` or `window`.
       checker.onStringLiteralElementAccess(
-          bannedIdName,
-          this.wrapCheckWithAllowlistingAndFixer(
-              (tc, n: ts.ElementAccessExpression) => checkElementAccessNode(
-                  tc, n, matcher, this.config.allowedTrustedType)),
-          this.config.errorCode);
+        bannedIdName,
+        this.wrapCheckWithAllowlistingAndFixer(
+          (tc, n: ts.ElementAccessExpression) =>
+            checkElementAccessNode(
+              tc,
+              n,
+              matcher,
+              this.config.allowedTrustedType,
+            ),
+        ),
+        this.config.errorCode,
+      );
     }
   }
 }

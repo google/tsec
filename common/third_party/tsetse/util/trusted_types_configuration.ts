@@ -1,5 +1,5 @@
 /** Names of all Trusted Types */
-export type TrustedTypes = 'TrustedHTML'|'TrustedScript'|'TrustedScriptURL';
+export type TrustedTypes = 'TrustedHTML' | 'TrustedScript' | 'TrustedScriptURL';
 /**
  * Trusted Types configuration used to match Trusted values in the assignments
  * to sinks.
@@ -20,8 +20,9 @@ export interface TrustedTypesConfig {
 /**
  * Create `TrustedTypesConfig` for the given Trusted Type.
  */
-function createDefaultTrustedTypeConfig(type: TrustedTypes):
-    TrustedTypesConfig {
+function createDefaultTrustedTypeConfig(
+  type: TrustedTypes,
+): TrustedTypesConfig {
   const config = {
     allowAmbientTrustedTypesDeclaration: true,
     // the module path may look like
@@ -49,4 +50,4 @@ export const TRUSTED_SCRIPT = createDefaultTrustedTypeConfig('TrustedScript');
  * rule.
  */
 export const TRUSTED_SCRIPT_URL =
-    createDefaultTrustedTypeConfig('TrustedScriptURL');
+  createDefaultTrustedTypeConfig('TrustedScriptURL');

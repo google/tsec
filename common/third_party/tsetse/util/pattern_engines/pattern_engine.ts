@@ -13,9 +13,10 @@ export abstract class PatternEngine {
   private readonly allowlist: Allowlist;
 
   constructor(
-      protected readonly ruleName: string,
-      protected readonly config: PatternEngineConfig,
-      protected readonly fixers?: Fixer[]) {
+    protected readonly ruleName: string,
+    protected readonly config: PatternEngineConfig,
+    protected readonly fixers?: Fixer[],
+  ) {
     this.allowlist = new Allowlist(config.allowlistEntries);
   }
 
@@ -33,8 +34,8 @@ export abstract class PatternEngine {
    * checking logic with this composer before registered on the checker.
    */
   protected wrapCheckWithAllowlistingAndFixer<T extends ts.Node>(
-      checkFunction: (tc: ts.TypeChecker, n: T) => ts.Node |
-          undefined): (c: Checker, n: T) => void {
+    checkFunction: (tc: ts.TypeChecker, n: T) => ts.Node | undefined,
+  ): (c: Checker, n: T) => void {
     return (c: Checker, n: T) => {
       const sf = n.getSourceFile();
       if (!shouldExamineNode(n) || sf.isDeclarationFile) {
@@ -42,12 +43,16 @@ export abstract class PatternEngine {
       }
       const matchedNode = checkFunction(c.typeChecker, n);
       if (matchedNode) {
-        const fixes =
-            this.fixers?.map(fixer => fixer.getFixForFlaggedNode(matchedNode))
-                ?.filter((fix): fix is Fix => fix !== undefined);
+        const fixes = this.fixers
+          ?.map((fixer) => fixer.getFixForFlaggedNode(matchedNode))
+          ?.filter((fix): fix is Fix => fix !== undefined);
         c.addFailureAtNode(
-            matchedNode, this.config.errorMessage, this.ruleName,
-            this.allowlist, fixes);
+          matchedNode,
+          this.config.errorMessage,
+          this.ruleName,
+          this.allowlist,
+          fixes,
+        );
       }
     };
   }

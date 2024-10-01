@@ -8,7 +8,6 @@ import * as ts from 'typescript';
 import {Allowlist} from './allowlist';
 import {Failure, Fix} from './failure';
 
-
 /**
  * A Handler contains a handler function and its corresponding error code so
  * when the handler function is triggered we know which rule is violated.
@@ -25,31 +24,39 @@ interface Handler<T extends ts.Node> {
  */
 export class Checker {
   /** Node to handlers mapping for all enabled rules. */
-  private readonly nodeHandlersMap =
-      new Map<ts.SyntaxKind, Array<Handler<ts.Node>>>();
+  private readonly nodeHandlersMap = new Map<
+    ts.SyntaxKind,
+    Array<Handler<ts.Node>>
+  >();
   /**
    * Mapping from identifier name to handlers for all rules inspecting property
    * names.
    */
-  private readonly namedIdentifierHandlersMap =
-      new Map<string, Array<Handler<ts.Identifier>>>();
+  private readonly namedIdentifierHandlersMap = new Map<
+    string,
+    Array<Handler<ts.Identifier>>
+  >();
   /**
    * Mapping from property name to handlers for all rules inspecting property
    * accesses expressions.
    */
-  private readonly namedPropertyAccessHandlersMap =
-      new Map<string, Array<Handler<ts.PropertyAccessExpression>>>();
+  private readonly namedPropertyAccessHandlersMap = new Map<
+    string,
+    Array<Handler<ts.PropertyAccessExpression>>
+  >();
   /**
    * Mapping from string literal value to handlers for all rules inspecting
    * string literals.
    */
-  private readonly stringLiteralElementAccessHandlersMap =
-      new Map<string, Array<Handler<ts.ElementAccessExpression>>>();
+  private readonly stringLiteralElementAccessHandlersMap = new Map<
+    string,
+    Array<Handler<ts.ElementAccessExpression>>
+  >();
 
   private failures: Failure[] = [];
   private exemptedFailures: Failure[] = [];
 
-  private currentSourceFile: ts.SourceFile|undefined;
+  private currentSourceFile: ts.SourceFile | undefined;
   // currentCode will be set before invoking any handler functions so the value
   // initialized here is never used.
   private currentCode = 0;
@@ -60,7 +67,9 @@ export class Checker {
   typeChecker: ts.TypeChecker;
 
   constructor(
-      program: ts.Program, private readonly host: ts.ModuleResolutionHost) {
+    program: ts.Program,
+    private readonly host: ts.ModuleResolutionHost,
+  ) {
     // Avoid the cost for each rule to create a new TypeChecker.
     this.typeChecker = program.getTypeChecker();
     this.options = program.getCompilerOptions();
@@ -72,8 +81,10 @@ export class Checker {
    * handlers, the source file AST will be traversed.
    */
   on<T extends ts.Node>(
-      nodeKind: T['kind'], handlerFunction: (checker: Checker, node: T) => void,
-      code: number) {
+    nodeKind: T['kind'],
+    handlerFunction: (checker: Checker, node: T) => void,
+    code: number,
+  ) {
     const newHandler: Handler<T> = {handlerFunction, code};
     const registeredHandlers = this.nodeHandlersMap.get(nodeKind);
     if (registeredHandlers === undefined) {
@@ -88,12 +99,13 @@ export class Checker {
    * identifiers.
    */
   onNamedIdentifier(
-      identifierName: string,
-      handlerFunction: (checker: Checker, node: ts.Identifier) => void,
-      code: number) {
+    identifierName: string,
+    handlerFunction: (checker: Checker, node: ts.Identifier) => void,
+    code: number,
+  ) {
     const newHandler: Handler<ts.Identifier> = {handlerFunction, code};
     const registeredHandlers =
-        this.namedIdentifierHandlersMap.get(identifierName);
+      this.namedIdentifierHandlersMap.get(identifierName);
     if (registeredHandlers === undefined) {
       this.namedIdentifierHandlersMap.set(identifierName, [newHandler]);
     } else {
@@ -106,14 +118,19 @@ export class Checker {
    * property access expressions.
    */
   onNamedPropertyAccess(
-      propertyName: string,
-      handlerFunction:
-          (checker: Checker, node: ts.PropertyAccessExpression) => void,
-      code: number) {
-    const newHandler:
-        Handler<ts.PropertyAccessExpression> = {handlerFunction, code};
+    propertyName: string,
+    handlerFunction: (
+      checker: Checker,
+      node: ts.PropertyAccessExpression,
+    ) => void,
+    code: number,
+  ) {
+    const newHandler: Handler<ts.PropertyAccessExpression> = {
+      handlerFunction,
+      code,
+    };
     const registeredHandlers =
-        this.namedPropertyAccessHandlersMap.get(propertyName);
+      this.namedPropertyAccessHandlersMap.get(propertyName);
     if (registeredHandlers === undefined) {
       this.namedPropertyAccessHandlersMap.set(propertyName, [newHandler]);
     } else {
@@ -126,14 +143,19 @@ export class Checker {
    * element access expressions with string literals as keys.
    */
   onStringLiteralElementAccess(
-      key: string,
-      handlerFunction:
-          (checker: Checker, node: ts.ElementAccessExpression) => void,
-      code: number) {
-    const newHandler:
-        Handler<ts.ElementAccessExpression> = {handlerFunction, code};
+    key: string,
+    handlerFunction: (
+      checker: Checker,
+      node: ts.ElementAccessExpression,
+    ) => void,
+    code: number,
+  ) {
+    const newHandler: Handler<ts.ElementAccessExpression> = {
+      handlerFunction,
+      code,
+    };
     const registeredHandlers =
-        this.stringLiteralElementAccessHandlersMap.get(key);
+      this.stringLiteralElementAccessHandlersMap.get(key);
     if (registeredHandlers === undefined) {
       this.stringLiteralElementAccessHandlersMap.set(key, [newHandler]);
     } else {
@@ -149,44 +171,70 @@ export class Checker {
    *     failure
    */
   addFailure(
-      start: number, end: number, failureText: string, source: string|undefined,
-      allowlist: Allowlist|undefined, fixes?: Fix[],
-      relatedInformation?: ts.DiagnosticRelatedInformation[]) {
+    start: number,
+    end: number,
+    failureText: string,
+    source: string | undefined,
+    allowlist: Allowlist | undefined,
+    fixes?: Fix[],
+    relatedInformation?: ts.DiagnosticRelatedInformation[],
+  ) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
     }
     if (start > end || end > this.currentSourceFile.end || start < 0) {
       // Since only addFailureAtNode() is exposed for now this shouldn't happen.
       throw new Error(
-          `Invalid start and end position: [${start}, ${end}]` +
-          ` in file ${this.currentSourceFile.fileName}.`);
+        `Invalid start and end position: [${start}, ${end}]` +
+          ` in file ${this.currentSourceFile.fileName}.`,
+      );
     }
 
     const failure = new Failure(
-        this.currentSourceFile, start, end, failureText, this.currentCode,
-        source, fixes ?? [], relatedInformation);
+      this.currentSourceFile,
+      start,
+      end,
+      failureText,
+      this.currentCode,
+      source,
+      fixes ?? [],
+      relatedInformation,
+    );
 
     let filePath = this.currentSourceFile.fileName;
     const isFailureAllowlisted = allowlist?.isAllowlisted(filePath);
-    const failures =
-        isFailureAllowlisted ? this.exemptedFailures : this.failures;
+    const failures = isFailureAllowlisted
+      ? this.exemptedFailures
+      : this.failures;
 
     failures.push(failure);
   }
 
   addFailureAtNode(
-      node: ts.Node, failureText: string, source: string|undefined,
-      allowlist: Allowlist|undefined, fixes?: Fix[],
-      relatedInformation?: ts.DiagnosticRelatedInformation[]) {
+    node: ts.Node,
+    failureText: string,
+    source: string | undefined,
+    allowlist: Allowlist | undefined,
+    fixes?: Fix[],
+    relatedInformation?: ts.DiagnosticRelatedInformation[],
+  ) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
     this.addFailure(
-        node.getStart(this.currentSourceFile), node.getEnd(), failureText,
-        source, allowlist, fixes, relatedInformation);
+      node.getStart(this.currentSourceFile),
+      node.getEnd(),
+      failureText,
+      source,
+      allowlist,
+      fixes,
+      relatedInformation,
+    );
   }
 
-  createRelatedInformation(node: ts.Node, messageText: string):
-      ts.DiagnosticRelatedInformation {
+  createRelatedInformation(
+    node: ts.Node,
+    messageText: string,
+  ): ts.DiagnosticRelatedInformation {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
     }
@@ -265,20 +313,26 @@ export class Checker {
    * object that contains both the exempted and unexempted failures.
    */
   execute(sourceFile: ts.SourceFile): Failure[];
-  execute(sourceFile: ts.SourceFile, reportExemptedViolations: false):
-      Failure[];
-  execute(sourceFile: ts.SourceFile, reportExemptedViolations: true):
-      {failures: Failure[], exemptedFailures: Failure[]};
-  execute(sourceFile: ts.SourceFile, reportExemptedViolations: boolean = false):
-      Failure[]|{failures: Failure[], exemptedFailures: Failure[]} {
+  execute(
+    sourceFile: ts.SourceFile,
+    reportExemptedViolations: false,
+  ): Failure[];
+  execute(
+    sourceFile: ts.SourceFile,
+    reportExemptedViolations: true,
+  ): {failures: Failure[]; exemptedFailures: Failure[]};
+  execute(
+    sourceFile: ts.SourceFile,
+    reportExemptedViolations = false,
+  ): Failure[] | {failures: Failure[]; exemptedFailures: Failure[]} {
     const thisChecker = this;
     this.currentSourceFile = sourceFile;
     this.failures = [];
     this.exemptedFailures = [];
     run(sourceFile);
-    return reportExemptedViolations ?
-        {failures: this.failures, exemptedFailures: this.exemptedFailures} :
-        this.failures;
+    return reportExemptedViolations
+      ? {failures: this.failures, exemptedFailures: this.exemptedFailures}
+      : this.failures;
 
     function run(node: ts.Node) {
       // Dispatch handlers registered via `on`
@@ -299,6 +353,10 @@ export class Checker {
 
   resolveModuleName(moduleName: string, sourceFile: ts.SourceFile) {
     return ts.resolveModuleName(
-        moduleName, sourceFile.fileName, this.options, this.host);
+      moduleName,
+      sourceFile.fileName,
+      this.options,
+      this.host,
+    );
   }
 }

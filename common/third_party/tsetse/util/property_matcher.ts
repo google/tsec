@@ -27,14 +27,19 @@ export class PropertyMatcher {
     return new PropertyMatcher(bannedType, bannedProperty);
   }
 
-  constructor(readonly bannedType: string, readonly bannedProperty: string) {}
+  constructor(
+    readonly bannedType: string,
+    readonly bannedProperty: string,
+  ) {}
 
   /**
    * @param n The PropertyAccessExpression we're looking at.
    */
   matches(n: ts.PropertyAccessExpression, tc: ts.TypeChecker) {
-    return n.name.text === this.bannedProperty &&
-        this.typeMatches(tc.getTypeAtLocation(n.expression));
+    return (
+      n.name.text === this.bannedProperty &&
+      this.typeMatches(tc.getTypeAtLocation(n.expression))
+    );
   }
 
   /**
@@ -53,10 +58,10 @@ export class PropertyMatcher {
     // If the type is an intersection/union, check if any of the component
     // matches
     if (inspectedType.isUnionOrIntersection()) {
-      return inspectedType.types.some(comp => this.typeMatches(comp));
+      return inspectedType.types.some((comp) => this.typeMatches(comp));
     }
 
     const baseTypes = inspectedType.getBaseTypes() || [];
-    return baseTypes.some(base => this.typeMatches(base));
+    return baseTypes.some((base) => this.typeMatches(base));
   }
 }

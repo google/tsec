@@ -10,9 +10,10 @@ import {matchProperty, PropertyEngine} from './property_engine';
 
 /** Test if an AST node is a matched property write. */
 export function matchPropertyWrite(
-    tc: ts.TypeChecker,
-    n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
-    matcher: PropertyMatcher): ts.BinaryExpression|undefined {
+  tc: ts.TypeChecker,
+  n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
+  matcher: PropertyMatcher,
+): ts.BinaryExpression | undefined {
   debugLog(() => `inspecting ${n.parent.getText().trim()}`);
 
   if (matchProperty(tc, n, matcher) === undefined) return;
@@ -22,8 +23,10 @@ export function matchPropertyWrite(
   if (!ts.isBinaryExpression(assignment)) return;
   // All properties we track are of the string type, so we only look at
   // `=` and `+=` operators.
-  if (assignment.operatorToken.kind !== ts.SyntaxKind.EqualsToken &&
-      assignment.operatorToken.kind !== ts.SyntaxKind.PlusEqualsToken) {
+  if (
+    assignment.operatorToken.kind !== ts.SyntaxKind.EqualsToken &&
+    assignment.operatorToken.kind !== ts.SyntaxKind.PlusEqualsToken
+  ) {
     return;
   }
   if (assignment.left !== n) return;
@@ -40,14 +43,18 @@ export function matchPropertyWrite(
  * if the assignment should trigger violation.
  */
 function allowTrustedExpressionOnMatchedProperty(
-    allowedType: TrustedTypesConfig|undefined, tc: ts.TypeChecker,
-    n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
-    matcher: PropertyMatcher): ts.BinaryExpression|undefined {
+  allowedType: TrustedTypesConfig | undefined,
+  tc: ts.TypeChecker,
+  n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
+  matcher: PropertyMatcher,
+): ts.BinaryExpression | undefined {
   const assignment = matchPropertyWrite(tc, n, matcher);
   if (!assignment) return;
 
-  if (allowedType &&
-      isExpressionOfAllowedTrustedType(tc, assignment.right, allowedType)) {
+  if (
+    allowedType &&
+    isExpressionOfAllowedTrustedType(tc, assignment.right, allowedType)
+  ) {
     return;
   }
 
@@ -61,9 +68,13 @@ function allowTrustedExpressionOnMatchedProperty(
  */
 export class PropertyWriteEngine extends PropertyEngine {
   override register(checker: Checker) {
-    this.registerWith(
-        checker,
-        (tc, n, m) => allowTrustedExpressionOnMatchedProperty(
-            this.config.allowedTrustedType, tc, n, m));
+    this.registerWith(checker, (tc, n, m) =>
+      allowTrustedExpressionOnMatchedProperty(
+        this.config.allowedTrustedType,
+        tc,
+        n,
+        m,
+      ),
+    );
   }
 }

@@ -9,6 +9,7 @@ import * as ts from 'typescript';
  * conformance checks.
  */
 export function isExpressionValueUsedOrVoid(node: ts.CallExpression) {
-  return ts.isVoidExpression(node.parent) ||
-      tsutils.isExpressionValueUsed(node);
+  return (
+    ts.isVoidExpression(node.parent) || tsutils.isExpressionValueUsed(node)
+  );
 }

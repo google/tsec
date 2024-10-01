@@ -10,17 +10,19 @@ import * as ts from 'typescript';
  */
 export class Failure {
   constructor(
-      private readonly sourceFile: ts.SourceFile,
-      private readonly start: number, private readonly end: number,
-      private readonly failureText: string, private readonly code: number,
-      /**
-       * The origin of the failure, e.g., the name of the rule reporting the
-       * failure. Can be empty.
-       */
-      private readonly failureSource: string|undefined,
-      private readonly suggestedFixes: Fix[] = [],
-      private readonly relatedInformation?: ts.DiagnosticRelatedInformation[]) {
-  }
+    private readonly sourceFile: ts.SourceFile,
+    private readonly start: number,
+    private readonly end: number,
+    private readonly failureText: string,
+    private readonly code: number,
+    /**
+     * The origin of the failure, e.g., the name of the rule reporting the
+     * failure. Can be empty.
+     */
+    private readonly failureSource: string | undefined,
+    private readonly suggestedFixes: Fix[] = [],
+    private readonly relatedInformation?: ts.DiagnosticRelatedInformation[],
+  ) {}
 
   /**
    * This returns a structure compatible with ts.Diagnostic, but with added
@@ -30,15 +32,15 @@ export class Failure {
     return {
       file: this.sourceFile,
       start: this.start,
-      end: this.end,  // Not in ts.Diagnostic, but always useful for
-                      // start-end-using systems.
+      end: this.end, // Not in ts.Diagnostic, but always useful for
+      // start-end-using systems.
       length: this.end - this.start,
       // Emebed `failureSource` into the error message so that we can show
       // people which check they are violating. This makes it easier for
       // developers to configure exemptions.
-      messageText: this.failureSource ?
-          `[${this.failureSource}] ${this.failureText}` :
-          this.failureText,
+      messageText: this.failureSource
+        ? `[${this.failureSource}] ${this.failureText}`
+        : this.failureText,
       category: ts.DiagnosticCategory.Error,
       code: this.code,
       // Other tools like TSLint can use this field to decide the subcategory of
@@ -66,9 +68,12 @@ export class Failure {
 
   toString(): string {
     return `{ sourceFile:${
-        this.sourceFile ? this.sourceFile.fileName : 'unknown'}, start:${
-        this.start}, end:${this.end}, source:${this.failureSource}, fixes:${
-        JSON.stringify(this.suggestedFixes.map(fix => fixToString(fix)))} }`;
+      this.sourceFile ? this.sourceFile.fileName : 'unknown'
+    }, start:${
+      this.start
+    }, end:${this.end}, source:${this.failureSource}, fixes:${JSON.stringify(
+      this.suggestedFixes.map((fix) => fixToString(fix)),
+    )} }`;
   }
 
   /***
@@ -77,9 +82,9 @@ export class Failure {
    * integration (e.g. CLI tools).
    */
   mapFixesToReadableString(): string {
-    const stringifiedFixes =
-        this.suggestedFixes.map(fix => this.fixToReadableString(fix))
-            .join('\nOR\n');
+    const stringifiedFixes = this.suggestedFixes
+      .map((fix) => this.fixToReadableString(fix))
+      .join('\nOR\n');
 
     if (!stringifiedFixes) return '';
     else if (this.suggestedFixes.length === 1) {
@@ -114,8 +119,7 @@ export class Failure {
           // our context, and we don't have a great message for these.
           // For instance, this could be the addition of a new symbol in an
           // existing import (`import {foo}` becoming `import {foo, bar}`).
-          fixText += `- Insert ${this.readableRange(c.start, c.end)}: ${
-              printableReplacement}\n`;
+          fixText += `- Insert ${this.readableRange(c.start, c.end)}: ${printableReplacement}\n`;
         }
       } else if (c.start === this.start && c.end === this.end) {
         // We assume the replacement is the main part of the fix, so put that
@@ -123,16 +127,18 @@ export class Failure {
         if (printableReplacement === '') {
           fixText = `- Delete the full match\n` + fixText;
         } else {
-          fixText = `- Replace the full match with: ${printableReplacement}\n` +
-              fixText;
+          fixText =
+            `- Replace the full match with: ${printableReplacement}\n` +
+            fixText;
         }
       } else {
         if (printableReplacement === '') {
           fixText =
-              `- Delete ${this.readableRange(c.start, c.end)}\n` + fixText;
+            `- Delete ${this.readableRange(c.start, c.end)}\n` + fixText;
         } else {
-          fixText = `- Replace ${this.readableRange(c.start, c.end)} with: ` +
-              `${printableReplacement}\n${fixText}`;
+          fixText =
+            `- Replace ${this.readableRange(c.start, c.end)} with: ` +
+            `${printableReplacement}\n${fixText}`;
         }
       }
     }
@@ -153,8 +159,9 @@ export class Failure {
     if (lcf.line === lct.line && lcf.character === lct.character) {
       return `at line ${lcf.line + 1}, char ${lcf.character + 1}`;
     } else {
-      return `'${
-          this.sourceFile.text.substring(from, to).replace(/\n/g, '\\n')}'`;
+      return `'${this.sourceFile.text
+        .substring(from, to)
+        .replace(/\n/g, '\\n')}'`;
     }
   }
 }
@@ -172,24 +179,28 @@ export interface Fix {
 /** Creates a fix that replaces the given node with the new text. */
 export function replaceNode(node: ts.Node, replacement: string): Fix {
   return {
-    changes: [{
-      sourceFile: node.getSourceFile(),
-      start: node.getStart(),
-      end: node.getEnd(),
-      replacement,
-    }],
+    changes: [
+      {
+        sourceFile: node.getSourceFile(),
+        start: node.getStart(),
+        end: node.getEnd(),
+        replacement,
+      },
+    ],
   };
 }
 
 /** Creates a fix that inserts new text in front of the given node. */
 export function insertBeforeNode(node: ts.Node, insertion: string): Fix {
   return {
-    changes: [{
-      sourceFile: node.getSourceFile(),
-      start: node.getStart(),
-      end: node.getStart(),
-      replacement: insertion,
-    }],
+    changes: [
+      {
+        sourceFile: node.getSourceFile(),
+        start: node.getStart(),
+        end: node.getStart(),
+        replacement: insertion,
+      },
+    ],
   };
 }
 
@@ -229,13 +240,18 @@ export interface DiagnosticWithFixes extends ts.Diagnostic {
  */
 export function fixToString(f?: Fix) {
   if (!f) return 'undefined';
-  return '{' + JSON.stringify(f.changes.map(ic => {
-    return {
-      start: ic.start,
-      end: ic.end,
-      replacement: ic.replacement,
-      fileName: ic.sourceFile.fileName
-    };
-  })) +
-      '}';
+  return (
+    '{' +
+    JSON.stringify(
+      f.changes.map((ic) => {
+        return {
+          start: ic.start,
+          end: ic.end,
+          replacement: ic.replacement,
+          fileName: ic.sourceFile.fileName,
+        };
+      }),
+    ) +
+    '}'
+  );
 }

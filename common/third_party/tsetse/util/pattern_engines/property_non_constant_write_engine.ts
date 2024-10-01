@@ -8,9 +8,10 @@ import {PropertyMatcher} from '../property_matcher';
 import {matchPropertyWrite, PropertyWriteEngine} from './property_write_engine';
 
 function matchPropertyNonConstantWrite(
-    tc: ts.TypeChecker,
-    n: ts.PropertyAccessExpression|ts.ElementAccessExpression,
-    matcher: PropertyMatcher): ts.Node|undefined {
+  tc: ts.TypeChecker,
+  n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
+  matcher: PropertyMatcher,
+): ts.Node | undefined {
   debugLog(() => `inspecting ${n.getFullText().trim()}`);
   if (matchPropertyWrite(tc, n, matcher) === undefined) {
     return;
@@ -18,8 +19,9 @@ function matchPropertyNonConstantWrite(
   const rval = (n.parent as ts.BinaryExpression).right;
   if (isLiteral(tc, rval)) {
     debugLog(
-        () => `Assigned value (${
-            rval.getFullText()}) is a compile-time constant.`);
+      () =>
+        `Assigned value (${rval.getFullText()}) is a compile-time constant.`,
+    );
     return;
   }
   return n.parent;

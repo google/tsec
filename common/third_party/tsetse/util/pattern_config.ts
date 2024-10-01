@@ -68,8 +68,9 @@ export interface PatternRuleConfig extends PatternEngineConfig {
  * Internal function to override the rule config properties before passing to
  * parent constructor.
  */
-export function overridePatternConfig(config: PatternRuleConfig):
-    PatternRuleConfig {
+export function overridePatternConfig(
+  config: PatternRuleConfig,
+): PatternRuleConfig {
 
   return config;
 }

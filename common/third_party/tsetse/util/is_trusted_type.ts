@@ -11,11 +11,15 @@ import {TrustedTypesConfig} from './trusted_types_configuration';
  * Trusted Type value in the assignment.
  */
 export function isExpressionOfAllowedTrustedType(
-    tc: ts.TypeChecker, expr: ts.Expression,
-    allowedType: TrustedTypesConfig): boolean {
+  tc: ts.TypeChecker,
+  expr: ts.Expression,
+  allowedType: TrustedTypesConfig,
+): boolean {
   if (isTrustedType(tc, expr, allowedType)) return true;
   if (isTrustedTypeCastToUnknownToString(tc, expr, allowedType)) return true;
-  if (isTrustedTypeUnionWithStringCastToString(tc, expr, allowedType)) return true;
+  if (isTrustedTypeUnionWithStringCastToString(tc, expr, allowedType)) {
+    return true;
+  }
   if (isTrustedTypeUnwrapperFunction(tc, expr, allowedType)) return true;
   return false;
 }
@@ -25,17 +29,21 @@ export function isExpressionOfAllowedTrustedType(
  * configured Trusted Type).
  */
 function isAllowedSymbol(
-    tc: ts.TypeChecker, symbol: ts.Symbol|undefined,
-    allowedType: TrustedTypesConfig,
-    allowAmbientTrustedTypesDeclaration: boolean) {
+  tc: ts.TypeChecker,
+  symbol: ts.Symbol | undefined,
+  allowedType: TrustedTypesConfig,
+  allowAmbientTrustedTypesDeclaration: boolean,
+) {
   debugLog(() => `isAllowedSymbol called with symbol ${symbol?.getName()}`);
   if (!symbol) return false;
 
   const fqn = tc.getFullyQualifiedName(symbol);
   debugLog(() => `fully qualified name is ${fqn}`);
-  if (allowAmbientTrustedTypesDeclaration &&
-      allowedType.allowAmbientTrustedTypesDeclaration &&
-      fqn === allowedType.typeName) {
+  if (
+    allowAmbientTrustedTypesDeclaration &&
+    allowedType.allowAmbientTrustedTypesDeclaration &&
+    fqn === allowedType.typeName
+  ) {
     return true;
   }
 
@@ -44,12 +52,14 @@ function isAllowedSymbol(
   // check that the type is comes allowed declaration file
   const declarations = symbol.getDeclarations();
   if (!declarations) return false;
-  const declarationFileNames =
-      declarations.map(d => d.getSourceFile()?.fileName);
+  const declarationFileNames = declarations.map(
+    (d) => d.getSourceFile()?.fileName,
+  );
   debugLog(() => `got declaration filenames ${declarationFileNames}`);
 
-  return declarationFileNames.some(
-      fileName => fileName.includes(allowedType.modulePathMatcher));
+  return declarationFileNames.some((fileName) =>
+    fileName.includes(allowedType.modulePathMatcher),
+  );
 }
 
 /**
@@ -57,17 +67,24 @@ function isAllowedSymbol(
  * "AllowedTrustedType as unknown as string"
  */
 function isTrustedTypeCastToUnknownToString(
-    tc: ts.TypeChecker, expr: ts.Expression, allowedType: TrustedTypesConfig) {
+  tc: ts.TypeChecker,
+  expr: ts.Expression,
+  allowedType: TrustedTypesConfig,
+) {
   // check if the expression is a cast expression to string
-  if (!ts.isAsExpression(expr) ||
-      expr.type.kind !== ts.SyntaxKind.StringKeyword) {
+  if (
+    !ts.isAsExpression(expr) ||
+    expr.type.kind !== ts.SyntaxKind.StringKeyword
+  ) {
     return false;
   }
 
   // inner expression should be another cast expression
   const innerExpr = expr.expression;
-  if (!ts.isAsExpression(innerExpr) ||
-      innerExpr.type.kind !== ts.SyntaxKind.UnknownKeyword) {
+  if (
+    !ts.isAsExpression(innerExpr) ||
+    innerExpr.type.kind !== ts.SyntaxKind.UnknownKeyword
+  ) {
     return false;
   }
 
@@ -75,7 +92,11 @@ function isTrustedTypeCastToUnknownToString(
   const castSource = innerExpr.expression;
   debugLog(() => `looking at cast source ${castSource.getText()}`);
   return isAllowedSymbol(
-      tc, tc.getTypeAtLocation(castSource).getSymbol(), allowedType, false);
+    tc,
+    tc.getTypeAtLocation(castSource).getSymbol(),
+    allowedType,
+    false,
+  );
 }
 
 /**
@@ -83,20 +104,28 @@ function isTrustedTypeCastToUnknownToString(
  * "(AllowedTrustedType | string) as string"
  */
 function isTrustedTypeUnionWithStringCastToString(
-    tc: ts.TypeChecker, expr: ts.Expression, allowedType: TrustedTypesConfig) {
+  tc: ts.TypeChecker,
+  expr: ts.Expression,
+  allowedType: TrustedTypesConfig,
+) {
   // verify that the expression is a cast expression to string
-  if (!ts.isAsExpression(expr) ||
-      expr.type.kind !== ts.SyntaxKind.StringKeyword) {
+  if (
+    !ts.isAsExpression(expr) ||
+    expr.type.kind !== ts.SyntaxKind.StringKeyword
+  ) {
     return false;
   }
 
   // inner expression needs to be a type union of trusted value
   const innerExprType = tc.getTypeAtLocation(expr.expression);
-  return innerExprType.isUnion() &&
-      // do not care how many types are in the union. As long as one of them is
-      // the configured Trusted type we are happy.
-      innerExprType.types.some(
-          type => isAllowedSymbol(tc, type.getSymbol(), allowedType, false));
+  return (
+    innerExprType.isUnion() &&
+    // do not care how many types are in the union. As long as one of them is
+    // the configured Trusted type we are happy.
+    innerExprType.types.some((type) =>
+      isAllowedSymbol(tc, type.getSymbol(), allowedType, false),
+    )
+  );
 }
 
 /**
@@ -110,13 +139,21 @@ function isTrustedTypeUnionWithStringCastToString(
  * TT value in the first argument.
  */
 function isTrustedTypeUnwrapperFunction(
-    tc: ts.TypeChecker, expr: ts.Expression, allowedType: TrustedTypesConfig) {
+  tc: ts.TypeChecker,
+  expr: ts.Expression,
+  allowedType: TrustedTypesConfig,
+) {
   if (!ts.isCallExpression(expr)) return false;
 
-  return expr.arguments.length > 0 &&
-      isAllowedSymbol(
-             tc, tc.getTypeAtLocation(expr.arguments[0]).getSymbol(),
-             allowedType, false);
+  return (
+    expr.arguments.length > 0 &&
+    isAllowedSymbol(
+      tc,
+      tc.getTypeAtLocation(expr.arguments[0]).getSymbol(),
+      allowedType,
+      false,
+    )
+  );
 }
 
 /**
@@ -124,13 +161,17 @@ function isTrustedTypeUnwrapperFunction(
  * the intersection of Trusted Types and other types.
  */
 function isTrustedType(
-    tc: ts.TypeChecker, expr: ts.Expression, allowedType: TrustedTypesConfig) {
+  tc: ts.TypeChecker,
+  expr: ts.Expression,
+  allowedType: TrustedTypesConfig,
+) {
   const type = tc.getTypeAtLocation(expr);
 
   if (isAllowedSymbol(tc, type.getSymbol(), allowedType, true)) return true;
 
   if (!type.isIntersection()) return false;
 
-  return type.types.some(
-      t => isAllowedSymbol(tc, t.getSymbol(), allowedType, true));
+  return type.types.some((t) =>
+    isAllowedSymbol(tc, t.getSymbol(), allowedType, true),
+  );
 }
