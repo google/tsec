@@ -164,6 +164,14 @@ export class Checker {
   }
 
   /**
+   * Returns the compiler options used to create the program that this checker
+   * is associated with.
+   */
+  getCompilerOptions(): Readonly<ts.CompilerOptions> {
+    return this.options;
+  }
+
+  /**
    * Add a failure with a span.
    * @param source the origin of the failure, e.g., the name of a rule reporting
    *     the failure
