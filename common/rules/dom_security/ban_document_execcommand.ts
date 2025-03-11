@@ -58,8 +58,8 @@ function matchNode(
 export class Rule extends AbstractRule {
   static readonly RULE_NAME = 'ban-document-execcommand';
 
-  readonly ruleName = Rule.RULE_NAME;
-  readonly code = ErrorCode.CONFORMANCE_PATTERN;
+  readonly ruleName: string = Rule.RULE_NAME;
+  readonly code: ErrorCode = ErrorCode.CONFORMANCE_PATTERN;
 
   private readonly propMatcher: PropertyMatcher;
   private readonly allowlist?: Allowlist;
@@ -74,7 +74,7 @@ export class Rule extends AbstractRule {
     }
   }
 
-  register(checker: Checker) {
+  register(checker: Checker): void {
     checker.onNamedPropertyAccess(
       this.propMatcher.bannedProperty,
       (c, n) => {

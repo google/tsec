@@ -32,8 +32,8 @@ let errMsg = 'Constructing functions from strings can lead to XSS.';
  */
 export class Rule extends AbstractRule {
   static readonly RULE_NAME = 'ban-function-calls';
-  readonly ruleName = Rule.RULE_NAME;
-  readonly code = ErrorCode.CONFORMANCE_PATTERN;
+  readonly ruleName: string = Rule.RULE_NAME;
+  readonly code: ErrorCode = ErrorCode.CONFORMANCE_PATTERN;
 
   private readonly allowTrustedTypes: boolean = true;
   private readonly nameMatcher: AbsoluteMatcher;
@@ -47,7 +47,7 @@ export class Rule extends AbstractRule {
     }
   }
 
-  register(checker: Checker) {
+  register(checker: Checker): void {
     const check = (c: Checker, n: ts.Node) => {
       const node = this.checkNode(c.typeChecker, n, this.nameMatcher);
       if (node) {

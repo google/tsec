@@ -34,7 +34,7 @@ const BANNED_APIS = [
  * Trusted Types related attribute names that should not be set through
  * `setAttribute` or similar functions.
  */
-export const TT_RELATED_ATTRIBUTES = new Set([
+export const TT_RELATED_ATTRIBUTES: Set<string> = new Set([
   'src',
   'srcdoc',
   'data',
@@ -43,7 +43,7 @@ export const TT_RELATED_ATTRIBUTES = new Set([
 
 /** A Rule that looks for use of Element#setAttribute and similar properties. */
 export abstract class BanSetAttributeRule extends AbstractRule {
-  readonly code = ErrorCode.CONFORMANCE_PATTERN;
+  readonly code: ErrorCode = ErrorCode.CONFORMANCE_PATTERN;
 
   private readonly propMatchers: readonly PropertyMatcher[];
   private readonly allowlist?: Allowlist;
@@ -178,7 +178,7 @@ export abstract class BanSetAttributeRule extends AbstractRule {
     return this.looseMatch ? n : undefined;
   }
 
-  register(checker: Checker) {
+  register(checker: Checker): void {
     for (const matcher of this.propMatchers) {
       checker.onNamedPropertyAccess(
         matcher.bannedProperty,
@@ -224,8 +224,8 @@ export class Rule extends BanSetAttributeRule {
 
   override readonly ruleName: string = Rule.RULE_NAME;
 
-  protected readonly errorMessage = errMsg;
-  protected isSecuritySensitiveAttrName = (attr: string) =>
+  protected readonly errorMessage: string = errMsg;
+  protected isSecuritySensitiveAttrName = (attr: string): boolean =>
     (attr.startsWith('on') && attr !== 'on') || TT_RELATED_ATTRIBUTES.has(attr);
   protected readonly looseMatch = true;
 

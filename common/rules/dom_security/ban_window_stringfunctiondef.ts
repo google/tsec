@@ -128,8 +128,8 @@ function checkNode<T extends ts.Node>(
  */
 export class Rule extends AbstractRule {
   static readonly RULE_NAME = 'ban-window-stringfunctiondef';
-  readonly ruleName = Rule.RULE_NAME;
-  readonly code = ErrorCode.CONFORMANCE_PATTERN;
+  readonly ruleName: string = Rule.RULE_NAME;
+  readonly code: ErrorCode = ErrorCode.CONFORMANCE_PATTERN;
 
   private readonly nameMatchers: readonly AbsoluteMatcher[];
   private readonly propMatchers: readonly PropertyMatcher[];
@@ -145,7 +145,7 @@ export class Rule extends AbstractRule {
     }
   }
 
-  register(checker: Checker) {
+  register(checker: Checker): void {
     // Check global names
     for (const nameMatcher of this.nameMatchers) {
       checker.onNamedIdentifier(
