@@ -18,6 +18,8 @@ import {trustedTypesChecks} from './trusted_types_checks';
  * Exports 'trusted-types-checks' rule so that those using the ESLint plugin
  * can access it
  */
-export const rules = {
+export const rules: {
+  'trusted-types-checks': unknown;
+} = {
   'trusted-types-checks': trustedTypesChecks,
 };
