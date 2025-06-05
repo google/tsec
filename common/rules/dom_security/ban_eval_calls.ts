@@ -17,11 +17,7 @@ import {
   ErrorCode,
   PatternKind,
 } from '../../third_party/tsetse/rules/conformance_pattern_rule';
-import {
-  AnySymbolMatcherDescriptor,
-  GlobalMatcherDescriptor,
-  overridePatternConfig,
-} from '../../third_party/tsetse/util/pattern_config';
+import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 
 import {RuleConfiguration} from '../../rule_configuration';
@@ -29,7 +25,7 @@ import {RuleConfiguration} from '../../rule_configuration';
 let errMsg = 'Do not use eval, as this can lead to XSS.';
 
 const bannedValues = [
-  new GlobalMatcherDescriptor('eval'),
+  'GLOBAL|eval',
 ];
 
 /**

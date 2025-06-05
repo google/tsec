@@ -19,10 +19,7 @@ import {
   PatternKind,
 } from '../../third_party/tsetse/rules/conformance_pattern_rule';
 import {maybeAddNamedImport} from '../../third_party/tsetse/util/fixer';
-import {
-  PropertyMatcherDescriptor,
-  overridePatternConfig,
-} from '../../third_party/tsetse/util/pattern_config';
+import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_HTML} from '../../third_party/tsetse/util/trusted_types_configuration';
 import * as ts from 'typescript';
 
@@ -42,9 +39,7 @@ export class Rule extends ConformancePatternRule {
         errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: errMsg,
         kind: PatternKind.BANNED_PROPERTY_WRITE,
-        values: [
-          new PropertyMatcherDescriptor('HTMLIFrameElement.prototype.srcdoc'),
-        ],
+        values: ['HTMLIFrameElement.prototype.srcdoc'],
         name: Rule.RULE_NAME,
         allowedTrustedType: TRUSTED_HTML,
         ...configuration,

@@ -17,10 +17,7 @@ import {
   ErrorCode,
   PatternKind,
 } from '../../third_party/tsetse/rules/conformance_pattern_rule';
-import {
-  overridePatternConfig,
-  PropertyMatcherDescriptor,
-} from '../../third_party/tsetse/util/pattern_config';
+import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 
 import {RuleConfiguration} from '../../rule_configuration';
@@ -42,13 +39,9 @@ export class Rule extends ConformancePatternRule {
         errorMessage: errMsg,
         kind: PatternKind.BANNED_PROPERTY_WRITE,
         values: [
-          new PropertyMatcherDescriptor(
-            'HTMLScriptElement.prototype.innerText',
-          ),
-          new PropertyMatcherDescriptor('HTMLScriptElement.prototype.text'),
-          new PropertyMatcherDescriptor(
-            'HTMLScriptElement.prototype.textContent',
-          ),
+          'HTMLScriptElement.prototype.innerText',
+          'HTMLScriptElement.prototype.text',
+          'HTMLScriptElement.prototype.textContent',
         ],
         name: Rule.RULE_NAME,
         allowedTrustedType: TRUSTED_SCRIPT,

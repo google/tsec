@@ -1,5 +1,4 @@
 import * as ts from 'typescript';
-import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
 
 /**
  * This class matches a property access node, based on a property holder type
@@ -15,19 +14,14 @@ import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
  * have any knowledge of structural typing.
  */
 export class PropertyMatcher {
-  static fromSpec(value: PatternDescriptor): PropertyMatcher {
-    if (!(value instanceof PropertyMatcherDescriptor)) {
-      throw new Error(
-        `BANNED_PROPERTY expects a PropertyMatcherDescriptor, got ${typeof value}`,
-      );
-    }
-    if (value.spec.indexOf('.prototype.') === -1) {
+  static fromSpec(spec: string): PropertyMatcher {
+    if (spec.indexOf('.prototype.') === -1) {
       throw new Error(`BANNED_PROPERTY expects a .prototype in your query.`);
     }
     const requestParser = /^([\w\d_.-]+)\.prototype\.([\w\d_.-]+)$/;
-    const matches = requestParser.exec(value.spec);
+    const matches = requestParser.exec(spec);
     if (!matches) {
-      throw new Error('Cannot understand the BannedProperty spec' + value.spec);
+      throw new Error('Cannot understand the BannedProperty spec' + spec);
     }
     const [bannedType, bannedProperty] = matches.slice(1);
     return new PropertyMatcher(bannedType, bannedProperty);

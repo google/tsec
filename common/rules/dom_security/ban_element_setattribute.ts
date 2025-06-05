@@ -18,17 +18,16 @@ import {ErrorCode} from '../../third_party/tsetse/error_code';
 import {AbstractRule} from '../../third_party/tsetse/rule';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isLiteral} from '../../third_party/tsetse/util/is_literal';
-import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import * as ts from 'typescript';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
 const BANNED_APIS = [
-  new PropertyMatcherDescriptor('Element.prototype.setAttribute'),
-  new PropertyMatcherDescriptor('Element.prototype.setAttributeNS'),
-  new PropertyMatcherDescriptor('Element.prototype.setAttributeNode'),
-  new PropertyMatcherDescriptor('Element.prototype.setAttributeNodeNS'),
+  'Element.prototype.setAttribute',
+  'Element.prototype.setAttributeNS',
+  'Element.prototype.setAttributeNode',
+  'Element.prototype.setAttributeNodeNS',
 ];
 
 /**

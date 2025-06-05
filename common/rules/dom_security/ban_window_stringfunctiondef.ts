@@ -30,24 +30,17 @@ import {AbstractRule} from '../../third_party/tsetse/rule';
 import {AbsoluteMatcher} from '../../third_party/tsetse/util/absolute_matcher';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isExpressionOfAllowedTrustedType} from '../../third_party/tsetse/util/is_trusted_type';
-import {
-  GlobalMatcherDescriptor,
-  PropertyMatcherDescriptor,
-} from '../../third_party/tsetse/util/pattern_config';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 import * as ts from 'typescript';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
-const BANNED_NAMES = [
-  new GlobalMatcherDescriptor('setInterval'),
-  new GlobalMatcherDescriptor('setTimeout'),
-];
+const BANNED_NAMES = ['GLOBAL|setInterval', 'GLOBAL|setTimeout'];
 
 const BANNED_PROPERTIES = [
-  new PropertyMatcherDescriptor('Window.prototype.setInterval'),
-  new PropertyMatcherDescriptor('Window.prototype.setTimeout'),
+  'Window.prototype.setInterval',
+  'Window.prototype.setTimeout',
 ];
 
 function formatErrorMessage(bannedEntity: string): string {
