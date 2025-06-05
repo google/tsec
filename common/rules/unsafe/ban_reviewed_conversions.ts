@@ -17,6 +17,7 @@ import {
   ErrorCode,
   PatternKind,
 } from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {AbsoluteMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
@@ -24,17 +25,44 @@ let errMsg =
   'Use of reviewed conversions to safe values requires security reviews and approval.';
 
 let bannedValues = [
-  '/node_modules/safevalues/restricted/reviewed|htmlSafeByReview',
-  '/node_modules/safevalues/restricted/reviewed|scriptSafeByReview',
-  '/node_modules/safevalues/restricted/reviewed|scriptUrlSafeByReview',
+  new AbsoluteMatcherDescriptor(
+    'htmlSafeByReview',
+    '/node_modules/safevalues/restricted/reviewed',
+  ),
+  new AbsoluteMatcherDescriptor(
+    'scriptSafeByReview',
+    '/node_modules/safevalues/restricted/reviewed',
+  ),
+  new AbsoluteMatcherDescriptor(
+    'scriptUrlSafeByReview',
+    '/node_modules/safevalues/restricted/reviewed',
+  ),
   // Deprecated API, keep banning for now in case people are using an older
   // version of safevalues
-  '/node_modules/safevalues/restricted/reviewed|htmlFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/restricted/reviewed|scriptFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/restricted/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/unsafe/reviewed|htmlFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/unsafe/reviewed|scriptFromStringKnownToSatisfyTypeContract',
-  '/node_modules/safevalues/unsafe/reviewed|scriptUrlFromStringKnownToSatisfyTypeContract',
+  new AbsoluteMatcherDescriptor(
+    'htmlFromStringKnownToSatisfyTypeContract',
+    '/node_modules/safevalues/restricted/reviewed',
+  ),
+  new AbsoluteMatcherDescriptor(
+    'scriptFromStringKnownToSatisfyTypeContract',
+    '/node_modules/safevalues/restricted/reviewed',
+  ),
+  new AbsoluteMatcherDescriptor(
+    'scriptUrlFromStringKnownToSatisfyTypeContract',
+    '/node_modules/safevalues/restricted/reviewed',
+  ),
+  new AbsoluteMatcherDescriptor(
+    'htmlFromStringKnownToSatisfyTypeContract',
+    '/node_modules/safevalues/unsafe/reviewed',
+  ),
+  new AbsoluteMatcherDescriptor(
+    'scriptFromStringKnownToSatisfyTypeContract',
+    '/node_modules/safevalues/unsafe/reviewed',
+  ),
+  new AbsoluteMatcherDescriptor(
+    'scriptUrlFromStringKnownToSatisfyTypeContract',
+    '/node_modules/safevalues/unsafe/reviewed',
+  ),
 ];
 
 /** A Rule that bans the use of reviewed conversions to safe values. */

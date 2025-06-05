@@ -17,6 +17,7 @@ import {
   ErrorCode,
   PatternKind,
 } from '../../third_party/tsetse/rules/conformance_pattern_rule';
+import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
 import {RuleConfiguration} from '../../rule_configuration';
 
 let errMsg =
@@ -31,7 +32,11 @@ export class Rule extends ConformancePatternRule {
       errorCode: ErrorCode.CONFORMANCE_PATTERN,
       errorMessage: errMsg,
       kind: PatternKind.BANNED_PROPERTY,
-      values: ['HTMLScriptElement.prototype.appendChild'],
+      values: [
+        new PropertyMatcherDescriptor(
+          'HTMLScriptElement.prototype.appendChild',
+        ),
+      ],
       name: Rule.RULE_NAME,
       ...configuration,
     });

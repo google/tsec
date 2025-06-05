@@ -19,6 +19,7 @@ import {AbstractRule} from '../../third_party/tsetse/rule';
 import {AbsoluteMatcher} from '../../third_party/tsetse/util/absolute_matcher';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isExpressionOfAllowedTrustedType} from '../../third_party/tsetse/util/is_trusted_type';
+import {GlobalMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 import * as ts from 'typescript';
 
@@ -41,7 +42,9 @@ export class Rule extends AbstractRule {
 
   constructor(configuration: RuleConfiguration = {}) {
     super();
-    this.nameMatcher = new AbsoluteMatcher('GLOBAL|Function');
+    this.nameMatcher = new AbsoluteMatcher(
+      new GlobalMatcherDescriptor('Function'),
+    );
     if (configuration?.allowlistEntries) {
       this.allowlist = new Allowlist(configuration?.allowlistEntries);
     }

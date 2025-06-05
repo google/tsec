@@ -33,7 +33,7 @@ export interface PatternEngineConfig {
    * Values have a pattern-specific syntax. See each patternKind's tests for
    * examples.
    */
-  values: string[];
+  values: PatternDescriptor[];
 
   /** The error code assigned to this pattern. */
   errorCode: number;
@@ -50,6 +50,56 @@ export interface PatternEngineConfig {
    */
   allowedTrustedType?: TrustedTypesConfig;
 }
+
+/**
+ * A data class to describe how a symbol should be matched. This is used by the
+ * name engine or other engines like WizElementCallEngine.
+ */
+export class AbsoluteMatcherDescriptor {
+  constructor(
+    readonly fullyQualifiedName: string,
+    readonly pathName: string,
+  ) {}
+}
+
+/**
+ * A data class for reprenting a global symbol to be matched.
+ */
+export class GlobalMatcherDescriptor {
+  constructor(readonly fullyQualifiedName: string) {}
+}
+
+/**
+ * A data class for reprenting a closure symbol to be matched.
+ */
+export class ClosureMatcherDescriptor {
+  constructor(readonly fullyQualifiedName: string) {}
+}
+
+/**
+ * A data class for reprenting a symbol to be matched solely from its name.
+ */
+export class AnySymbolMatcherDescriptor {
+  constructor(readonly fullyQualifiedName: string) {}
+}
+
+/**
+ * A data class for reprenting a property to be matched. The spec should be in
+ * the form of "Foo.prototype.bar" format.
+ */
+export class PropertyMatcherDescriptor {
+  constructor(readonly spec: string) {}
+}
+
+/**
+ * A data class for describing a pattern.
+ */
+export type PatternDescriptor =
+  | GlobalMatcherDescriptor
+  | ClosureMatcherDescriptor
+  | AnySymbolMatcherDescriptor
+  | AbsoluteMatcherDescriptor
+  | PropertyMatcherDescriptor;
 
 /**
  * A config for `ConformancePatternRule`.
