@@ -6,20 +6,34 @@ import {
   isAllowlistedNamedDeclaration,
   isInStockLibraries,
 } from './ast_tools';
+import {
+  AbsoluteMatcherDescriptor,
+  AnySymbolMatcherDescriptor,
+  ClosureMatcherDescriptor,
+  GlobalMatcherDescriptor,
+  PatternDescriptor,
+} from './pattern_config';
 
 const PATH_NAME_FORMAT = '[/\\.\\w\\d_\\-$]+';
 const JS_IDENTIFIER_FORMAT = '[\\w\\d_\\-$]+';
 const FQN_FORMAT = `(${JS_IDENTIFIER_FORMAT}.)*${JS_IDENTIFIER_FORMAT}`;
-const GLOBAL = 'GLOBAL';
-const ANY_SYMBOL = 'ANY_SYMBOL';
-const CLOSURE = 'CLOSURE';
-/** A fqn made out of a dot-separated chain of JS identifiers. */
-const ABSOLUTE_RE = new RegExp(`^${PATH_NAME_FORMAT}\\|${FQN_FORMAT}$`);
 /**
  * Clutz glues js symbols to ts namespace by prepending "ಠ_ಠ.clutz.".
  * We need to include this prefix when the banned name is from Closure.
  */
 const CLUTZ_SYM_PREFIX = 'ಠ_ಠ.clutz.';
+
+/**
+ * The scope of the matcher, which may be GLOBAL,
+ * ANY_SYMBOL, CLOSURE or a file path filter. CLOSURE indicates that the
+ * symbol is from the JS Closure library processed by clutz.
+ */
+export enum Scope {
+  GLOBAL,
+  ANY_SYMBOL,
+  CLOSURE,
+  PATH,
+}
 
 /**
  * This class matches symbols given a "foo.bar.baz" name, where none of the
@@ -29,15 +43,10 @@ const CLUTZ_SYM_PREFIX = 'ಠ_ಠ.clutz.';
  * strongly suggest finding the expected symbol in externs to find the object
  * name on which the symbol was initially defined.
  *
- * This matcher requires a scope for the symbol, which may be `GLOBAL`,
- * `ANY_SYMBOL`, `CLOSURE` or a file path filter. `CLOSURE` indicates that the
- * symbol is from the JS Closure library processed by clutz. The matcher begins
- * with this scope, then the separator "|", followed by the symbol name. For
- * example, "GLOBAL|eval".
- *
- * The file filter specifies
+ * The file filter (using AbsoluteMatcherDescriptor) specifies
  * (part of) the path of the file in which the symbol of interest is defined.
- * For example, "path/to/file.ts|foo.bar.baz".
+ * For example,
+ * `new AbsoluteMatcherDescriptor('foo.bar.baz', 'path/to/file.ts')`.
  * With this filter, only symbols named "foo.bar.baz" that are defined in a path
  * that contains "path/to/file.ts" are matched.
  *
@@ -61,7 +70,8 @@ const CLUTZ_SYM_PREFIX = 'ಠ_ಠ.clutz.';
  *
  * An absolute matcher "Foo.bar" without a file filter will match with both
  * references to "Foo.bar" in /path/to/file2 and /path/to/file3.
- * An absolute matcher "/path/to/file1|Foo.bar", however, only matches with the
+ * An absolute matcher from
+ * `new AbsoluteMatcherDescriptor("Foo.bar", "/path/to/file1")` matches with the
  * "Foo.bar()" in /path/to/file3 because that references the "Foo.bar" defined
  * in /path/to/file1.
  *
@@ -74,26 +84,48 @@ const CLUTZ_SYM_PREFIX = 'ಠ_ಠ.clutz.';
  * class Moo extends Foo { static tar() {return "Moo.tar in file4";} }
  * Moo.bar();
  *
- * An absolute matcher "/path/to/file1|Foo.bar" matches with "Moo.bar()" because
- * "bar" is defined as part of Foo in /path/to/file1.
+ * An absolute matcher
+ * `new AbsoluteMatcherDescriptor('Foo.bar', '/path/to/file1')` matches with
+ * "Moo.bar()" because "bar" is defined as part of Foo in /path/to/file1.
  *
  * By default, the matcher won't match symbols in import statements if the
  * symbol is not renamed. Machers can be optionally configured symbols in import
  * statements even if it's not a named import.
  */
 export class AbsoluteMatcher {
-  /**
-   * From a "path/to/file.ts|foo.bar.baz", builds a Matcher.
-   */
-  readonly filePath: string;
+  readonly filePath?: string;
   readonly bannedName: string;
+  readonly scope: Scope;
 
   constructor(
-    spec: string,
+    value: PatternDescriptor,
     readonly matchImport: boolean = false,
   ) {
-    if (!spec.match(ABSOLUTE_RE)) {
-      throw new Error('Malformed matcher selector.');
+    if (value instanceof AbsoluteMatcherDescriptor) {
+      this.scope = Scope.PATH;
+      this.bannedName = value.fullyQualifiedName;
+      this.filePath = value.pathName;
+    } else if (value instanceof ClosureMatcherDescriptor) {
+      this.scope = Scope.CLOSURE;
+      this.bannedName = CLUTZ_SYM_PREFIX + value.fullyQualifiedName;
+    } else if (value instanceof AnySymbolMatcherDescriptor) {
+      this.scope = Scope.ANY_SYMBOL;
+      this.bannedName = value.fullyQualifiedName;
+    } else if (value instanceof GlobalMatcherDescriptor) {
+      this.scope = Scope.GLOBAL;
+      this.bannedName = value.fullyQualifiedName;
+    } else {
+      throw new Error(
+        `AbsoluteMatcher expects an AbsoluteMatcherDescriptor, ClosureMatcherDescriptor, AnySymbolMatcherDescriptor, or GlobalMatcherDescriptor. Got ${typeof value}`,
+      );
+    }
+
+    if (
+      !value.fullyQualifiedName.match(FQN_FORMAT) ||
+      (value instanceof AbsoluteMatcherDescriptor &&
+        !value.pathName.match(PATH_NAME_FORMAT))
+    ) {
+      throw new Error(`Malformed matcher: ${JSON.stringify(value)}.`);
     }
 
     // JSConformance used to use a Foo.prototype.bar syntax for bar on
@@ -102,19 +134,12 @@ export class AbsoluteMatcher {
     // on `foo`. To avoid any confusion, throw there if we see `prototype` in
     // the spec: that way, it's obvious that you're not trying to match
     // properties.
-    if (spec.match('.prototype.')) {
+    if (value.fullyQualifiedName.match('.prototype.')) {
       throw new Error(
         'Your pattern includes a .prototype, but the AbsoluteMatcher is ' +
           'meant for non-object matches. Use the PropertyMatcher instead, or ' +
           'the Property-based PatternKinds.',
       );
-    }
-
-    // Split spec by the separator "|".
-    [this.filePath, this.bannedName] = spec.split('|', 2);
-
-    if (this.filePath === CLOSURE) {
-      this.bannedName = CLUTZ_SYM_PREFIX + this.bannedName;
     }
   }
 
@@ -146,7 +171,7 @@ export class AbsoluteMatcher {
     if (!s) {
       debugLog(() => `cannot get symbol`);
       return (
-        this.filePath === GLOBAL && matchGoogGlobal(n, this.bannedName, tc)
+        this.scope === Scope.GLOBAL && matchGoogGlobal(n, this.bannedName, tc)
       );
     }
 
@@ -167,17 +192,17 @@ export class AbsoluteMatcher {
       return false;
     }
 
-    // If `ANY_SYMBOL` or `CLOSURE` is specified, it's sufficient to conclude we
-    // have a match.
-    if (this.filePath === ANY_SYMBOL || this.filePath === CLOSURE) {
+    // If scope is ANY_SYMBOL or CLOSURE, it's sufficient to conclude we have a
+    // match.
+    if (this.scope === Scope.ANY_SYMBOL || this.scope === Scope.CLOSURE) {
       return true;
     }
 
     // If there is no declaration, the symbol is a language built-in object.
-    // This is a match only if `GLOBAL` is specified.
+    // This is a match only if scope is GLOBAL.
     const declarations = s.getDeclarations();
     if (declarations === undefined) {
-      return this.filePath === GLOBAL;
+      return this.scope === Scope.GLOBAL;
     }
 
     // No file info in the FQN means it's imported from a .d.ts declaration
@@ -185,21 +210,25 @@ export class AbsoluteMatcher {
     // symbol defined in another TS target. We need to extract the name of the
     // declaration file.
     if (!fqn.startsWith('"')) {
-      if (this.filePath === GLOBAL) {
+      if (this.scope === Scope.GLOBAL) {
         return declarations.some(isInStockLibraries);
       } else {
         return declarations.some((d) => {
           const srcFilePath = d.getSourceFile()?.fileName;
-          return srcFilePath && srcFilePath.match(this.filePath);
+          return srcFilePath && srcFilePath.match(this.filePath!);
         });
       }
     } else {
+      // Matchers like global scope can't come from a file.
+      if (this.filePath === undefined) {
+        return false;
+      }
       const last = fqn.indexOf('"', 1);
       if (last === -1) {
         throw new Error('Malformed fully-qualified name.');
       }
       const filePath = fqn.substring(1, last);
-      return filePath.match(this.filePath) !== null;
+      return filePath.match(this.filePath!) !== null;
     }
   }
 }

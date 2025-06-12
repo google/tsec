@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
-import {AbsoluteMatcher} from '../absolute_matcher';
+import {AbsoluteMatcher, Scope} from '../absolute_matcher';
 import {isExpressionOfAllowedTrustedType} from '../is_trusted_type';
 import {TrustedTypesConfig} from '../trusted_types_configuration';
 
@@ -26,7 +26,7 @@ function isCalledWithAllowedTrustedType(
 }
 
 function isPolyfill(n: ts.Node, matcher: AbsoluteMatcher) {
-  if (matcher.filePath === 'GLOBAL') {
+  if (matcher.scope === Scope.GLOBAL) {
     const parent = n.parent;
     if (
       parent &&

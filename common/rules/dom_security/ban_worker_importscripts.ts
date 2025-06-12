@@ -17,7 +17,10 @@ import {
   ErrorCode,
   PatternKind,
 } from '../../third_party/tsetse/rules/conformance_pattern_rule';
-import {overridePatternConfig} from '../../third_party/tsetse/util/pattern_config';
+import {
+  GlobalMatcherDescriptor,
+  overridePatternConfig,
+} from '../../third_party/tsetse/util/pattern_config';
 import {TRUSTED_SCRIPT_URL} from '../../third_party/tsetse/util/trusted_types_configuration';
 
 import {RuleConfiguration} from '../../rule_configuration';
@@ -35,7 +38,7 @@ export class Rule extends ConformancePatternRule {
         errorCode: ErrorCode.CONFORMANCE_PATTERN,
         errorMessage: errMsg,
         kind: PatternKind.BANNED_NAME,
-        values: ['GLOBAL|importScripts'],
+        values: [new GlobalMatcherDescriptor('importScripts')],
         name: Rule.RULE_NAME,
         allowedTrustedType: TRUSTED_SCRIPT_URL,
         ...configuration,
