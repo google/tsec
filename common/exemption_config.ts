@@ -38,15 +38,15 @@ export class ExemptionList {
     return this.map.get(rule);
   }
 
-  set(rule: string, allowlistEntry: AllowlistEntry) {
+  set(rule: string, allowlistEntry: AllowlistEntry): void {
     this.map.set(rule, allowlistEntry);
   }
 
-  entries() {
+  entries(): MapIterator<[string, AllowlistEntry]> {
     return this.map.entries();
   }
 
-  get size() {
+  get size(): number {
     return this.map.size;
   }
 }
