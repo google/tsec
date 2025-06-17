@@ -165,9 +165,15 @@ export class AbsoluteMatcher {
       }
     }
 
+    // Identifiers in shorthand property assignments will have the symbol
+    // related to the property name. To get the symbol to the property value,
+    // use the symbol from the type of the identifier.
+    const sym = ts.isShorthandPropertyAssignment(p)
+      ? tc.getTypeAtLocation(n).getSymbol()
+      : tc.getSymbolAtLocation(n);
     // Get the symbol (or the one at the other end of this alias) that we're
     // looking at.
-    const s = dealias(tc.getSymbolAtLocation(n), tc);
+    const s = dealias(sym, tc);
     if (!s) {
       debugLog(() => `cannot get symbol`);
       return (
