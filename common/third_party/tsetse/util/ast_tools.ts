@@ -13,14 +13,14 @@ let DEBUG = false;
 /**
  * Turns on or off logging for ConformancePatternRules.
  */
-export function setDebug(state: boolean) {
+export function setDebug(state: boolean): void {
   DEBUG = state;
 }
 
 /**
  * Debug helper.
  */
-export function debugLog(msg: () => string) {
+export function debugLog(msg: () => string): void {
   if (DEBUG) {
     console.log(msg());
   }
@@ -68,7 +68,7 @@ function isOperandOfInstanceOf(n: ts.Node) {
  * Returns true if the pattern-based Rule should look at that node and consider
  * warning there.
  */
-export function shouldExamineNode(n: ts.Node) {
+export function shouldExamineNode(n: ts.Node): boolean {
   return !(
     (n.parent && ts.isTypeNode(n.parent)) ||
     isOperandOfInstanceOf(n) ||
@@ -115,7 +115,7 @@ export function dealias(
 /**
  * Returns whether `n`'s parents are something indicating a type.
  */
-export function isPartOfTypeDeclaration(n: ts.Node) {
+export function isPartOfTypeDeclaration(n: ts.Node): boolean {
   return [n, ...parents(n)].some(
     (p) =>
       p.kind === ts.SyntaxKind.TypeReference ||
@@ -168,7 +168,7 @@ export function isAllowlistedNamedDeclaration(
  * If verbose, logs the given error that happened while walking n, with a
  * stacktrace.
  */
-export function logASTWalkError(verbose: boolean, n: ts.Node, e: Error) {
+export function logASTWalkError(verbose: boolean, n: ts.Node, e: Error): void {
   let nodeText = `[error getting name for ${JSON.stringify(n)}]`;
   try {
     nodeText = '"' + n.getFullText().trim() + '"';
