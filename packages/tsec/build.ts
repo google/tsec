@@ -20,7 +20,7 @@ import {createDiagnosticsReporter} from './report';
 import {createProxy} from './utils';
 
 /** Check if tsec is invoked in the build mode. */
-export function isInBuildMode(cmdArgs: string[]) {
+export function isInBuildMode(cmdArgs: string[]): boolean {
   // --build or -b has to be the first argument
   if (cmdArgs.length && cmdArgs[0].charAt(0) === '-') {
     const optionStart = cmdArgs[0].charAt(1) === '-' ? 2 : 1;

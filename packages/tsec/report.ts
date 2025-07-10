@@ -27,7 +27,7 @@ export const FORMAT_DIAGNOSTIC_HOST: ts.FormatDiagnosticsHost = {
 const NEW_LINE = FORMAT_DIAGNOSTIC_HOST.getNewLine();
 
 /** Report the summary of error Diagnostic. */
-export function reportErrorSummary(errorCount: number) {
+export function reportErrorSummary(errorCount: number): void {
   if (errorCount > 0) {
     if (errorCount === 1) {
       ts.sys.write(`Found 1 error.${NEW_LINE}`);
@@ -70,6 +70,8 @@ export function createDiagnosticsReporter(
   let pretty =
     ts.sys.writeOutputIsTTY === undefined ? false : ts.sys.writeOutputIsTTY();
   if (options['pretty'] !== undefined) pretty = options['pretty'] as boolean;
-  return (diagnostics: readonly ts.Diagnostic[], withSummary: boolean) =>
-    reportDiagnostics(diagnostics, withSummary, pretty);
+  return (
+    diagnostics: readonly ts.Diagnostic[],
+    withSummary: boolean,
+  ): number => reportDiagnostics(diagnostics, withSummary, pretty);
 }
