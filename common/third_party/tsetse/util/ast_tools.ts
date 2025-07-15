@@ -95,7 +95,8 @@ export function isInStockLibraries(n: ts.Node | ts.SourceFile): boolean {
 
 /**
  * Turns the given Symbol into its non-aliased version (which could be itself).
- * Returns undefined if given an undefined Symbol (so you can call
+ * Returns undefined if unable to find the original un-aliased symbol or when
+ * given an undefined Symbol (so you can call
  * `dealias(typeChecker.getSymbolAtLocation(node))`).
  */
 export function dealias(
@@ -107,6 +108,12 @@ export function dealias(
   }
   if (symbol.getFlags() & ts.SymbolFlags.Alias) {
     // Note: something that has only TypeAlias is not acceptable here.
+    const aliasedSymbol = tc.getAliasedSymbol(symbol);
+    if (symbol === aliasedSymbol) {
+      // tc.getAliasedSymbol() traverses the alias chain. If we receive the same
+      // symbol back, it was unable to find the original symbol.
+      return undefined;
+    }
     return dealias(tc.getAliasedSymbol(symbol), tc);
   }
   return symbol;
