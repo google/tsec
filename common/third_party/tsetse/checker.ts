@@ -205,8 +205,7 @@ export class Checker {
       failureText,
       this.currentCode,
       source,
-      fixes ?? [],
-      relatedInformation,
+      {suggestedFixes: fixes ?? [], relatedInformation},
     );
 
     let filePath = this.currentSourceFile.fileName;

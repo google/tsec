@@ -9,6 +9,8 @@ import * as ts from 'typescript';
  * (3) There's an optional suggestedFixes field.
  */
 export class Failure {
+  private readonly suggestedFixes: Fix[];
+  private readonly relatedInformation?: ts.DiagnosticRelatedInformation[];
   constructor(
     private readonly sourceFile: ts.SourceFile,
     private readonly start: number,
@@ -20,9 +22,17 @@ export class Failure {
      * failure. Can be empty.
      */
     private readonly failureSource: string | undefined,
-    private readonly suggestedFixes: Fix[] = [],
-    private readonly relatedInformation?: ts.DiagnosticRelatedInformation[],
-  ) {}
+    options: {
+      suggestedFixes?: Fix[];
+      relatedInformation?: ts.DiagnosticRelatedInformation[];
+    } = {},
+  ) {
+    this.suggestedFixes = options?.suggestedFixes ?? [];
+    this.relatedInformation = options?.relatedInformation;
+    if (options?.relatedInformation) {
+      this.relatedInformation = options.relatedInformation;
+    }
+  }
 
   /**
    * This returns a structure compatible with ts.Diagnostic, but with added
