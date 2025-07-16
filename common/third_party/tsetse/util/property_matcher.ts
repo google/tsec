@@ -2,6 +2,17 @@ import * as ts from 'typescript';
 import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
 
 /**
+ * A matcher for property accesses. See LegacyPropertyMatcher and
+ * TypedPropertyMatcher for more details.
+ */
+export interface PropertyMatcher {
+  readonly bannedType: string;
+  readonly bannedProperty: string;
+  matches(n: ts.PropertyAccessExpression, tc: ts.TypeChecker): boolean;
+  typeMatches(inspectedType: ts.Type): boolean;
+}
+
+/**
  * This class matches a property access node, based on a property holder type
  * (through its name), i.e. a class, and a property name.
  *
@@ -14,11 +25,11 @@ import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
  * Note that the logic is different from TS's type system: this matcher doesn't
  * have any knowledge of structural typing.
  */
-export class PropertyMatcher {
-  static fromSpec(value: PatternDescriptor): PropertyMatcher {
+export class LegacyPropertyMatcher implements PropertyMatcher {
+  static fromSpec(value: PatternDescriptor): LegacyPropertyMatcher {
     if (!(value instanceof PropertyMatcherDescriptor)) {
       throw new Error(
-        `BANNED_PROPERTY expects a PropertyMatcherDescriptor, got ${typeof value}`,
+        `LegacyPropertyMatcher expects a PropertyMatcherDescriptor.`,
       );
     }
     if (value.spec.indexOf('.prototype.') === -1) {
@@ -30,7 +41,7 @@ export class PropertyMatcher {
       throw new Error('Cannot understand the BannedProperty spec' + value.spec);
     }
     const [bannedType, bannedProperty] = matches.slice(1);
-    return new PropertyMatcher(bannedType, bannedProperty);
+    return new LegacyPropertyMatcher(bannedType, bannedProperty);
   }
 
   constructor(
@@ -69,5 +80,38 @@ export class PropertyMatcher {
 
     const baseTypes = inspectedType.getBaseTypes() || [];
     return baseTypes.some((base) => this.typeMatches(base));
+  }
+}
+
+/**
+ * PropertyMatcher that reliers on the comparison of type instances of the base
+ * object and property name to match expressions.
+ * TODO(gweg): Implement this matcher.
+ */
+export class TypedPropertyMatcher implements PropertyMatcher {
+  static fromSpec(value: PatternDescriptor): TypedPropertyMatcher {
+    throw new Error('Not implemented yet');
+  }
+
+  constructor(
+    readonly bannedType: string,
+    readonly bannedProperty: string,
+  ) {}
+
+  /**
+   * @param n The PropertyAccessExpression we're looking at.
+   */
+  matches(n: ts.PropertyAccessExpression, tc: ts.TypeChecker) {
+    return (
+      n.name.text === this.bannedProperty &&
+      this.typeMatches(tc.getTypeAtLocation(n.expression))
+    );
+  }
+
+  /**
+   * Relies on the type checker to match the type.
+   */
+  typeMatches(inspectedType: ts.Type): boolean {
+    throw new Error('Not implemented yet');
   }
 }

@@ -49,6 +49,11 @@ export interface PatternEngineConfig {
    * `TrustedTypesConfig`.
    */
   allowedTrustedType?: TrustedTypesConfig;
+
+  /**
+   * Whether to use the typed property matcher instead of the type name based matcher.
+   */
+  useTypedPropertyMatcher?: boolean;
 }
 
 /**

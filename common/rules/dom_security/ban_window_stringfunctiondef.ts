@@ -34,7 +34,10 @@ import {
   GlobalMatcherDescriptor,
   PropertyMatcherDescriptor,
 } from '../../third_party/tsetse/util/pattern_config';
-import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
+import {
+  LegacyPropertyMatcher,
+  PropertyMatcher,
+} from '../../third_party/tsetse/util/property_matcher';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 import * as ts from 'typescript';
 
@@ -146,7 +149,7 @@ export class Rule extends AbstractRule {
   constructor(configuration: RuleConfiguration = {}) {
     super();
     this.nameMatchers = BANNED_NAMES.map((name) => new AbsoluteMatcher(name));
-    this.propMatchers = BANNED_PROPERTIES.map(PropertyMatcher.fromSpec);
+    this.propMatchers = BANNED_PROPERTIES.map(LegacyPropertyMatcher.fromSpec);
     if (configuration?.allowlistEntries) {
       this.allowlist = new Allowlist(configuration?.allowlistEntries);
     }

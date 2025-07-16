@@ -2,7 +2,12 @@ import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
 import {debugLog} from '../ast_tools';
-import {PropertyMatcher} from '../property_matcher';
+import {PropertyMatcherDescriptor} from '../pattern_config';
+import {
+  LegacyPropertyMatcher,
+  PropertyMatcher,
+  TypedPropertyMatcher,
+} from '../property_matcher';
 
 import {PatternEngine} from './pattern_engine';
 
@@ -24,7 +29,17 @@ export function matchProperty(
 export class PropertyEngine extends PatternEngine {
   protected registerWith(checker: Checker, matchNode: typeof matchProperty) {
     for (const value of this.config.values) {
-      const matcher = PropertyMatcher.fromSpec(value);
+      let matcher: PropertyMatcher;
+      if (!(value instanceof PropertyMatcherDescriptor)) {
+        throw new Error(
+          `PropertyEngine (through BANNED_PROPERTY) requires a PropertyMatcherDescriptor.`,
+        );
+      }
+      if (this.config.useTypedPropertyMatcher) {
+        matcher = TypedPropertyMatcher.fromSpec(value);
+      } else {
+        matcher = LegacyPropertyMatcher.fromSpec(value);
+      }
       checker.onNamedPropertyAccess(
         matcher.bannedProperty,
         this.wrapCheckWithAllowlistingAndFixer((tc, n) =>

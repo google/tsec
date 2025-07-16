@@ -19,7 +19,10 @@ import {AbstractRule} from '../../third_party/tsetse/rule';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isLiteral} from '../../third_party/tsetse/util/is_literal';
 import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
-import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
+import {
+  LegacyPropertyMatcher,
+  PropertyMatcher,
+} from '../../third_party/tsetse/util/property_matcher';
 import * as ts from 'typescript';
 
 import {RuleConfiguration} from '../../rule_configuration';
@@ -67,7 +70,7 @@ export class Rule extends AbstractRule {
 
   constructor(configuration: RuleConfiguration = {}) {
     super();
-    this.propMatcher = PropertyMatcher.fromSpec(
+    this.propMatcher = LegacyPropertyMatcher.fromSpec(
       new PropertyMatcherDescriptor('Document.prototype.execCommand'),
     );
     if (configuration.allowlistEntries) {
