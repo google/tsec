@@ -9,14 +9,12 @@
     "clean": "yarn rimraf ./lib"
   },
   "dependencies": {
-    "@types/glob": "^7.1.1",
-    "@types/minimatch": "^3.0.3",
+    "glob": "^11.0.3",
     "@typescript-eslint/utils": "^5.20.0"
   },
   "devDependencies": {
-    "@types/glob": "^7.1.1",
     "@types/node": "^24.0.1",
-    "symlink-dir": "5.0.1",
+    "symlink-dir": "6.0.5",
     "typescript": "^5.8.3"
   },
   "peerDependencies": {

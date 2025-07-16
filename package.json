@@ -6,8 +6,15 @@
   "scripts": {
     "build": "yarn workspace tsec build",
     "test:update-golden": "yarn --silent ts-node test/harness.ts > test/golden.json",
-    "test": "yarn jasmine-ts --config=jasmine.json",
-    "test:coverage": "yarn nyc -e .ts -x \"test/*.ts\" jasmine-ts --config=jasmine.json"
+    "test": "yarn exec jasmine"
   },
+  "devDependencies": {
+    "@types/jasmine": "^5.1.4",
+    "jasmine": "^5.1.0",
+    "ts-node": "^10.9.2"
+  },
+   "overrides": {
+    "glob": "11.0.3"
+   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
