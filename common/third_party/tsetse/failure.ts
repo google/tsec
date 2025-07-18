@@ -124,6 +124,17 @@ export class Failure {
     return this.silenceInformation;
   }
 
+  /**
+   * Returns a key that represents the source location for this failure.
+   */
+  getLocationKey(): string {
+    return `${this.sourceFile.fileName}:${this.start}:${this.end}`;
+  }
+
+  getConfidence(): Confidence {
+    return this.confidence;
+  }
+
   /***
    * Stringifies an array of `suggestedFixes` for this failure. This is just a
    * heuristic and should be used in systems which do not support fixers
@@ -315,4 +326,74 @@ export function fixToString(f?: Fix) {
     ) +
     '}'
   );
+}
+
+/**
+ * Find Failures that are duplicates for the same location and mark the less
+ * confident ones as silenced.
+ * Failures are grouped by location, represented by their file name, start and
+ * end offsets.
+ * For each location, if several failures are present, the following logic is
+ * applied:
+ * - Failures with no confidence information take precedence.
+ * - Failures are sorted by confidence level, from highest to lowest. The ones
+ *   with the highest confidence level are kept.
+ */
+export function silenceLessConfidentDuplicates(failures: Failure[]): Failure[] {
+  const newlySilencedFailures: Failure[] = [];
+  const byLocation = new Map<
+    string,
+    {confidence: Confidence; failures: Failure[]}
+  >();
+  // First pass to get the most accurate confidence for each location.
+  for (const f of failures) {
+    const locationKey = f.getLocationKey();
+
+    const atLocation = byLocation.get(locationKey);
+    const confidence = f.getConfidence();
+    if (atLocation === undefined) {
+      byLocation.set(locationKey, {confidence, failures: [f]});
+    } else {
+      if (confidence > atLocation.confidence) {
+        // Mark all previous less confident failures at this location as
+        // silenced.
+        for (const f of atLocation.failures) {
+          f.addSilenceInformation({reason: 'LESS_CONFIDENT_DUPLICATE'});
+          newlySilencedFailures.push(f);
+        }
+        byLocation.set(locationKey, {confidence, failures: [f]});
+      } else if (confidence === atLocation.confidence) {
+        atLocation.failures.push(f);
+      } else {
+        f.addSilenceInformation({reason: 'LESS_CONFIDENT_DUPLICATE'});
+        newlySilencedFailures.push(f);
+      }
+    }
+  }
+  const allFailures: Failure[] = [];
+  for (const failureAtLocation of byLocation.values()) {
+    failureAtLocation.failures.forEach((f) => {
+      allFailures.push(f);
+    });
+  }
+  allFailures.push(...newlySilencedFailures);
+  return allFailures;
+}
+
+/**
+ * Finds Failures that have the same message and marks them as silenced.
+ */
+export function silenceDuplicateFailureMessages(
+  failures: Failure[],
+): Failure[] {
+  const seen = new Set<string>();
+  for (const f of failures) {
+    const stringified = f.toString();
+    if (!seen.has(stringified)) {
+      seen.add(stringified);
+    } else {
+      f.addSilenceInformation({reason: 'DUPLICATE_MESSAGE'});
+    }
+  }
+  return failures;
 }

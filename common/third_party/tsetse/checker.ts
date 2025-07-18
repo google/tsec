@@ -6,7 +6,12 @@
 import * as ts from 'typescript';
 
 import {Allowlist} from './allowlist';
-import {Failure, Fix} from './failure';
+import {
+  Failure,
+  Fix,
+  silenceDuplicateFailureMessages,
+  silenceLessConfidentDuplicates,
+} from './failure';
 
 /**
  * A Handler contains a handler function and its corresponding error code so
@@ -54,7 +59,6 @@ export class Checker {
   >();
 
   private failures: Failure[] = [];
-  private exemptedFailures: Failure[] = [];
 
   private currentSourceFile: ts.SourceFile | undefined;
   // currentCode will be set before invoking any handler functions so the value
@@ -215,9 +219,7 @@ export class Checker {
           : undefined,
       },
     );
-    (isFailureAllowlisted ? this.exemptedFailures : this.failures).push(
-      failure,
-    );
+    this.failures.push(failure);
   }
 
   addFailureAtNode(
@@ -318,10 +320,10 @@ export class Checker {
    * are any.
    *
    * Callers of this function can request that the checker report violations
-   * that have been silenced because they are allowlisted (WIP: or duplicate,
-   * or too low sensitivity), by setting the `reportSilencedViolations`
-   * parameter to `true`. The function will return an object that contains both
-   * the silenced and regular failures.
+   * that have been silenced because they are allowlisted, duplicate, or too
+   * low sensitivity, by setting the `reportSilencedViolations` parameter to
+   * `true`. The function will return an object that contains both the silenced
+   * and regular failures.
    */
   execute(sourceFile: ts.SourceFile): Failure[];
   execute(
@@ -339,13 +341,9 @@ export class Checker {
     const thisChecker = this;
     this.currentSourceFile = sourceFile;
     this.failures = [];
-    this.exemptedFailures = [];
     run(sourceFile);
-    // TODO: b/422727866 - Implement the triage logic. Silenced includes
-    // exempted, duplicate and too low sensitivity failures.
-    return reportSilencedViolations
-      ? {failures: this.failures, silencedFailures: this.exemptedFailures}
-      : this.failures;
+    const {failures, silencedFailures} = triageFailures(this.failures);
+    return reportSilencedViolations ? {failures, silencedFailures} : failures;
 
     function run(node: ts.Node) {
       // Dispatch handlers registered via `on`
@@ -373,3 +371,27 @@ export class Checker {
     );
   }
 }
+
+function triageFailures(failures: Failure[]): {
+  failures: Failure[];
+  silencedFailures: Failure[];
+} {
+  const updatedFailures = silenceDuplicateFailureMessages(
+    silenceLessConfidentDuplicates(failures),
+  );
+  const silencedFailures: Failure[] = [];
+  const nonSilencedFailures: Failure[] = [];
+  for (const f of updatedFailures) {
+    if (f.isSilenced()) {
+      silencedFailures.push(f);
+    } else {
+      nonSilencedFailures.push(f);
+    }
+  }
+  return {failures: nonSilencedFailures, silencedFailures};
+}
+
+/** Test only exports for testing the triageFailures function. */
+export const TEST_ONLY = {
+  triageFailures,
+};

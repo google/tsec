@@ -63,8 +63,10 @@ export const trustedTypesChecks: unknown = createRule({
         const tsRootNode = parserServices.esTreeNodeToTSNodeMap.get(node);
 
         // Run all enabled checks
-        const {failures} = checker.execute(tsRootNode, true);
-
+        const failures = checker.execute(
+          tsRootNode,
+          /*reportSilencedViolations*/ false,
+        );
         // Report the detected errors
         for (const failure of failures) {
           const diagnostic = failure.toDiagnostic();
