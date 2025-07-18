@@ -1,4 +1,15 @@
 import * as ts from 'typescript';
+import {Confidence} from './util/confidence';
+
+type SilenceReason =
+  | 'EXEMPTED' // For Failures that have been exempted through an allowlist
+  | 'LESS_CONFIDENT_DUPLICATE' // For Failures that have same source location but one is has a lower confidence
+  | 'DUPLICATE_MESSAGE' // For Failures that have same source location and message
+  | 'CONFIDENCE_TOO_LOW'; // For Failures that have a confidence under the configured Checker's threshold
+
+interface SilenceInformation {
+  reason: SilenceReason;
+}
 
 /**
  * A Tsetse check Failure is almost identical to a Diagnostic from TypeScript
@@ -7,10 +18,17 @@ import * as ts from 'typescript';
  * (2) The optional `source` property is set to `Tsetse` so the host (VS Code
  * for instance) would use that to indicate where the error comes from.
  * (3) There's an optional suggestedFixes field.
+ * (4) There's an optional relatedInformation field.
+ * (5) There's an optional silenceInformation field.
+ * (6) There's an optional confidence field.
  */
 export class Failure {
   private readonly suggestedFixes: Fix[];
   private readonly relatedInformation?: ts.DiagnosticRelatedInformation[];
+  // `undefined` if the failure is not silenced. If the failure is silenced, it
+  // will have at least one silence reason.
+  private silenceInformation: SilenceInformation[] | undefined;
+  private readonly confidence: Confidence;
   constructor(
     private readonly sourceFile: ts.SourceFile,
     private readonly start: number,
@@ -25,6 +43,8 @@ export class Failure {
     options: {
       suggestedFixes?: Fix[];
       relatedInformation?: ts.DiagnosticRelatedInformation[];
+      silenceInformation?: SilenceInformation[] | undefined;
+      confidence?: Confidence;
     } = {},
   ) {
     this.suggestedFixes = options?.suggestedFixes ?? [];
@@ -32,6 +52,8 @@ export class Failure {
     if (options?.relatedInformation) {
       this.relatedInformation = options.relatedInformation;
     }
+    this.silenceInformation = options?.silenceInformation;
+    this.confidence = options?.confidence || Confidence.NA_CONFIDENCE;
   }
 
   /**
@@ -84,6 +106,22 @@ export class Failure {
     }, end:${this.end}, source:${this.failureSource}, fixes:${JSON.stringify(
       this.suggestedFixes.map((fix) => fixToString(fix)),
     )} }`;
+  }
+
+  addSilenceInformation(info: SilenceInformation): void {
+    if (this.silenceInformation === undefined) {
+      this.silenceInformation = [info];
+      return;
+    }
+    this.silenceInformation.push(info);
+  }
+
+  isSilenced(): boolean {
+    return this.silenceInformation !== undefined;
+  }
+
+  getSilenceReasons(): SilenceInformation[] | undefined {
+    return this.silenceInformation;
   }
 
   /***
@@ -173,6 +211,19 @@ export class Failure {
         .substring(from, to)
         .replace(/\n/g, '\\n')}'`;
     }
+  }
+
+  // TODO: b/422727866 - This can be better implemented if exempted is a
+  // separate field from the silenceInformation array.
+  /**
+   * Returns true if the failure is silenced only because it is exempted, but
+   * not because it's a duplicate or is too low confidence.
+   */
+  isSilencedJustBecauseExempted(): boolean {
+    return (
+      this.silenceInformation !== undefined &&
+      this.silenceInformation.every((s) => s.reason === 'EXEMPTED')
+    );
   }
 }
 

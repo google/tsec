@@ -198,6 +198,8 @@ export class Checker {
       );
     }
 
+    let filePath = this.currentSourceFile.fileName;
+    const isFailureAllowlisted = allowlist?.isAllowlisted(filePath);
     const failure = new Failure(
       this.currentSourceFile,
       start,
@@ -205,16 +207,17 @@ export class Checker {
       failureText,
       this.currentCode,
       source,
-      {suggestedFixes: fixes ?? [], relatedInformation},
+      {
+        suggestedFixes: fixes ?? [],
+        relatedInformation,
+        silenceInformation: isFailureAllowlisted
+          ? [{reason: 'EXEMPTED'}]
+          : undefined,
+      },
     );
-
-    let filePath = this.currentSourceFile.fileName;
-    const isFailureAllowlisted = allowlist?.isAllowlisted(filePath);
-    const failures = isFailureAllowlisted
-      ? this.exemptedFailures
-      : this.failures;
-
-    failures.push(failure);
+    (isFailureAllowlisted ? this.exemptedFailures : this.failures).push(
+      failure,
+    );
   }
 
   addFailureAtNode(
