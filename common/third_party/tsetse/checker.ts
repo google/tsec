@@ -315,30 +315,33 @@ export class Checker {
    * are any.
    *
    * Callers of this function can request that the checker report violations
-   * that have been exempted by an allowlist by setting the
-   * `reportExemptedViolations` parameter to `true`. The function will return an
-   * object that contains both the exempted and unexempted failures.
+   * that have been silenced because they are allowlisted (WIP: or duplicate,
+   * or too low sensitivity), by setting the `reportSilencedViolations`
+   * parameter to `true`. The function will return an object that contains both
+   * the silenced and regular failures.
    */
   execute(sourceFile: ts.SourceFile): Failure[];
   execute(
     sourceFile: ts.SourceFile,
-    reportExemptedViolations: false,
+    reportSilencedViolations: false,
   ): Failure[];
   execute(
     sourceFile: ts.SourceFile,
-    reportExemptedViolations: true,
-  ): {failures: Failure[]; exemptedFailures: Failure[]};
+    reportSilencedViolations: true,
+  ): {failures: Failure[]; silencedFailures: Failure[]};
   execute(
     sourceFile: ts.SourceFile,
-    reportExemptedViolations = false,
-  ): Failure[] | {failures: Failure[]; exemptedFailures: Failure[]} {
+    reportSilencedViolations = false,
+  ): Failure[] | {failures: Failure[]; silencedFailures: Failure[]} {
     const thisChecker = this;
     this.currentSourceFile = sourceFile;
     this.failures = [];
     this.exemptedFailures = [];
     run(sourceFile);
-    return reportExemptedViolations
-      ? {failures: this.failures, exemptedFailures: this.exemptedFailures}
+    // TODO: b/422727866 - Implement the triage logic. Silenced includes
+    // exempted, duplicate and too low sensitivity failures.
+    return reportSilencedViolations
+      ? {failures: this.failures, silencedFailures: this.exemptedFailures}
       : this.failures;
 
     function run(node: ts.Node) {
