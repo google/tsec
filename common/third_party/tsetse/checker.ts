@@ -12,6 +12,7 @@ import {
   silenceDuplicateFailureMessages,
   silenceLessConfidentDuplicates,
 } from './failure';
+import {Confidence} from './util/confidence';
 
 /**
  * A Handler contains a handler function and its corresponding error code so
@@ -70,9 +71,17 @@ export class Checker {
   /** Allow typed rules via typeChecker. */
   typeChecker: ts.TypeChecker;
 
+  /**
+   * @param program The program to check.
+   * @param host The module resolution host to use for the program.
+   * @param confidenceThreshold The confidence threshold to use for the
+   *     failures. All failures with a confidence below this threshold will be
+   *     silenced.
+   */
   constructor(
     program: ts.Program,
     private readonly host: ts.ModuleResolutionHost,
+    private readonly confidenceThreshold: Confidence = Confidence.HIGH_CONFIDENCE_EXTENDS,
   ) {
     // Avoid the cost for each rule to create a new TypeChecker.
     this.typeChecker = program.getTypeChecker();
@@ -342,7 +351,10 @@ export class Checker {
     this.currentSourceFile = sourceFile;
     this.failures = [];
     run(sourceFile);
-    const {failures, silencedFailures} = triageFailures(this.failures);
+    const {failures, silencedFailures} = triageFailures(
+      this.failures,
+      this.confidenceThreshold,
+    );
     return reportSilencedViolations ? {failures, silencedFailures} : failures;
 
     function run(node: ts.Node) {
@@ -372,13 +384,19 @@ export class Checker {
   }
 }
 
-function triageFailures(failures: Failure[]): {
-  failures: Failure[];
-  silencedFailures: Failure[];
-} {
+function triageFailures(
+  failures: Failure[],
+  confidenceThreshold: Confidence,
+): {failures: Failure[]; silencedFailures: Failure[]} {
   const updatedFailures = silenceDuplicateFailureMessages(
     silenceLessConfidentDuplicates(failures),
   );
+  // Silence failures that are below the confidence threshold.
+  updatedFailures.forEach((f) => {
+    if (f.getConfidence() < confidenceThreshold) {
+      f.addSilenceInformation({reason: 'CONFIDENCE_TOO_LOW'});
+    }
+  });
   const silencedFailures: Failure[] = [];
   const nonSilencedFailures: Failure[] = [];
   for (const f of updatedFailures) {
