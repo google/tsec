@@ -1,7 +1,6 @@
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
-import {debugLog} from '../ast_tools';
 import {PropertyMatcherDescriptor} from '../pattern_config';
 import {
   LegacyPropertyMatcher,
@@ -9,6 +8,7 @@ import {
   TypedPropertyMatcher,
 } from '../property_matcher';
 
+import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
 import {PatternEngine} from './pattern_engine';
 
 /** Match an AST node with a property matcher. */
@@ -16,10 +16,13 @@ export function matchProperty(
   tc: ts.TypeChecker,
   n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
   matcher: PropertyMatcher,
-): ts.Node | undefined {
-  debugLog(() => `inspecting ${n.getText().trim()}`);
+): Match<ts.Node> | undefined {
   if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression))) return;
-  return n;
+  return {
+    node: n,
+    typeMatch: TypeMatchConfidence.EXACT,
+    nameMatch: NameMatchConfidence.EXACT,
+  };
 }
 
 /**

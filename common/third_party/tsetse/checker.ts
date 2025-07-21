@@ -199,6 +199,7 @@ export class Checker {
     allowlist: Allowlist | undefined,
     fixes?: Fix[],
     relatedInformation?: ts.DiagnosticRelatedInformation[],
+    confidence?: Confidence,
   ) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
@@ -238,6 +239,7 @@ export class Checker {
     allowlist: Allowlist | undefined,
     fixes?: Fix[],
     relatedInformation?: ts.DiagnosticRelatedInformation[],
+    confidence?: Confidence,
   ) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
@@ -249,6 +251,7 @@ export class Checker {
       allowlist,
       fixes,
       relatedInformation,
+      confidence,
     );
   }
 

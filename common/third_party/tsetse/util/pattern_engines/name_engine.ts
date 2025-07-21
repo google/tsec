@@ -5,6 +5,7 @@ import {AbsoluteMatcher, Scope} from '../absolute_matcher';
 import {isExpressionOfAllowedTrustedType} from '../is_trusted_type';
 import {TrustedTypesConfig} from '../trusted_types_configuration';
 
+import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
 import {PatternEngine} from './pattern_engine';
 
 function isCalledWithAllowedTrustedType(
@@ -45,13 +46,17 @@ function checkIdentifierNode(
   n: ts.Identifier,
   matcher: AbsoluteMatcher,
   allowedTrustedType: TrustedTypesConfig | undefined,
-): ts.Node | undefined {
+): Match<ts.Node> | undefined {
   const wholeExp = ts.isPropertyAccessExpression(n.parent) ? n.parent : n;
   if (isPolyfill(wholeExp, matcher)) return;
   if (!matcher.matches(n, tc)) return;
   if (isCalledWithAllowedTrustedType(tc, n, allowedTrustedType)) return;
 
-  return wholeExp;
+  return {
+    node: wholeExp,
+    typeMatch: TypeMatchConfidence.EXACT,
+    nameMatch: NameMatchConfidence.EXACT,
+  };
 }
 
 function checkElementAccessNode(
@@ -59,12 +64,16 @@ function checkElementAccessNode(
   n: ts.ElementAccessExpression,
   matcher: AbsoluteMatcher,
   allowedTrustedType: TrustedTypesConfig | undefined,
-): ts.Node | undefined {
+): Match<ts.Node> | undefined {
   if (isPolyfill(n, matcher)) return;
   if (!matcher.matches(n.argumentExpression, tc)) return;
   if (isCalledWithAllowedTrustedType(tc, n, allowedTrustedType)) return;
 
-  return n;
+  return {
+    node: n,
+    typeMatch: TypeMatchConfidence.EXACT,
+    nameMatch: NameMatchConfidence.EXACT,
+  };
 }
 
 /** Engine for the BANNED_NAME pattern */
