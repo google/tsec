@@ -5,7 +5,7 @@ import {debugLog} from '../ast_tools';
 import {isLiteral} from '../is_literal';
 import {PropertyMatcher} from '../property_matcher';
 
-import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
+import {Match} from './match';
 import {matchPropertyWrite, PropertyWriteEngine} from './property_write_engine';
 
 function matchPropertyNonConstantWrite(
@@ -14,7 +14,8 @@ function matchPropertyNonConstantWrite(
   matcher: PropertyMatcher,
 ): Match<ts.Node> | undefined {
   debugLog(() => `inspecting ${n.getFullText().trim()}`);
-  if (matchPropertyWrite(tc, n, matcher) === undefined) {
+  const match = matchPropertyWrite(tc, n, matcher);
+  if (match === undefined) {
     return;
   }
   const rval = (n.parent as ts.BinaryExpression).right;
@@ -27,8 +28,8 @@ function matchPropertyNonConstantWrite(
   }
   return {
     node: n.parent,
-    typeMatch: TypeMatchConfidence.EXACT,
-    nameMatch: NameMatchConfidence.EXACT,
+    typeMatch: match.typeMatch,
+    nameMatch: match.nameMatch,
   };
 }
 

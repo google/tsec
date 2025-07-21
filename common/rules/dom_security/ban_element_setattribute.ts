@@ -139,7 +139,7 @@ export abstract class BanSetAttributeRule extends AbstractRule {
       return undefined;
     }
 
-    if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression))) {
+    if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc)) {
       // Allowed: it is a different type.
       return undefined;
     }

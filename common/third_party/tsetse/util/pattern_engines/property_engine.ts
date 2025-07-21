@@ -8,7 +8,7 @@ import {
   TypedPropertyMatcher,
 } from '../property_matcher';
 
-import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
+import {Match, NameMatchConfidence} from './match';
 import {PatternEngine} from './pattern_engine';
 
 /** Match an AST node with a property matcher. */
@@ -17,10 +17,11 @@ export function matchProperty(
   n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
   matcher: PropertyMatcher,
 ): Match<ts.Node> | undefined {
-  if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression))) return;
+  const typeMatch = matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc);
+  if (typeMatch === false) return;
   return {
     node: n,
-    typeMatch: TypeMatchConfidence.EXACT,
+    typeMatch,
     nameMatch: NameMatchConfidence.EXACT,
   };
 }

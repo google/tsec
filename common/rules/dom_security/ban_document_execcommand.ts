@@ -36,7 +36,7 @@ function matchNode(
   matcher: PropertyMatcher,
 ) {
   if (!shouldExamineNode(n)) return;
-  if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression))) return;
+  if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc)) return;
 
   // Check if the matched node is a call to `execCommand` and if the command
   // name is a literal. We will skip matching if the command name is not in

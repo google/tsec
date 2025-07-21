@@ -1,5 +1,10 @@
 import * as ts from 'typescript';
 import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
+import {
+  Match,
+  NameMatchConfidence,
+  TypeMatchConfidence,
+} from './pattern_engines/match';
 
 /**
  * A matcher for property accesses. See LegacyPropertyMatcher and
@@ -8,8 +13,14 @@ import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
 export interface PropertyMatcher {
   readonly bannedType: string;
   readonly bannedProperty: string;
-  matches(n: ts.PropertyAccessExpression, tc: ts.TypeChecker): boolean;
-  typeMatches(inspectedType: ts.Type): boolean;
+  matches(
+    n: ts.PropertyAccessExpression,
+    tc: ts.TypeChecker,
+  ): Match<ts.PropertyAccessExpression> | undefined;
+  typeMatches(
+    inspectedType: ts.Type,
+    tc: ts.TypeChecker,
+  ): TypeMatchConfidence | false;
 }
 
 /**
@@ -52,34 +63,59 @@ export class LegacyPropertyMatcher implements PropertyMatcher {
   /**
    * @param n The PropertyAccessExpression we're looking at.
    */
-  matches(n: ts.PropertyAccessExpression, tc: ts.TypeChecker) {
-    return (
-      n.name.text === this.bannedProperty &&
-      this.typeMatches(tc.getTypeAtLocation(n.expression))
-    );
+  matches(
+    n: ts.PropertyAccessExpression,
+    tc: ts.TypeChecker,
+  ): Match<ts.PropertyAccessExpression> | undefined {
+    if (n.name.text === this.bannedProperty) {
+      const typeMatchConfidence = this.typeMatches(
+        tc.getTypeAtLocation(n.expression),
+        tc,
+      );
+      if (typeMatchConfidence !== false) {
+        return {
+          node: n,
+          typeMatch: typeMatchConfidence,
+          nameMatch: NameMatchConfidence.EXACT,
+        };
+      }
+    }
+    return undefined;
   }
 
   /**
    * Match types recursively in the lattice. This function over-approximates
    * the result by considering union types and intersection types as the same.
    */
-  typeMatches(inspectedType: ts.Type): boolean {
+  typeMatches(
+    inspectedType: ts.Type,
+    tc: ts.TypeChecker,
+  ): TypeMatchConfidence.LEGACY_MATCH | false {
     // Skip checking mocked objects
     if (inspectedType.aliasSymbol?.escapedName === 'SpyObj') return false;
 
     // Exact type match
     if (inspectedType.getSymbol()?.getName() === this.bannedType) {
-      return true;
+      return TypeMatchConfidence.LEGACY_MATCH;
     }
 
     // If the type is an intersection/union, check if any of the component
     // matches
     if (inspectedType.isUnionOrIntersection()) {
-      return inspectedType.types.some((comp) => this.typeMatches(comp));
+      return inspectedType.types.some(
+        (comp) =>
+          this.typeMatches(comp, tc) === TypeMatchConfidence.LEGACY_MATCH,
+      )
+        ? TypeMatchConfidence.LEGACY_MATCH
+        : false;
     }
 
     const baseTypes = inspectedType.getBaseTypes() || [];
-    return baseTypes.some((base) => this.typeMatches(base));
+    return baseTypes.some(
+      (base) => this.typeMatches(base, tc) === TypeMatchConfidence.LEGACY_MATCH,
+    )
+      ? TypeMatchConfidence.LEGACY_MATCH
+      : false;
   }
 }
 
@@ -101,17 +137,17 @@ export class TypedPropertyMatcher implements PropertyMatcher {
   /**
    * @param n The PropertyAccessExpression we're looking at.
    */
-  matches(n: ts.PropertyAccessExpression, tc: ts.TypeChecker) {
-    return (
-      n.name.text === this.bannedProperty &&
-      this.typeMatches(tc.getTypeAtLocation(n.expression))
-    );
+  matches(
+    n: ts.PropertyAccessExpression,
+    tc: ts.TypeChecker,
+  ): Match<ts.PropertyAccessExpression> | undefined {
+    throw new Error('Not implemented yet');
   }
 
   /**
    * Relies on the type checker to match the type.
    */
-  typeMatches(inspectedType: ts.Type): boolean {
+  typeMatches(inspectedType: ts.Type, tc: ts.TypeChecker): TypeMatchConfidence {
     throw new Error('Not implemented yet');
   }
 }

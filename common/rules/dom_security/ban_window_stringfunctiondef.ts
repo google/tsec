@@ -35,6 +35,10 @@ import {
   PropertyMatcherDescriptor,
 } from '../../third_party/tsetse/util/pattern_config';
 import {
+  Match,
+  NameMatchConfidence,
+} from '../../third_party/tsetse/util/pattern_engines/match';
+import {
   LegacyPropertyMatcher,
   PropertyMatcher,
 } from '../../third_party/tsetse/util/property_matcher';
@@ -94,11 +98,24 @@ function isBannedStringLiteralAccess(
   propMatcher: PropertyMatcher,
 ) {
   const argExp = n.argumentExpression;
-  return (
-    propMatcher.typeMatches(tc.getTypeAtLocation(n.expression)) &&
+  if (
     ts.isStringLiteralLike(argExp) &&
     argExp.text === propMatcher.bannedProperty
-  );
+  ) {
+    const typeMatch = propMatcher.typeMatches(
+      tc.getTypeAtLocation(n.expression),
+      tc,
+    );
+    if (typeMatch === false) {
+      return;
+    }
+    return {
+      node: n,
+      typeMatch,
+      nameMatch: NameMatchConfidence.EXACT,
+    };
+  }
+  return;
 }
 
 /**
@@ -114,7 +131,7 @@ type NodeMatcher<T extends ts.Node> = T extends ts.Identifier
           matches: (
             n: ts.ElementAccessExpression,
             tc: ts.TypeChecker,
-          ) => boolean;
+          ) => Match<ts.ElementAccessExpression> | undefined;
         }
       : {matches: (n: ts.Node, tc: ts.TypeChecker) => never};
 

@@ -6,7 +6,7 @@ import {isExpressionOfAllowedTrustedType} from '../is_trusted_type';
 import {PropertyMatcher} from '../property_matcher';
 import {TrustedTypesConfig} from '../trusted_types_configuration';
 
-import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
+import {Match} from './match';
 import {matchProperty, PropertyEngine} from './property_engine';
 
 /** Test if an AST node is a matched property write. */
@@ -16,8 +16,8 @@ export function matchPropertyWrite(
   matcher: PropertyMatcher,
 ): Match<ts.BinaryExpression> | undefined {
   debugLog(() => `inspecting ${n.parent.getText().trim()}`);
-
-  if (matchProperty(tc, n, matcher) === undefined) return;
+  const match = matchProperty(tc, n, matcher);
+  if (match === undefined) return;
 
   const assignment = n.parent;
 
@@ -34,8 +34,8 @@ export function matchPropertyWrite(
 
   return {
     node: assignment,
-    typeMatch: TypeMatchConfidence.EXACT,
-    nameMatch: NameMatchConfidence.EXACT,
+    typeMatch: match.typeMatch,
+    nameMatch: match.nameMatch,
   };
 }
 
@@ -53,17 +53,17 @@ function allowTrustedExpressionOnMatchedProperty(
   n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
   matcher: PropertyMatcher,
 ): Match<ts.BinaryExpression> | undefined {
-  const assignment = matchPropertyWrite(tc, n, matcher);
-  if (!assignment) return;
+  const match = matchPropertyWrite(tc, n, matcher);
+  if (match === undefined) return;
 
   if (
     allowedType &&
-    isExpressionOfAllowedTrustedType(tc, assignment.node.right, allowedType)
+    isExpressionOfAllowedTrustedType(tc, match.node.right, allowedType)
   ) {
     return;
   }
 
-  return assignment;
+  return match;
 }
 
 /**
