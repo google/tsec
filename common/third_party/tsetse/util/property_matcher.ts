@@ -120,13 +120,28 @@ export class LegacyPropertyMatcher implements PropertyMatcher {
 }
 
 /**
- * PropertyMatcher that reliers on the comparison of type instances of the base
+ * PropertyMatcher that relies on the comparison of type instances of the base
  * object and property name to match expressions.
- * TODO(gweg): Implement this matcher.
  */
 export class TypedPropertyMatcher implements PropertyMatcher {
+  private bannedTypeCache: ts.Type | undefined = undefined;
+
   static fromSpec(value: PatternDescriptor): TypedPropertyMatcher {
-    throw new Error('Not implemented yet');
+    if (!(value instanceof PropertyMatcherDescriptor)) {
+      throw new Error(
+        `TypedPropertyMatcher expects a PropertyMatcherDescriptor, got ${typeof value}`,
+      );
+    }
+    if (value.spec.indexOf('.prototype.') === -1) {
+      throw new Error(`BANNED_PROPERTY expects a .prototype in your query.`);
+    }
+    const requestParser = /^([\w\d_.-]+)\.prototype\.([\w\d_.-]+)$/;
+    const matches = requestParser.exec(value.spec);
+    if (!matches) {
+      throw new Error('Cannot understand the BannedProperty spec' + value.spec);
+    }
+    const [bannedType, bannedProperty] = matches.slice(1);
+    return new TypedPropertyMatcher(bannedType, bannedProperty);
   }
 
   constructor(
@@ -141,13 +156,97 @@ export class TypedPropertyMatcher implements PropertyMatcher {
     n: ts.PropertyAccessExpression,
     tc: ts.TypeChecker,
   ): Match<ts.PropertyAccessExpression> | undefined {
-    throw new Error('Not implemented yet');
+    if (n.name.text === this.bannedProperty) {
+      return {
+        node: n,
+        typeMatch: this.typeMatches(tc.getTypeAtLocation(n.expression), tc),
+        nameMatch: NameMatchConfidence.EXACT,
+      };
+    }
+    return undefined;
   }
 
   /**
    * Relies on the type checker to match the type.
    */
   typeMatches(inspectedType: ts.Type, tc: ts.TypeChecker): TypeMatchConfidence {
-    throw new Error('Not implemented yet');
+    const matcherType = (this.bannedTypeCache ??= resolveTypeFromName(
+      tc,
+      this.bannedType,
+    ));
+    if (isAnyType(inspectedType) || isUnknownType(inspectedType)) {
+      return TypeMatchConfidence.ANY_UNKNOWN;
+    }
+
+    if (inspectedType.getSymbol() === matcherType.getSymbol()) {
+      return TypeMatchConfidence.EXACT;
+    }
+
+    // If the type is an intersection/union, check if any of the component
+    // matches. In particular this handles cases with optional properties. Example:
+    // Comparing a matcher for `TrustedTypePolicyFactory`, window is types as
+    // `{TrustedTypes?: TrustedTypePolicyFactory;}` which is a union of
+    // `undefined` and `TrustedTypePolicyFactory`. A property access of
+    // window.TrustedTypes should be considered a match.
+    if (inspectedType.isUnionOrIntersection()) {
+      const typeMatches = inspectedType.types.map((t) =>
+        this.typeMatches(t, tc),
+      );
+      if (typeMatches.includes(TypeMatchConfidence.EXACT)) {
+        return TypeMatchConfidence.EXACT;
+      }
+      if (typeMatches.includes(TypeMatchConfidence.EXTENDS)) {
+        return TypeMatchConfidence.EXTENDS;
+      }
+    }
+
+    if (tc.isTypeAssignableTo(inspectedType, matcherType)) {
+      return TypeMatchConfidence.EXTENDS;
+    }
+
+    if (tc.isTypeAssignableTo(matcherType, inspectedType)) {
+      return TypeMatchConfidence.PARENT;
+    }
+    return TypeMatchConfidence.UNRELATED;
   }
+}
+
+function isUnknownType(type: ts.Type): boolean {
+  return (type.flags & ts.TypeFlags.Unknown) !== 0;
+}
+
+function isAnyType(type: ts.Type): boolean {
+  return (type.flags & ts.TypeFlags.Any) !== 0;
+}
+
+/**
+ * Resolves a TypeScript type from its name (e.g., "HTMLElement", "Element").
+ * Handles the case where the symbol might represent a constructor rather than
+ * an instance type
+ */
+function resolveTypeFromName(
+  checker: ts.TypeChecker,
+  typeName: string,
+): ts.Type {
+  const symbol = checker.resolveName(
+    typeName,
+    /*location=*/ undefined,
+    ts.SymbolFlags.Type,
+    /*excludeGlobals=*/ false,
+  );
+  if (!symbol) {
+    throw new Error(`Type "${typeName}" not found in TypeScript checker.`);
+  }
+
+  const symbolType = checker.getTypeOfSymbol(symbol);
+
+  // For DOM types, the symbol often represents the constructor
+  // Try to get the instance type from the constructor's return type
+  const constructSignatures = symbolType.getConstructSignatures();
+  if (constructSignatures.length > 0) {
+    return constructSignatures[0].getReturnType();
+  }
+
+  // If no construct signatures, return the type as-is
+  return symbolType;
 }

@@ -227,6 +227,7 @@ export class Checker {
         silenceInformation: isFailureAllowlisted
           ? [{reason: 'EXEMPTED'}]
           : undefined,
+        confidence,
       },
     );
     this.failures.push(failure);
