@@ -38,6 +38,7 @@ export class Rule extends ConformancePatternRule {
         ),
       ],
       name: Rule.RULE_NAME,
+      useTypedPropertyMatcher: true,
       ...configuration,
     });
   }

@@ -47,6 +47,7 @@ export class Rule extends ConformancePatternRule {
         ...configuration,
         name: Rule.RULE_NAME,
         allowedTrustedType: TRUSTED_SCRIPT_URL,
+        useTypedPropertyMatcher: true,
       }),
     );
   }
