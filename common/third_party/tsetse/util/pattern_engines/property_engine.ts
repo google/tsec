@@ -16,13 +16,9 @@ import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
 import {PropertyMatcherDescriptor} from '../pattern_config';
-import {
-  LegacyPropertyMatcher,
-  PropertyMatcher,
-  TypedPropertyMatcher,
-} from '../property_matcher';
+import {PropertyMatcher} from '../property_matcher';
 
-import {Match, NameMatchConfidence} from './match';
+import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
 import {PatternEngine} from './pattern_engine';
 
 /** Match an AST node with a property matcher. */
@@ -32,7 +28,7 @@ export function matchProperty(
   matcher: PropertyMatcher,
 ): Match<ts.Node> | undefined {
   const typeMatch = matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc);
-  if (typeMatch === false) return;
+  if (typeMatch === TypeMatchConfidence.LEGACY_NO_MATCH) return;
   return {
     node: n,
     typeMatch,
@@ -47,17 +43,14 @@ export function matchProperty(
 export class PropertyEngine extends PatternEngine {
   protected registerWith(checker: Checker, matchNode: typeof matchProperty) {
     for (const value of this.config.values) {
-      let matcher: PropertyMatcher;
       if (!(value instanceof PropertyMatcherDescriptor)) {
         throw new Error(
           `PropertyEngine (through BANNED_PROPERTY) requires a PropertyMatcherDescriptor.`,
         );
       }
-      if (this.config.useTypedPropertyMatcher) {
-        matcher = TypedPropertyMatcher.fromSpec(value);
-      } else {
-        matcher = LegacyPropertyMatcher.fromSpec(value);
-      }
+      const matcher = PropertyMatcher.fromSpec(value, {
+        useTypedPropertyMatching: this.config.useTypedPropertyMatcher || false,
+      });
       checker.onNamedPropertyAccess(
         matcher.bannedProperty,
         this.wrapCheckWithAllowlistingAndFixer((tc, n) =>

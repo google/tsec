@@ -19,10 +19,8 @@ import {AbstractRule} from '../../third_party/tsetse/rule';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isLiteral} from '../../third_party/tsetse/util/is_literal';
 import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
-import {
-  LegacyPropertyMatcher,
-  PropertyMatcher,
-} from '../../third_party/tsetse/util/property_matcher';
+import {TypeMatchConfidence} from '../../third_party/tsetse/util/pattern_engines/match';
+import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import * as ts from 'typescript';
 
 import {RuleConfiguration} from '../../rule_configuration';
@@ -36,7 +34,12 @@ function matchNode(
   matcher: PropertyMatcher,
 ) {
   if (!shouldExamineNode(n)) return;
-  if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc)) return;
+  if (
+    matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc) ===
+    TypeMatchConfidence.LEGACY_NO_MATCH
+  ) {
+    return;
+  }
 
   // Check if the matched node is a call to `execCommand` and if the command
   // name is a literal. We will skip matching if the command name is not in
@@ -70,7 +73,7 @@ export class Rule extends AbstractRule {
 
   constructor(configuration: RuleConfiguration = {}) {
     super();
-    this.propMatcher = LegacyPropertyMatcher.fromSpec(
+    this.propMatcher = PropertyMatcher.fromSpec(
       new PropertyMatcherDescriptor('Document.prototype.execCommand'),
     );
     if (configuration.allowlistEntries) {

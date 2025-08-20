@@ -21,129 +21,25 @@ import {
 } from './pattern_engines/match';
 
 /**
- * A matcher for property accesses. See LegacyPropertyMatcher and
- * TypedPropertyMatcher for more details.
+ * A matcher for property accesses. Two implementations for the type matching
+ * logic exist:
+ * - legacyTypeMatches: use a name-based matching. This is the historical
+ *   implementation.
+ * - typedTypeMatches: Relies on the type checker to determine if type
+ *   compatibility between the node and the matcher specification.
+ *   go/tsetse-sensitivity
  */
-export interface PropertyMatcher {
-  readonly bannedType: string;
-  readonly bannedProperty: string;
-  matches(
-    n: ts.PropertyAccessExpression,
-    tc: ts.TypeChecker,
-  ): Match<ts.PropertyAccessExpression> | undefined;
-  typeMatches(
-    inspectedType: ts.Type,
-    tc: ts.TypeChecker,
-  ): TypeMatchConfidence | false;
-}
-
-/**
- * This class matches a property access node, based on a property holder type
- * (through its name), i.e. a class, and a property name.
- *
- * The logic is voluntarily simple: if a matcher for `a.b` tests a `x.y` node,
- * it will return true if:
- * - `x` is of type `a` either directly (name-based) or through inheritance
- *   (ditto),
- * - and, textually, `y` === `b`.
- *
- * Note that the logic is different from TS's type system: this matcher doesn't
- * have any knowledge of structural typing.
- */
-export class LegacyPropertyMatcher implements PropertyMatcher {
-  static fromSpec(value: PatternDescriptor): LegacyPropertyMatcher {
-    if (!(value instanceof PropertyMatcherDescriptor)) {
-      throw new Error(
-        `LegacyPropertyMatcher expects a PropertyMatcherDescriptor.`,
-      );
-    }
-    if (value.spec.indexOf('.prototype.') === -1) {
-      throw new Error(`BANNED_PROPERTY expects a .prototype in your query.`);
-    }
-    const requestParser = /^([\w\d_.-]+)\.prototype\.([\w\d_.-]+)$/;
-    const matches = requestParser.exec(value.spec);
-    if (!matches) {
-      throw new Error('Cannot understand the BannedProperty spec' + value.spec);
-    }
-    const [bannedType, bannedProperty] = matches.slice(1);
-    return new LegacyPropertyMatcher(bannedType, bannedProperty);
-  }
-
-  constructor(
-    readonly bannedType: string,
-    readonly bannedProperty: string,
-  ) {}
-
-  /**
-   * @param n The PropertyAccessExpression we're looking at.
-   */
-  matches(
-    n: ts.PropertyAccessExpression,
-    tc: ts.TypeChecker,
-  ): Match<ts.PropertyAccessExpression> | undefined {
-    if (n.name.text === this.bannedProperty) {
-      const typeMatchConfidence = this.typeMatches(
-        tc.getTypeAtLocation(n.expression),
-        tc,
-      );
-      if (typeMatchConfidence !== false) {
-        return {
-          node: n,
-          typeMatch: typeMatchConfidence,
-          nameMatch: NameMatchConfidence.EXACT,
-        };
-      }
-    }
-    return undefined;
-  }
-
-  /**
-   * Match types recursively in the lattice. This function over-approximates
-   * the result by considering union types and intersection types as the same.
-   */
-  typeMatches(
-    inspectedType: ts.Type,
-    tc: ts.TypeChecker,
-  ): TypeMatchConfidence.LEGACY_MATCH | false {
-    // Skip checking mocked objects
-    if (inspectedType.aliasSymbol?.escapedName === 'SpyObj') return false;
-
-    // Exact type match
-    if (inspectedType.getSymbol()?.getName() === this.bannedType) {
-      return TypeMatchConfidence.LEGACY_MATCH;
-    }
-
-    // If the type is an intersection/union, check if any of the component
-    // matches
-    if (inspectedType.isUnionOrIntersection()) {
-      return inspectedType.types.some(
-        (comp) =>
-          this.typeMatches(comp, tc) === TypeMatchConfidence.LEGACY_MATCH,
-      )
-        ? TypeMatchConfidence.LEGACY_MATCH
-        : false;
-    }
-
-    const baseTypes = inspectedType.getBaseTypes() || [];
-    return baseTypes.some(
-      (base) => this.typeMatches(base, tc) === TypeMatchConfidence.LEGACY_MATCH,
-    )
-      ? TypeMatchConfidence.LEGACY_MATCH
-      : false;
-  }
-}
-
-/**
- * PropertyMatcher that relies on the comparison of type instances of the base
- * object and property name to match expressions.
- */
-export class TypedPropertyMatcher implements PropertyMatcher {
+export class PropertyMatcher {
   private bannedTypeCache: ts.Type | undefined = undefined;
 
-  static fromSpec(value: PatternDescriptor): TypedPropertyMatcher {
+  static fromSpec(
+    value: PatternDescriptor,
+    options: {useTypedPropertyMatching?: boolean} = {},
+  ): PropertyMatcher {
+    const {useTypedPropertyMatching = false} = options;
     if (!(value instanceof PropertyMatcherDescriptor)) {
       throw new Error(
-        `TypedPropertyMatcher expects a PropertyMatcherDescriptor, got ${typeof value}`,
+        `PropertyMatcher expects a PropertyMatcherDescriptor, got ${typeof value}`,
       );
     }
     if (value.spec.indexOf('.prototype.') === -1) {
@@ -155,12 +51,17 @@ export class TypedPropertyMatcher implements PropertyMatcher {
       throw new Error('Cannot understand the BannedProperty spec' + value.spec);
     }
     const [bannedType, bannedProperty] = matches.slice(1);
-    return new TypedPropertyMatcher(bannedType, bannedProperty);
+    return new PropertyMatcher(
+      bannedType,
+      bannedProperty,
+      useTypedPropertyMatching,
+    );
   }
 
   constructor(
     readonly bannedType: string,
     readonly bannedProperty: string,
+    readonly useTypedPropertyMatching: boolean,
   ) {}
 
   /**
@@ -170,20 +71,27 @@ export class TypedPropertyMatcher implements PropertyMatcher {
     n: ts.PropertyAccessExpression,
     tc: ts.TypeChecker,
   ): Match<ts.PropertyAccessExpression> | undefined {
-    if (n.name.text === this.bannedProperty) {
-      return {
-        node: n,
-        typeMatch: this.typeMatches(tc.getTypeAtLocation(n.expression), tc),
-        nameMatch: NameMatchConfidence.EXACT,
-      };
+    if (n.name.text !== this.bannedProperty) {
+      return undefined;
     }
-    return undefined;
+    const typeMatchConfidence = this.typeMatches(
+      tc.getTypeAtLocation(n.expression),
+      tc,
+    );
+    if (typeMatchConfidence === TypeMatchConfidence.LEGACY_NO_MATCH) {
+      return undefined;
+    }
+    return {
+      node: n,
+      typeMatch: typeMatchConfidence,
+      nameMatch: NameMatchConfidence.EXACT,
+    };
   }
 
-  /**
-   * Relies on the type checker to match the type.
-   */
   typeMatches(inspectedType: ts.Type, tc: ts.TypeChecker): TypeMatchConfidence {
+    if (!this.useTypedPropertyMatching) {
+      return this.legacyTypeMatches(inspectedType, tc);
+    }
     const matcherType = (this.bannedTypeCache ??= resolveTypeFromName(
       tc,
       this.bannedType,
@@ -222,6 +130,51 @@ export class TypedPropertyMatcher implements PropertyMatcher {
       return TypeMatchConfidence.PARENT;
     }
     return TypeMatchConfidence.UNRELATED;
+  }
+
+  /**
+   * Match types recursively in the lattice. This function over-approximates
+   * the result by considering union types and intersection types as the same.
+   *
+   * The logic is voluntarily simple: if a matcher for `a.b` tests a `x.y` node,
+   * `legacyTypeMatches` will return true if:
+   * - `x` is of type `a` either directly (name-based) or through inheritance
+   *   (ditto),
+   *
+   * Note that the logic is different from TS's type system: this matcher doesn't
+   * have any knowledge of structural typing.
+   */
+  private legacyTypeMatches(
+    inspectedType: ts.Type,
+    tc: ts.TypeChecker,
+  ): TypeMatchConfidence.LEGACY_MATCH | TypeMatchConfidence.LEGACY_NO_MATCH {
+    // Skip checking mocked objects
+    if (inspectedType.aliasSymbol?.escapedName === 'SpyObj') {
+      return TypeMatchConfidence.LEGACY_NO_MATCH;
+    }
+    // Exact type match
+    if (inspectedType.getSymbol()?.getName() === this.bannedType) {
+      return TypeMatchConfidence.LEGACY_MATCH;
+    }
+
+    // If the type is an intersection/union, check if any of the component
+    // matches
+    if (inspectedType.isUnionOrIntersection()) {
+      return inspectedType.types.some(
+        (comp) =>
+          this.legacyTypeMatches(comp, tc) === TypeMatchConfidence.LEGACY_MATCH,
+      )
+        ? TypeMatchConfidence.LEGACY_MATCH
+        : TypeMatchConfidence.LEGACY_NO_MATCH;
+    }
+
+    const baseTypes = inspectedType.getBaseTypes() || [];
+    return baseTypes.some(
+      (base) =>
+        this.legacyTypeMatches(base, tc) === TypeMatchConfidence.LEGACY_MATCH,
+    )
+      ? TypeMatchConfidence.LEGACY_MATCH
+      : TypeMatchConfidence.LEGACY_NO_MATCH;
   }
 }
 

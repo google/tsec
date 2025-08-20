@@ -19,10 +19,8 @@ import {AbstractRule} from '../../third_party/tsetse/rule';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isLiteral} from '../../third_party/tsetse/util/is_literal';
 import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
-import {
-  LegacyPropertyMatcher,
-  PropertyMatcher,
-} from '../../third_party/tsetse/util/property_matcher';
+import {TypeMatchConfidence} from '../../third_party/tsetse/util/pattern_engines/match';
+import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import * as ts from 'typescript';
 
 import {RuleConfiguration} from '../../rule_configuration';
@@ -54,7 +52,9 @@ export abstract class BanSetAttributeRule extends AbstractRule {
 
   constructor(configuration: RuleConfiguration) {
     super();
-    this.propMatchers = BANNED_APIS.map(LegacyPropertyMatcher.fromSpec);
+    this.propMatchers = BANNED_APIS.map((descriptor) =>
+      PropertyMatcher.fromSpec(descriptor),
+    );
     if (configuration.allowlistEntries) {
       this.allowlist = new Allowlist(configuration.allowlistEntries);
     }
@@ -139,7 +139,10 @@ export abstract class BanSetAttributeRule extends AbstractRule {
       return undefined;
     }
 
-    if (!matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc)) {
+    if (
+      matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc) ===
+      TypeMatchConfidence.LEGACY_NO_MATCH
+    ) {
       // Allowed: it is a different type.
       return undefined;
     }

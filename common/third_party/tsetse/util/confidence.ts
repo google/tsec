@@ -52,8 +52,9 @@ export function giveConfidence(match: Match<ts.Node>): Confidence {
     // For the moment, we prioritize legacy matches over the new type based
     // matching to preserve the current behavior. We might make legacy matches
     // a lower confidence in the future as rules are migrated to the new
-    // typedPropertyMatcher.
+    // typedPropertyMatcher option.
     case TypeMatchConfidence.LEGACY_MATCH:
+    case TypeMatchConfidence.LEGACY_NO_MATCH:
       return Confidence.NA_CONFIDENCE;
     case TypeMatchConfidence.EXACT:
     case TypeMatchConfidence.EXTENDS:

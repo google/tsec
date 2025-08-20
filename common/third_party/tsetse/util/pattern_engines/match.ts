@@ -57,9 +57,14 @@ export enum TypeMatchConfidence {
   NA,
   /**
    * Type matches with the legacy type matching logic, e.g. the
-   * LegacyPropertyMatcher does not use isAssignableTo() to compare types.
+   * PropertyMatcher without useTypedPropertyMatching enabled, does not use
+   * isAssignableTo() to compare types.
    */
   LEGACY_MATCH,
+  /**
+   * Type does not match with the legacy type matching logic.
+   */
+  LEGACY_NO_MATCH,
   /**
    * Type is exactly the matcher's specification
    */
@@ -93,6 +98,8 @@ export function typeMatchConfidenceToString(
       return 'NA';
     case TypeMatchConfidence.LEGACY_MATCH:
       return 'LEGACY_MATCH';
+    case TypeMatchConfidence.LEGACY_NO_MATCH:
+      return 'LEGACY_NO_MATCH';
     case TypeMatchConfidence.EXACT:
       return 'EXACT';
     case TypeMatchConfidence.EXTENDS:

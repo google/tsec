@@ -37,11 +37,9 @@ import {
 import {
   Match,
   NameMatchConfidence,
+  TypeMatchConfidence,
 } from '../../third_party/tsetse/util/pattern_engines/match';
-import {
-  LegacyPropertyMatcher,
-  PropertyMatcher,
-} from '../../third_party/tsetse/util/property_matcher';
+import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 import * as ts from 'typescript';
 
@@ -106,7 +104,7 @@ function isBannedStringLiteralAccess(
       tc.getTypeAtLocation(n.expression),
       tc,
     );
-    if (typeMatch === false) {
+    if (typeMatch === TypeMatchConfidence.LEGACY_NO_MATCH) {
       return;
     }
     return {
@@ -166,7 +164,9 @@ export class Rule extends AbstractRule {
   constructor(configuration: RuleConfiguration = {}) {
     super();
     this.nameMatchers = BANNED_NAMES.map((name) => new AbsoluteMatcher(name));
-    this.propMatchers = BANNED_PROPERTIES.map(LegacyPropertyMatcher.fromSpec);
+    this.propMatchers = BANNED_PROPERTIES.map((prop) =>
+      PropertyMatcher.fromSpec(prop),
+    );
     if (configuration?.allowlistEntries) {
       this.allowlist = new Allowlist(configuration?.allowlistEntries);
     }
