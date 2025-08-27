@@ -38,6 +38,7 @@ export class Rule extends ConformancePatternRule {
       kind: PatternKind.BANNED_PROPERTY_WRITE,
       values: [new PropertyMatcherDescriptor('HTMLBaseElement.prototype.href')],
       name: Rule.RULE_NAME,
+      useTypedPropertyMatcher: true,
       ...configuration,
     });
   }

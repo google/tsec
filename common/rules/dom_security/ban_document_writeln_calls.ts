@@ -37,6 +37,7 @@ export class Rule extends ConformancePatternRule {
       kind: PatternKind.BANNED_PROPERTY,
       values: [new PropertyMatcherDescriptor('Document.prototype.writeln')],
       name: Rule.RULE_NAME,
+      useTypedPropertyMatcher: true,
       allowedTrustedType: TRUSTED_HTML,
       ...configuration,
     });
