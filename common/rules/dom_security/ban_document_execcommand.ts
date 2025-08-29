@@ -75,9 +75,6 @@ export class Rule extends AbstractRule {
     super();
     this.propMatcher = PropertyMatcher.fromSpec(
       new PropertyMatcherDescriptor('Document.prototype.execCommand'),
-      {
-        useTypedPropertyMatching: true,
-      },
     );
     if (configuration.allowlistEntries) {
       this.allowlist = new Allowlist(configuration.allowlistEntries);
