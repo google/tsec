@@ -52,7 +52,7 @@ class StatsCollector {
    * @param name The name of the counter to increment.
    * @param delta The amount to increment by (defaults to 1).
    */
-  increment(name: string, delta = 1): void {
+  incrementCounter(name: string, delta = 1): void {
     const currentValue = this.counters.get(name) || 0;
     this.counters.set(name, currentValue + delta);
   }
@@ -62,7 +62,7 @@ class StatsCollector {
    * @param name The name of the counter.
    * @return The current value of the counter.
    */
-  get(name: string): number {
+  getCounter(name: string): number {
     return this.counters.get(name) || 0;
   }
 
@@ -70,14 +70,14 @@ class StatsCollector {
    * Returns a Map containing all defined counters and their current values.
    * @return A Map of counter names to their values.
    */
-  getAll(): ReadonlyMap<string, number> {
+  getAllCounters(): ReadonlyMap<string, number> {
     return new Map(this.counters);
   }
 
   /**
    * Resets all counters to 0.
    */
-  reset(): void {
+  resetCounters(): void {
     this.counters.forEach((value, key) => {
       this.counters.set(key, 0);
     });
