@@ -43,7 +43,6 @@ export class Rule extends ConformancePatternRule {
           new PropertyMatcherDescriptor('Element.prototype.insertAdjacentHTML'),
         ],
         name: Rule.RULE_NAME,
-        useTypedPropertyMatcher: true,
         allowedTrustedType: TRUSTED_HTML,
         ...configuration,
       }),

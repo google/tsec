@@ -39,7 +39,6 @@ export class Rule extends ConformancePatternRule {
         values: [
           new PropertyMatcherDescriptor('DOMParser.prototype.parseFromString'),
         ],
-        useTypedPropertyMatcher: true,
         name: Rule.RULE_NAME,
         ...configuration,
       }),

@@ -52,11 +52,8 @@ export abstract class BanSetAttributeRule extends AbstractRule {
 
   constructor(configuration: RuleConfiguration) {
     super();
-    this.propMatchers = BANNED_APIS.map(
-      (descriptor) => PropertyMatcher.fromSpec(descriptor),
-      {
-        useTypedPropertyMatching: true,
-      },
+    this.propMatchers = BANNED_APIS.map((descriptor) =>
+      PropertyMatcher.fromSpec(descriptor),
     );
     if (configuration.allowlistEntries) {
       this.allowlist = new Allowlist(configuration.allowlistEntries);
