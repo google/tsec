@@ -19,11 +19,12 @@ import {
   NameMatchConfidence,
   TypeMatchConfidence,
 } from './pattern_engines/match';
+import {legacyResolveTypeMatches, resolveTypeMatch, resolveTypeFromName} from './type_matching';
 
 /**
  * A matcher for property accesses. Two implementations for the type matching
  * logic exist:
- * - legacyTypeMatches: use a name-based matching. This is the historical
+ * - legacyResolveTypeMatches: use a name-based matching. This is the historical
  *   implementation.
  * - typedTypeMatches: Relies on the type checker to determine if type
  *   compatibility between the node and the matcher specification.
@@ -90,130 +91,12 @@ export class PropertyMatcher {
 
   typeMatches(inspectedType: ts.Type, tc: ts.TypeChecker): TypeMatchConfidence {
     if (!this.useTypedPropertyMatching) {
-      return this.legacyTypeMatches(inspectedType, tc);
+      return legacyResolveTypeMatches(inspectedType, this.bannedType, tc);
     }
     const matcherType = (this.bannedTypeCache ??= resolveTypeFromName(
       tc,
       this.bannedType,
     ));
-    if (isAnyType(inspectedType) || isUnknownType(inspectedType)) {
-      return TypeMatchConfidence.ANY_UNKNOWN;
-    }
-
-    if (inspectedType.getSymbol() === matcherType.getSymbol()) {
-      return TypeMatchConfidence.EXACT;
-    }
-
-    // If the type is an intersection/union, check if any of the component
-    // matches. In particular this handles cases with optional properties. Example:
-    // Comparing a matcher for `TrustedTypePolicyFactory`, window is types as
-    // `{TrustedTypes?: TrustedTypePolicyFactory;}` which is a union of
-    // `undefined` and `TrustedTypePolicyFactory`. A property access of
-    // window.TrustedTypes should be considered a match.
-    if (inspectedType.isUnionOrIntersection()) {
-      const typeMatches = inspectedType.types.map((t) =>
-        this.typeMatches(t, tc),
-      );
-      if (typeMatches.includes(TypeMatchConfidence.EXACT)) {
-        return TypeMatchConfidence.EXACT;
-      }
-      if (typeMatches.includes(TypeMatchConfidence.EXTENDS)) {
-        return TypeMatchConfidence.EXTENDS;
-      }
-    }
-
-    if (tc.isTypeAssignableTo(inspectedType, matcherType)) {
-      return TypeMatchConfidence.EXTENDS;
-    }
-
-    if (tc.isTypeAssignableTo(matcherType, inspectedType)) {
-      return TypeMatchConfidence.PARENT;
-    }
-    return TypeMatchConfidence.UNRELATED;
+    return resolveTypeMatch(inspectedType, matcherType, tc);
   }
-
-  /**
-   * Match types recursively in the lattice. This function over-approximates
-   * the result by considering union types and intersection types as the same.
-   *
-   * The logic is voluntarily simple: if a matcher for `a.b` tests a `x.y` node,
-   * `legacyTypeMatches` will return true if:
-   * - `x` is of type `a` either directly (name-based) or through inheritance
-   *   (ditto),
-   *
-   * Note that the logic is different from TS's type system: this matcher doesn't
-   * have any knowledge of structural typing.
-   */
-  private legacyTypeMatches(
-    inspectedType: ts.Type,
-    tc: ts.TypeChecker,
-  ): TypeMatchConfidence.LEGACY_MATCH | TypeMatchConfidence.LEGACY_NO_MATCH {
-    // Skip checking mocked objects
-    if (inspectedType.aliasSymbol?.escapedName === 'SpyObj') {
-      return TypeMatchConfidence.LEGACY_NO_MATCH;
-    }
-    // Exact type match
-    if (inspectedType.getSymbol()?.getName() === this.bannedType) {
-      return TypeMatchConfidence.LEGACY_MATCH;
-    }
-
-    // If the type is an intersection/union, check if any of the component
-    // matches
-    if (inspectedType.isUnionOrIntersection()) {
-      return inspectedType.types.some(
-        (comp) =>
-          this.legacyTypeMatches(comp, tc) === TypeMatchConfidence.LEGACY_MATCH,
-      )
-        ? TypeMatchConfidence.LEGACY_MATCH
-        : TypeMatchConfidence.LEGACY_NO_MATCH;
-    }
-
-    const baseTypes = inspectedType.getBaseTypes() || [];
-    return baseTypes.some(
-      (base) =>
-        this.legacyTypeMatches(base, tc) === TypeMatchConfidence.LEGACY_MATCH,
-    )
-      ? TypeMatchConfidence.LEGACY_MATCH
-      : TypeMatchConfidence.LEGACY_NO_MATCH;
-  }
-}
-
-function isUnknownType(type: ts.Type): boolean {
-  return (type.flags & ts.TypeFlags.Unknown) !== 0;
-}
-
-function isAnyType(type: ts.Type): boolean {
-  return (type.flags & ts.TypeFlags.Any) !== 0;
-}
-
-/**
- * Resolves a TypeScript type from its name (e.g., "HTMLElement", "Element").
- * Handles the case where the symbol might represent a constructor rather than
- * an instance type
- */
-function resolveTypeFromName(
-  checker: ts.TypeChecker,
-  typeName: string,
-): ts.Type {
-  const symbol = checker.resolveName(
-    typeName,
-    /*location=*/ undefined,
-    ts.SymbolFlags.Type,
-    /*excludeGlobals=*/ false,
-  );
-  if (!symbol) {
-    throw new Error(`Type "${typeName}" not found in TypeScript checker.`);
-  }
-
-  const symbolType = checker.getTypeOfSymbol(symbol);
-
-  // For DOM types, the symbol often represents the constructor
-  // Try to get the instance type from the constructor's return type
-  const constructSignatures = symbolType.getConstructSignatures();
-  if (constructSignatures.length > 0) {
-    return constructSignatures[0].getReturnType();
-  }
-
-  // If no construct signatures, return the type as-is
-  return symbolType;
 }
