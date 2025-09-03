@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as ts from 'typescript';
+import {TSETSE_STATS_COLLECTION_ENABLED} from './compilation_define';
 import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
 import {
   Match,
@@ -20,6 +21,11 @@ import {
   TypeMatchConfidence,
 } from './pattern_engines/match';
 import {legacyResolveTypeMatches, resolveTypeMatch, resolveTypeFromName} from './type_matching';
+import {
+  PROPERTY_MATCHER_ANY_UNKNOWN_COUNTER,
+  PROPERTY_MATCHER_TYPE_CHECK_COUNTER,
+  statsCollector,
+} from './statistics';
 
 /**
  * A matcher for property accesses. Two implementations for the type matching
@@ -97,6 +103,19 @@ export class PropertyMatcher {
       tc,
       this.bannedType,
     ));
-    return resolveTypeMatch(inspectedType, matcherType, tc);
+    if (TSETSE_STATS_COLLECTION_ENABLED) {
+      statsCollector.incrementCounter(PROPERTY_MATCHER_TYPE_CHECK_COUNTER);
+      const typeMatchConfidence = resolveTypeMatch(
+        inspectedType,
+        matcherType,
+        tc,
+      );
+      if (typeMatchConfidence === TypeMatchConfidence.ANY_UNKNOWN) {
+        statsCollector.incrementCounter(PROPERTY_MATCHER_ANY_UNKNOWN_COUNTER);
+      }
+      return typeMatchConfidence;
+    } else {
+      return resolveTypeMatch(inspectedType, matcherType, tc);
+    }
   }
 }
