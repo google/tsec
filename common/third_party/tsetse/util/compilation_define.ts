@@ -12,6 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// BEGIN-EXTERNAL
-// export const TSETSE_STATS_COLLECTION_ENABLED: boolean = process.env['TSETSE_STATS_COLLECTION_ENABLED'] || false;
-// END-EXTERNAL
+export const TSETSE_STATS_COLLECTION_ENABLED: boolean = !!process.env['TSETSE_STATS_COLLECTION_ENABLED'];
