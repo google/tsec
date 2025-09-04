@@ -26,7 +26,9 @@ import {
   silenceDuplicateFailureMessages,
   silenceLessConfidentDuplicates,
 } from './failure';
+import {TSETSE_STATS_COLLECTION_ENABLED} from './util/compilation_define';
 import {Confidence} from './util/confidence';
+import {statsCollector} from './util/statistics';
 
 /**
  * A Handler contains a handler function and its corresponding error code so
@@ -368,6 +370,9 @@ export class Checker {
     const thisChecker = this;
     this.currentSourceFile = sourceFile;
     this.failures = [];
+    if (TSETSE_STATS_COLLECTION_ENABLED) {
+      statsCollector.addProcessedFile(sourceFile.fileName);
+    }
     run(sourceFile);
     const {failures, silencedFailures} = triageFailures(
       this.failures,

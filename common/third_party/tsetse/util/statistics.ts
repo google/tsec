@@ -35,6 +35,7 @@ export const PROPERTY_MATCHER_ANY_UNKNOWN_COUNTER =
  */
 class StatsCollector {
   private readonly counters = new Map<string, number>();
+  private readonly processedFiles = new Set<string>();
 
   /**
    * Defines a new counter. If the counter already exists, this does nothing.
@@ -81,6 +82,28 @@ class StatsCollector {
     this.counters.forEach((value, key) => {
       this.counters.set(key, 0);
     });
+  }
+
+  /**
+   * Adds a processed file to the statistics.
+   * @param fileName The name of the file that was processed.
+   */
+  addProcessedFile(fileName: string): void {
+    this.processedFiles.add(fileName);
+  }
+
+  /**
+   * Returns a Set containing all processed file names.
+   */
+  getProcessedFiles(): ReadonlySet<string> {
+    return this.processedFiles;
+  }
+
+  /**
+   * Clears all recorded processed files.
+   */
+  resetProcessedFiles(): void {
+    this.processedFiles.clear();
   }
 }
 
