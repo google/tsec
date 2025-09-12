@@ -17,9 +17,14 @@ import {Checker} from '../../third_party/tsetse/checker';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
 import {AbstractRule} from '../../third_party/tsetse/rule';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
+import {giveConfidence} from '../../third_party/tsetse/util/confidence';
 import {isLiteral} from '../../third_party/tsetse/util/is_literal';
 import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
-import {TypeMatchConfidence} from '../../third_party/tsetse/util/pattern_engines/match';
+import {
+  Match,
+  NameMatchConfidence,
+  TypeMatchConfidence,
+} from '../../third_party/tsetse/util/pattern_engines/match';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import * as ts from 'typescript';
 
@@ -52,8 +57,11 @@ export abstract class BanSetAttributeRule extends AbstractRule {
 
   constructor(configuration: RuleConfiguration) {
     super();
-    this.propMatchers = BANNED_APIS.map((descriptor) =>
-      PropertyMatcher.fromSpec(descriptor),
+    this.propMatchers = BANNED_APIS.map(
+      (descriptor) => PropertyMatcher.fromSpec(descriptor),
+      {
+        useTypedPropertyMatching: true,
+      },
     );
     if (configuration.allowlistEntries) {
       this.allowlist = new Allowlist(configuration.allowlistEntries);
@@ -134,28 +142,33 @@ export abstract class BanSetAttributeRule extends AbstractRule {
     tc: ts.TypeChecker,
     n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
     matcher: PropertyMatcher,
-  ) {
+  ): Match<ts.Node> | undefined {
     if (!shouldExamineNode(n)) {
       return undefined;
     }
 
-    if (
-      matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc) ===
-      TypeMatchConfidence.LEGACY_NO_MATCH
-    ) {
+    const typeMatch = matcher.typeMatches(
+      tc.getTypeAtLocation(n.expression),
+      tc,
+    );
+    if (typeMatch === TypeMatchConfidence.LEGACY_NO_MATCH) {
       // Allowed: it is a different type.
       return undefined;
     }
 
     if (!ts.isCallExpression(n.parent)) {
       // Possibly not allowed: not calling it (may be renaming it).
-      return this.looseMatch ? n : undefined;
+      return this.looseMatch
+        ? {node: n, typeMatch, nameMatch: NameMatchConfidence.EXACT}
+        : undefined;
     }
 
     if (n.parent.expression !== n) {
       // Possibly not allowed: calling a different function with it (may be
       // renaming it).
-      return this.looseMatch ? n : undefined;
+      return this.looseMatch
+        ? {node: n, typeMatch, nameMatch: NameMatchConfidence.EXACT}
+        : undefined;
     }
 
     // If the matched node is a call to `setAttribute` (not setAttributeNS, etc)
@@ -166,7 +179,9 @@ export abstract class BanSetAttributeRule extends AbstractRule {
         // Allowed: it is not a security sensitive attribute.
         if (isAllowedAttr) return undefined;
       } else {
-        return isAllowedAttr ? undefined : n;
+        return isAllowedAttr
+          ? undefined
+          : {node: n, typeMatch, nameMatch: NameMatchConfidence.EXACT};
       }
     }
 
@@ -178,11 +193,15 @@ export abstract class BanSetAttributeRule extends AbstractRule {
         // Allowed: it is not a security sensitive attribute.
         if (isAllowedAttr) return undefined;
       } else {
-        return isAllowedAttr ? undefined : n;
+        return isAllowedAttr
+          ? undefined
+          : {node: n, typeMatch, nameMatch: NameMatchConfidence.EXACT};
       }
     }
 
-    return this.looseMatch ? n : undefined;
+    return this.looseMatch
+      ? {node: n, typeMatch, nameMatch: NameMatchConfidence.EXACT}
+      : undefined;
   }
 
   register(checker: Checker): void {
@@ -190,13 +209,16 @@ export abstract class BanSetAttributeRule extends AbstractRule {
       checker.onNamedPropertyAccess(
         matcher.bannedProperty,
         (c, n) => {
-          const node = this.matchNode(c.typeChecker, n, matcher);
-          if (node) {
+          const matchResult = this.matchNode(c.typeChecker, n, matcher);
+          if (matchResult) {
             checker.addFailureAtNode(
-              node,
+              matchResult.node,
               this.errorMessage,
               this.ruleName,
               this.allowlist,
+              undefined,
+              undefined,
+              giveConfidence(matchResult),
             );
           }
         },
@@ -206,13 +228,16 @@ export abstract class BanSetAttributeRule extends AbstractRule {
       checker.onStringLiteralElementAccess(
         matcher.bannedProperty,
         (c, n) => {
-          const node = this.matchNode(c.typeChecker, n, matcher);
-          if (node) {
+          const matchResult = this.matchNode(c.typeChecker, n, matcher);
+          if (matchResult) {
             checker.addFailureAtNode(
-              node,
+              matchResult.node,
               this.errorMessage,
               this.ruleName,
               this.allowlist,
+              undefined,
+              undefined,
+              giveConfidence(matchResult),
             );
           }
         },

@@ -19,9 +19,10 @@ import {AbstractRule} from '../../third_party/tsetse/rule';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isLiteral} from '../../third_party/tsetse/util/is_literal';
 import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
-import {TypeMatchConfidence} from '../../third_party/tsetse/util/pattern_engines/match';
+import {TypeMatchConfidence, Match, NameMatchConfidence} from '../../third_party/tsetse/util/pattern_engines/match';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import * as ts from 'typescript';
+import {giveConfidence} from '../../third_party/tsetse/util/confidence';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
@@ -32,11 +33,11 @@ function matchNode(
   tc: ts.TypeChecker,
   n: ts.PropertyAccessExpression | ts.ElementAccessExpression,
   matcher: PropertyMatcher,
-) {
+): Match<ts.Node> | undefined {
   if (!shouldExamineNode(n)) return;
+  const typeMatch = matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc);
   if (
-    matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc) ===
-    TypeMatchConfidence.LEGACY_NO_MATCH
+    typeMatch === TypeMatchConfidence.LEGACY_NO_MATCH
   ) {
     return;
   }
@@ -58,7 +59,7 @@ function matchNode(
     return;
   }
 
-  return n;
+  return {node: n, typeMatch, nameMatch: NameMatchConfidence.EXACT};
 }
 
 /** A Rule that looks for use of Document#execCommand. */
@@ -75,6 +76,9 @@ export class Rule extends AbstractRule {
     super();
     this.propMatcher = PropertyMatcher.fromSpec(
       new PropertyMatcherDescriptor('Document.prototype.execCommand'),
+      {
+        useTypedPropertyMatching: true,
+      },
     );
     if (configuration.allowlistEntries) {
       this.allowlist = new Allowlist(configuration.allowlistEntries);
@@ -85,13 +89,16 @@ export class Rule extends AbstractRule {
     checker.onNamedPropertyAccess(
       this.propMatcher.bannedProperty,
       (c, n) => {
-        const node = matchNode(c.typeChecker, n, this.propMatcher);
-        if (node) {
+        const matchResult = matchNode(c.typeChecker, n, this.propMatcher);
+        if (matchResult) {
           checker.addFailureAtNode(
-            node,
+            matchResult.node,
             errMsg,
             Rule.RULE_NAME,
             this.allowlist,
+            undefined,
+            undefined,
+            giveConfidence(matchResult),
           );
         }
       },
@@ -101,13 +108,16 @@ export class Rule extends AbstractRule {
     checker.onStringLiteralElementAccess(
       this.propMatcher.bannedProperty,
       (c, n) => {
-        const node = matchNode(c.typeChecker, n, this.propMatcher);
-        if (node) {
+        const matchResult = matchNode(c.typeChecker, n, this.propMatcher);
+        if (matchResult) {
           checker.addFailureAtNode(
-            node,
+            matchResult.node,
             errMsg,
             Rule.RULE_NAME,
             this.allowlist,
+            undefined,
+            undefined,
+            giveConfidence(matchResult),
           );
         }
       },
