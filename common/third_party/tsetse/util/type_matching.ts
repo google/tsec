@@ -119,11 +119,13 @@ export function legacyResolveTypeMatches(
     : TypeMatchConfidence.LEGACY_NO_MATCH;
 }
 
-function isUnknownType(type: ts.Type): boolean {
+/** Returns true if the type is unknown. */
+export function isUnknownType(type: ts.Type): boolean {
   return (type.flags & ts.TypeFlags.Unknown) !== 0;
 }
 
-function isAnyType(type: ts.Type): boolean {
+/** Returns true if the type is any. */
+export function isAnyType(type: ts.Type): boolean {
   return (type.flags & ts.TypeFlags.Any) !== 0;
 }
 

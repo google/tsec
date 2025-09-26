@@ -68,6 +68,18 @@ export interface PatternEngineConfig {
    * Whether to use the typed property matcher instead of the type name based matcher.
    */
   useTypedPropertyMatcher?: boolean;
+
+  /**
+   * Types to ignore when using the typed property matcher. This is useful when
+   * another type is structurally compatible with the matcher's type to not
+   * raise a false positive violation.
+   * For instance, `HTMLLinkElement` is assignable to `HTMLStyleElement`.
+   * By setting `ignoreTypes: ['HTMLLinkElement']` we can avoid false positives
+   * for `HTMLLinkElement#href` usages.
+   *
+   * Note that this is only used when `useTypedPropertyMatcher` is true.
+   */
+  ignoreTypes?: string[];
 }
 
 /**

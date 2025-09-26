@@ -20,12 +20,18 @@ import {
   NameMatchConfidence,
   TypeMatchConfidence,
 } from './pattern_engines/match';
-import {legacyResolveTypeMatches, resolveTypeMatch, resolveTypeFromName} from './type_matching';
 import {
   PROPERTY_MATCHER_ANY_UNKNOWN_COUNTER,
   PROPERTY_MATCHER_TYPE_CHECK_COUNTER,
   statsCollector,
 } from './statistics';
+import {
+  isAnyType,
+  isUnknownType,
+  legacyResolveTypeMatches,
+  resolveTypeFromName,
+  resolveTypeMatch,
+} from './type_matching';
 
 /**
  * A matcher for property accesses. Two implementations for the type matching
@@ -35,15 +41,24 @@ import {
  * - typedTypeMatches: Relies on the type checker to determine if type
  *   compatibility between the node and the matcher specification.
  *   go/tsetse-sensitivity
+ *
+ * The ignoreTypes option is only used when typedTypeMatches is enabled. It
+ * allows to ignore types that are structurally compatible with the matcher's
+ * type to not raise false positive violations. For instance,
+ * `HTMLStyleElement#textContent` is a banned property, but since the
+ * `HTMLLinkElement extends HTMLStyleElement, the rule would raise false
+ * positives for HTMLLinkElement#textContent usages. The flag can be used to
+ * ignore matches on HTMLLinkElement#textContent usages.
  */
 export class PropertyMatcher {
   private bannedTypeCache: ts.Type | undefined = undefined;
+  private ignoreTypesCache: ts.Type[] | undefined = undefined;
 
   static fromSpec(
     value: PatternDescriptor,
-    options: {useTypedPropertyMatching?: boolean} = {},
+    options: {useTypedPropertyMatching?: boolean; ignoreTypes?: string[]} = {},
   ): PropertyMatcher {
-    const {useTypedPropertyMatching = false} = options;
+    const {useTypedPropertyMatching = false, ignoreTypes = []} = options;
     if (!(value instanceof PropertyMatcherDescriptor)) {
       throw new Error(
         `PropertyMatcher expects a PropertyMatcherDescriptor, got ${typeof value}`,
@@ -62,6 +77,7 @@ export class PropertyMatcher {
       bannedType,
       bannedProperty,
       useTypedPropertyMatching,
+      ignoreTypes,
     );
   }
 
@@ -69,6 +85,7 @@ export class PropertyMatcher {
     readonly bannedType: string,
     readonly bannedProperty: string,
     readonly useTypedPropertyMatching: boolean,
+    readonly ignoreTypes: string[] = [],
   ) {}
 
   /**
@@ -103,6 +120,16 @@ export class PropertyMatcher {
       tc,
       this.bannedType,
     ));
+    if (this.ignoreTypesCache === undefined) {
+      this.resolveIgnoreTypes(tc);
+    }
+    if (
+      this.ignoreTypesCache!.some((ignoreType) =>
+        tc.isTypeAssignableTo(inspectedType, ignoreType),
+      )
+    ) {
+      return TypeMatchConfidence.UNRELATED;
+    }
     if (TSETSE_STATS_COLLECTION_ENABLED) {
       statsCollector.incrementCounter(PROPERTY_MATCHER_TYPE_CHECK_COUNTER);
       const typeMatchConfidence = resolveTypeMatch(
@@ -113,9 +140,28 @@ export class PropertyMatcher {
       if (typeMatchConfidence === TypeMatchConfidence.ANY_UNKNOWN) {
         statsCollector.incrementCounter(PROPERTY_MATCHER_ANY_UNKNOWN_COUNTER);
       }
+
       return typeMatchConfidence;
     } else {
       return resolveTypeMatch(inspectedType, matcherType, tc);
     }
+  }
+
+  private resolveIgnoreTypes(tc: ts.TypeChecker): void {
+    // Cache the ignore types. Ignore types that are not resolved. This is to
+    // avoid failing the compilation when an ignore type is not available in the
+    // program.
+    this.ignoreTypesCache = this.ignoreTypes
+      .map((t) => {
+        try {
+          return resolveTypeFromName(tc, t);
+        } catch (e) {
+          return undefined;
+        }
+      })
+      .filter(
+        (t: ts.Type | undefined): t is ts.Type =>
+          t !== undefined && !isAnyType(t) && !isUnknownType(t),
+      );
   }
 }

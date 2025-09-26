@@ -50,6 +50,7 @@ export class PropertyEngine extends PatternEngine {
       }
       const matcher = PropertyMatcher.fromSpec(value, {
         useTypedPropertyMatching: this.config.useTypedPropertyMatcher || false,
+        ignoreTypes: this.config.ignoreTypes,
       });
       checker.onNamedPropertyAccess(
         matcher.bannedProperty,
