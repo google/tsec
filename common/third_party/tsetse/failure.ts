@@ -122,6 +122,10 @@ export class Failure {
     )} }`;
   }
 
+  toKey(): string {
+    return `${this.sourceFile ? this.sourceFile.fileName : 'unknown'}:${this.start}:${this.end}:${this.failureSource}:${this.failureText}`;
+  }
+
   addSilenceInformation(info: SilenceInformation): void {
     if (this.silenceInformation === undefined) {
       this.silenceInformation = [info];
@@ -402,9 +406,9 @@ export function silenceDuplicateFailureMessages(
 ): Failure[] {
   const seen = new Set<string>();
   for (const f of failures) {
-    const stringified = f.toString();
-    if (!seen.has(stringified)) {
-      seen.add(stringified);
+    const failureKey = f.toKey();
+    if (!seen.has(failureKey)) {
+      seen.add(failureKey);
     } else {
       f.addSilenceInformation({reason: 'DUPLICATE_MESSAGE'});
     }
