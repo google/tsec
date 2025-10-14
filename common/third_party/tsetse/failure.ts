@@ -112,16 +112,6 @@ export class Failure {
     return diagnostic;
   }
 
-  toString(): string {
-    return `{ sourceFile:${
-      this.sourceFile ? this.sourceFile.fileName : 'unknown'
-    }, start:${
-      this.start
-    }, end:${this.end}, source:${this.failureSource}, fixes:${JSON.stringify(
-      this.suggestedFixes.map((fix) => fixToString(fix)),
-    )} }`;
-  }
-
   toKey(): string {
     return `${this.sourceFile ? this.sourceFile.fileName : 'unknown'}:${this.start}:${this.end}:${this.failureSource}:${this.failureText}`;
   }
