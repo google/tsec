@@ -15,6 +15,10 @@
 import * as ts from 'typescript';
 
 import {Checker} from '../../checker';
+import {
+  explainDiagnosticsCollector,
+  isExplainDiagnosticsEnabled,
+} from '../explain_diagnostics';
 import {PropertyMatcherDescriptor} from '../pattern_config';
 import {PropertyMatcher} from '../property_matcher';
 
@@ -28,6 +32,9 @@ export function matchProperty(
   matcher: PropertyMatcher,
 ): Match<ts.Node> | undefined {
   const typeMatch = matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc);
+  if (isExplainDiagnosticsEnabled()) {
+    explainDiagnosticsCollector.pushEvent(`∟∟typeMatch result: ${typeMatch}`);
+  }
   if (typeMatch === TypeMatchConfidence.LEGACY_NO_MATCH) return;
   return {
     node: n,
@@ -42,6 +49,9 @@ export function matchProperty(
  */
 export class PropertyEngine extends PatternEngine {
   protected registerWith(checker: Checker, matchNode: typeof matchProperty) {
+    if (isExplainDiagnosticsEnabled()) {
+      matchNode = this.wrapMatchWithExplainDiagnosticsLogs(matchNode);
+    }
     for (const value of this.config.values) {
       if (!(value instanceof PropertyMatcherDescriptor)) {
         throw new Error(

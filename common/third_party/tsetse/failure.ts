@@ -143,6 +143,10 @@ export class Failure {
     return this.confidence;
   }
 
+  getFailureSource(): string | undefined {
+    return this.failureSource;
+  }
+
   /***
    * Stringifies an array of `suggestedFixes` for this failure. This is just a
    * heuristic and should be used in systems which do not support fixers

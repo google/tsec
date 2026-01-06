@@ -20,6 +20,7 @@ import {Fix, Fixer} from '../../util/fixer';
 import {PatternEngineConfig} from '../../util/pattern_config';
 import {shouldExamineNode} from '../ast_tools';
 import {giveConfidence} from '../confidence';
+import {explainDiagnosticsCollector} from '../explain_diagnostics';
 import {Match} from './match';
 
 /**
@@ -77,4 +78,35 @@ export abstract class PatternEngine {
       );
     };
   }
+
+  /**
+   * A wrapper that logs the rule name on the diagnostics collector before
+   * calling the match function.
+   */
+  protected wrapMatchWithExplainDiagnosticsLogs<F extends Function>(
+    matchFunction: F,
+  ): F {
+    return ((...args: unknown[]) => {
+      const node = args[1] as ts.Node;
+      explainDiagnosticsCollector.pushEvent(
+        `Evaluating rule: ${this.ruleName} for \`${node.getText()}\` ${stringifyLineColumn(getLineColumn(node))}`,
+      );
+      return matchFunction(...args);
+    }) as unknown as F;
+  }
+}
+
+function getLineColumn(node: ts.Node): {line: number; column: number} {
+  const sourceFile = node.getSourceFile();
+  if (!sourceFile) {
+    return {line: -1, column: -1};
+  }
+  const {line, character} = sourceFile.getLineAndCharacterOfPosition(
+    node.getStart(),
+  );
+  return {line: line + 1, column: character + 1};
+}
+
+function stringifyLineColumn({line, column}: {line: number; column: number}) {
+  return `Ln${line},Col${column}`;
 }

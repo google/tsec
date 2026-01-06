@@ -27,7 +27,12 @@ import {
   silenceLessConfidentDuplicates,
 } from './failure';
 import {TSETSE_STATS_COLLECTION_ENABLED} from './util/compilation_define';
-import {Confidence} from './util/confidence';
+import {Confidence, confidenceToString} from './util/confidence';
+import {
+  canonicalizePath,
+  explainDiagnosticsCollector,
+  isExplainDiagnosticsEnabled
+} from './util/explain_diagnostics';
 import {statsCollector} from './util/statistics';
 
 /**
@@ -102,6 +107,12 @@ export class Checker {
     // Avoid the cost for each rule to create a new TypeChecker.
     this.typeChecker = program.getTypeChecker();
     this.options = program.getCompilerOptions();
+    if (isExplainDiagnosticsEnabled()) {
+      explainDiagnosticsCollector.pushEvent(
+        `Tsetse Checker set up with confidence threshold: ${confidenceToString(this.confidenceThreshold)}
+`,
+      );
+    }
   }
 
   /**
@@ -373,11 +384,21 @@ export class Checker {
     if (TSETSE_STATS_COLLECTION_ENABLED) {
       statsCollector.addProcessedFile(sourceFile.fileName);
     }
+    if (isExplainDiagnosticsEnabled()) {
+      explainDiagnosticsCollector.pushEvent(
+        `Processing file: ${canonicalizePath(sourceFile.fileName)}`,
+      );
+    }
     run(sourceFile);
     const {failures, silencedFailures} = triageFailures(
       this.failures,
       this.confidenceThreshold,
     );
+    if (isExplainDiagnosticsEnabled()) {
+      logFailureResult(failures, silencedFailures);
+      console.log(explainDiagnosticsCollector.flush().join('\n'));
+      console.log('------------------------------------');
+    }
     return reportSilencedViolations ? {failures, silencedFailures} : failures;
 
     function run(node: ts.Node) {
@@ -430,6 +451,36 @@ function triageFailures(
     }
   }
   return {failures: nonSilencedFailures, silencedFailures};
+}
+
+function logFailureResult(
+  failures: Failure[],
+  silencedFailures: Failure[],
+): void {
+  explainDiagnosticsCollector.pushEvent(
+    `
+${failures.length} failures, ${silencedFailures.length} silenced failures`,
+  );
+  if (failures.length > 0) {
+    explainDiagnosticsCollector.pushEvent(`failures:`);
+  }
+  for (const failure of failures) {
+    explainDiagnosticsCollector.pushEvent(
+      `∟∟Failure (confidence: ${confidenceToString(failure.getConfidence())}): ${canonicalizePath(failure.getLocationKey())} : ${failure.getFailureSource()}`,
+    );
+  }
+  if (silencedFailures.length > 0) {
+    explainDiagnosticsCollector.pushEvent('');
+    explainDiagnosticsCollector.pushEvent(`silenced failures:`);
+    for (const failure of silencedFailures) {
+      explainDiagnosticsCollector.pushEvent(
+        `∟∟Silenced failure (confidence: ${confidenceToString(failure.getConfidence())}, reasons: ${failure
+          .getSilenceReasons()
+          ?.map((r) => r.reason)
+          .join(', ')}): ${canonicalizePath(failure.getLocationKey())} : ${failure.getFailureSource()}`,
+      );
+    }
+  }
 }
 
 /** Test only exports for testing the triageFailures function. */

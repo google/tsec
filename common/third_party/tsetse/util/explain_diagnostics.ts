@@ -40,3 +40,35 @@ export function setExplainDiagnostics(enabled: boolean): void {
 export function isExplainDiagnosticsEnabled(): boolean {
   return explainDiagnostics;
 }
+
+/**
+ * Strip path prefix specific to the build envrironment from a file path.
+ */
+export function canonicalizePath(path: string): string {
+  return path;
+}
+
+/**
+ * A class to centrally collect information about the tsetse config and logic,
+ * and produce explanations for checks.
+ */
+class ExplainDiagnosticsCollector {
+  private readonly eventLogs: string[] = [];
+
+  pushEvent(event: string) {
+    this.eventLogs.push(event);
+  }
+
+  getEventLogs() {
+    return this.eventLogs;
+  }
+
+  flush(): string[] {
+    return this.eventLogs.splice(0);
+  }
+}
+
+/**
+ * The singleton instance of ExplainConformanceCollector.
+ */
+export const explainDiagnosticsCollector = new ExplainDiagnosticsCollector();

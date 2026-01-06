@@ -14,6 +14,10 @@
 
 import * as ts from 'typescript';
 import {TSETSE_STATS_COLLECTION_ENABLED} from './compilation_define';
+import {
+  explainDiagnosticsCollector,
+  isExplainDiagnosticsEnabled,
+} from './explain_diagnostics';
 import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
 import {
   Match,
@@ -113,6 +117,11 @@ export class PropertyMatcher {
   }
 
   typeMatches(inspectedType: ts.Type, tc: ts.TypeChecker): TypeMatchConfidence {
+    if (isExplainDiagnosticsEnabled()) {
+      explainDiagnosticsCollector.pushEvent(
+        `∟∟inspectedType: ${tc.typeToString(inspectedType)} ; bannedType: ${this.bannedType}`,
+      );
+    }
     if (!this.useTypedPropertyMatching) {
       return legacyResolveTypeMatches(inspectedType, this.bannedType, tc);
     }
@@ -128,6 +137,11 @@ export class PropertyMatcher {
         tc.isTypeAssignableTo(inspectedType, ignoreType),
       )
     ) {
+      if (isExplainDiagnosticsEnabled()) {
+        explainDiagnosticsCollector.pushEvent(
+          `∟∟∟∟UNRELATED: type is assignable to ignore type`,
+        );
+      }
       return TypeMatchConfidence.UNRELATED;
     }
     if (TSETSE_STATS_COLLECTION_ENABLED) {
