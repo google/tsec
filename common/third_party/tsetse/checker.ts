@@ -31,7 +31,7 @@ import {Confidence, confidenceToString} from './util/confidence';
 import {
   canonicalizePath,
   explainDiagnosticsCollector,
-  isExplainDiagnosticsEnabled
+  isExplainDiagnosticsEnabled,
 } from './util/explain_diagnostics';
 import {statsCollector} from './util/statistics';
 
@@ -466,7 +466,7 @@ ${failures.length} failures, ${silencedFailures.length} silenced failures`,
   }
   for (const failure of failures) {
     explainDiagnosticsCollector.pushEvent(
-      `∟∟Failure (confidence: ${confidenceToString(failure.getConfidence())}): ${canonicalizePath(failure.getLocationKey())} : ${failure.getFailureSource()}`,
+      `∟∟Failure (confidence: ${confidenceToString(failure.getConfidence())}): ${canonicalizePath(failure.getReadableLocation())} : ${failure.getFailureSource()}`,
     );
   }
   if (silencedFailures.length > 0) {
@@ -477,7 +477,9 @@ ${failures.length} failures, ${silencedFailures.length} silenced failures`,
         `∟∟Silenced failure (confidence: ${confidenceToString(failure.getConfidence())}, reasons: ${failure
           .getSilenceReasons()
           ?.map((r) => r.reason)
-          .join(', ')}): ${canonicalizePath(failure.getLocationKey())} : ${failure.getFailureSource()}`,
+          .join(
+            ', ',
+          )}): ${canonicalizePath(failure.getReadableLocation())} : ${failure.getFailureSource()}`,
       );
     }
   }

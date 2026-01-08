@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import * as ts from 'typescript';
+import {getLineColumn} from './util/ast_tools';
 import {Confidence} from './util/confidence';
 
 type SilenceReason =
@@ -137,6 +138,14 @@ export class Failure {
    */
   getLocationKey(): string {
     return `${this.sourceFile.fileName}:${this.start}:${this.end}`;
+  }
+
+  /**
+   * Returns a human readable string with the location of this failure.
+   */
+  getReadableLocation(): string {
+    const {line, column} = getLineColumn(this.start, this.sourceFile);
+    return `${this.sourceFile.fileName}:${line}:${column}`;
   }
 
   getConfidence(): Confidence {
