@@ -14,6 +14,7 @@
 
 import {ENABLED_RULES} from './rule_groups';
 import {Checker} from './third_party/tsetse/checker';
+import {Confidence} from './third_party/tsetse/util/confidence';
 import * as ts from 'typescript';
 
 import {
@@ -23,12 +24,13 @@ import {
 } from './exemption_config';
 
 /**
- * Create a new cheker with all enabled rules registered and the exemption list
+ * Create a new checker with all enabled rules registered and the exemption list
  * configured.
  */
 export function getConfiguredChecker(
   program: ts.Program,
   host: ts.ModuleResolutionHost,
+  confidenceThreshold?: Confidence,
 ): {checker: Checker; errors: ts.Diagnostic[]} {
   let exemptionList: ExemptionList | undefined = undefined;
 
@@ -48,7 +50,7 @@ export function getConfiguredChecker(
   }
 
   // Create all enabled rules with corresponding exemption list entries.
-  const checker = new Checker(program, host);
+  const checker = new Checker(program, host, confidenceThreshold);
   const wildcardAllowListEntry = exemptionList?.get('*');
   const rules = ENABLED_RULES.map((ruleCtr) => {
     const allowlistEntries = [];
