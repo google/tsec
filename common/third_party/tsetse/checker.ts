@@ -227,6 +227,7 @@ export class Checker {
     fixes?: Fix[],
     relatedInformation?: ts.DiagnosticRelatedInformation[],
     confidence?: Confidence,
+    suppressableWithTsIgnore?: boolean,
   ) {
     if (!this.currentSourceFile) {
       throw new Error('Source file not defined');
@@ -255,6 +256,7 @@ export class Checker {
           ? [{reason: 'EXEMPTED'}]
           : undefined,
         confidence,
+        suppressableWithTsIgnore,
       },
     );
     this.failures.push(failure);
@@ -268,6 +270,7 @@ export class Checker {
     fixes?: Fix[],
     relatedInformation?: ts.DiagnosticRelatedInformation[],
     confidence?: Confidence,
+    suppressableWithTsIgnore?: boolean,
   ) {
     // node.getStart() takes a sourceFile as argument whereas node.getEnd()
     // doesn't need it.
@@ -280,6 +283,7 @@ export class Checker {
       fixes,
       relatedInformation,
       confidence,
+      suppressableWithTsIgnore,
     );
   }
 

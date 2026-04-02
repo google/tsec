@@ -43,8 +43,15 @@ function checkImport(checker: Checker, node: ts.ImportDeclaration) {
   if (resolvingResult && resolvingResult.resolvedModule) return;
 
   checker.addFailureAtNode(
-      node, `Cannot find module`, /*source=*/ undefined,
-      /*allowlist*/ undefined);
+    node,
+    `Cannot find module`,
+    /*source=*/ undefined,
+    /*allowlist*/ undefined,
+    /* fixes */ undefined,
+    /* relatedInformation */ undefined,
+    /* confidence */ undefined,
+    /* suppressableWithTsIgnore */ true,
+  );
 }
 
 /**

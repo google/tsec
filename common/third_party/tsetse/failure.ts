@@ -44,6 +44,7 @@ export class Failure {
   // will have at least one silence reason.
   private silenceInformation: SilenceInformation[] | undefined;
   private readonly confidence: Confidence;
+  private readonly suppressableWithTsIgnore: boolean = false;
   constructor(
     private readonly sourceFile: ts.SourceFile,
     private readonly start: number,
@@ -60,6 +61,7 @@ export class Failure {
       relatedInformation?: ts.DiagnosticRelatedInformation[];
       silenceInformation?: SilenceInformation[] | undefined;
       confidence?: Confidence;
+      suppressableWithTsIgnore?: boolean;
     } = {},
   ) {
     this.suggestedFixes = options?.suggestedFixes ?? [];
@@ -69,6 +71,7 @@ export class Failure {
     }
     this.silenceInformation = options?.silenceInformation;
     this.confidence = options?.confidence || Confidence.NA_CONFIDENCE;
+    this.suppressableWithTsIgnore = options?.suppressableWithTsIgnore ?? false;
   }
 
   /**
@@ -95,6 +98,7 @@ export class Failure {
       source: this.failureSource,
       fixes: this.suggestedFixes,
       relatedInformation: this.relatedInformation,
+      suppressableWithTsIgnore: this.suppressableWithTsIgnore,
     };
   }
 
@@ -178,7 +182,7 @@ export class Failure {
    * Stringifies a `Fix`, in a way that makes sense when presented alongside the
    * finding. This is a heuristic, obviously.
    */
-  fixToReadableString(f: Fix) {
+  fixToReadableString(f: Fix): string {
     let fixText = '';
 
     for (const c of f.changes) {
@@ -233,7 +237,7 @@ export class Failure {
    * representing the range. Otherwise returns the stringified representation of
    * the source file position.
    */
-  readableRange(from: number, to: number) {
+  readableRange(from: number, to: number): string {
     const lcf = this.sourceFile.getLineAndCharacterOfPosition(from);
     const lct = this.sourceFile.getLineAndCharacterOfPosition(to);
     if (lcf.line === lct.line && lcf.character === lct.character) {
@@ -325,13 +329,20 @@ export interface DiagnosticWithFixes extends ts.Diagnostic {
    * choose the most suitable fix.
    */
   fixes: Fix[];
+  /**
+   * Whether the failure can be silenced with a ts-ignore comment.
+   *
+   * Generally this is not a good idea, but unfortunately this behavior already
+   * exists in google3 and we need to support it at least temporarily.
+   */
+  suppressableWithTsIgnore?: boolean;
 }
 
 /**
  * Stringifies a `Fix`, replacing the `ts.SourceFile` with the matching
  * filename.
  */
-export function fixToString(f?: Fix) {
+export function fixToString(f?: Fix): string {
   if (!f) return 'undefined';
   return (
     '{' +
