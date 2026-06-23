@@ -92,23 +92,29 @@ export class Allowlist {
     if (this.allowlistMemoizer.has(filePath)) {
       return this.allowlistMemoizer.get(filePath)!;
     }
-    for (const p of this.allowlistedPaths) {
-      if (filePath === p) {
-        this.allowlistMemoizer.set(filePath, true);
-        return true;
+    const checkPath = (pathToCheck: string): boolean => {
+      for (const p of this.allowlistedPaths) {
+        if (pathToCheck === p) {
+          return true;
+        }
+        if (p.endsWith('/') && pathToCheck.startsWith(p)) {
+          return true;
+        }
       }
-      if (p.endsWith('/') && filePath.startsWith(p)) {
-        this.allowlistMemoizer.set(filePath, true);
-        return true;
+      for (const re of this.allowlistedRegExps) {
+        if (re.test(pathToCheck)) {
+          return true;
+        }
       }
+      return false;
+    };
+
+    let result = checkPath(filePath);
+    if (!result && filePath.endsWith('.ng.ts')) {
+      const tsPath = filePath.slice(0, -'.ng.ts'.length) + '.ts';
+      result = checkPath(tsPath);
     }
-    for (const re of this.allowlistedRegExps) {
-      if (re.test(filePath)) {
-        this.allowlistMemoizer.set(filePath, true);
-        return true;
-      }
-    }
-    this.allowlistMemoizer.set(filePath, false);
-    return false;
+    this.allowlistMemoizer.set(filePath, result);
+    return result;
   }
 }
