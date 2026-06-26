@@ -14,15 +14,19 @@
 
 import {Allowlist} from '../../third_party/tsetse/allowlist';
 import {Checker} from '../../third_party/tsetse/checker';
+import {giveConfidence} from '../../third_party/tsetse/confidence';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
+import {
+  Match,
+  NameMatchConfidence,
+  TypeMatchConfidence,
+} from '../../third_party/tsetse/match';
 import {AbstractRule} from '../../third_party/tsetse/rule';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
 import {isLiteral} from '../../third_party/tsetse/util/is_literal';
 import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
-import {TypeMatchConfidence, Match, NameMatchConfidence} from '../../third_party/tsetse/util/pattern_engines/match';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import * as ts from 'typescript';
-import {giveConfidence} from '../../third_party/tsetse/util/confidence';
 
 import {RuleConfiguration} from '../../rule_configuration';
 
@@ -36,9 +40,7 @@ function matchNode(
 ): Match<ts.Node> | undefined {
   if (!shouldExamineNode(n)) return;
   const typeMatch = matcher.typeMatches(tc.getTypeAtLocation(n.expression), tc);
-  if (
-    typeMatch === TypeMatchConfidence.LEGACY_NO_MATCH
-  ) {
+  if (typeMatch === TypeMatchConfidence.LEGACY_NO_MATCH) {
     return;
   }
 

@@ -13,22 +13,18 @@
 // limitations under the License.
 
 import * as ts from 'typescript';
-import {TSETSE_STATS_COLLECTION_ENABLED} from './compilation_define';
+import {TSETSE_STATS_COLLECTION_ENABLED} from '../compilation_define';
 import {
   explainDiagnosticsCollector,
   isExplainDiagnosticsEnabled,
-} from './explain_diagnostics';
-import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
-import {
-  Match,
-  NameMatchConfidence,
-  TypeMatchConfidence,
-} from './pattern_engines/match';
+} from '../explain_diagnostics';
+import {Match, NameMatchConfidence, TypeMatchConfidence} from '../match';
 import {
   PROPERTY_MATCHER_ANY_UNKNOWN_COUNTER,
   PROPERTY_MATCHER_TYPE_CHECK_COUNTER,
   statsCollector,
-} from './statistics';
+} from '../statistics';
+import {PatternDescriptor, PropertyMatcherDescriptor} from './pattern_config';
 import {
   isAnyType,
   isUnknownType,

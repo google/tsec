@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import * as ts from 'typescript';
-import {getLineColumn} from './util/ast_tools';
-import {Confidence} from './util/confidence';
+import {Confidence} from './confidence';
 
 type SilenceReason =
   | 'EXEMPTED' // For Failures that have been exempted through an allowlist
@@ -428,4 +427,19 @@ export function silenceDuplicateFailureMessages(
     }
   }
   return failures;
+}
+
+/**
+ * Returns the line and column from a given start position in a source file.
+ */
+export function getLineColumn(
+  startPosition: number,
+  sourceFile: ts.SourceFile,
+): {line: number; column: number} {
+  if (!sourceFile) {
+    return {line: -1, column: -1};
+  }
+  const {line, character} =
+    sourceFile.getLineAndCharacterOfPosition(startPosition);
+  return {line: line + 1, column: character + 1};
 }

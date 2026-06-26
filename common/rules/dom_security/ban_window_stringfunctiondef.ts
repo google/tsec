@@ -26,6 +26,11 @@
 import {Allowlist} from '../../third_party/tsetse/allowlist';
 import {Checker} from '../../third_party/tsetse/checker';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
+import {
+  Match,
+  NameMatchConfidence,
+  TypeMatchConfidence,
+} from '../../third_party/tsetse/match';
 import {AbstractRule} from '../../third_party/tsetse/rule';
 import {AbsoluteMatcher} from '../../third_party/tsetse/util/absolute_matcher';
 import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
@@ -34,11 +39,6 @@ import {
   GlobalMatcherDescriptor,
   PropertyMatcherDescriptor,
 } from '../../third_party/tsetse/util/pattern_config';
-import {
-  Match,
-  NameMatchConfidence,
-  TypeMatchConfidence,
-} from '../../third_party/tsetse/util/pattern_engines/match';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import {TRUSTED_SCRIPT} from '../../third_party/tsetse/util/trusted_types_configuration';
 import * as ts from 'typescript';

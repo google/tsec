@@ -20,20 +20,20 @@
 import * as ts from 'typescript';
 
 import {Allowlist} from './allowlist';
+import {TSETSE_STATS_COLLECTION_ENABLED} from './compilation_define';
+import {Confidence, confidenceToString} from './confidence';
+import {
+  canonicalizePath,
+  explainDiagnosticsCollector,
+  isExplainDiagnosticsEnabled,
+} from './explain_diagnostics';
 import {
   Failure,
   Fix,
   silenceDuplicateFailureMessages,
   silenceLessConfidentDuplicates,
 } from './failure';
-import {TSETSE_STATS_COLLECTION_ENABLED} from './util/compilation_define';
-import {Confidence, confidenceToString} from './util/confidence';
-import {
-  canonicalizePath,
-  explainDiagnosticsCollector,
-  isExplainDiagnosticsEnabled,
-} from './util/explain_diagnostics';
-import {statsCollector} from './util/statistics';
+import {statsCollector} from './statistics';
 
 /**
  * A Handler contains a handler function and its corresponding error code so

@@ -16,12 +16,13 @@ import * as ts from 'typescript';
 
 import {Allowlist} from '../../allowlist';
 import {Checker} from '../../checker';
+import {giveConfidence} from '../../confidence';
+import {explainDiagnosticsCollector} from '../../explain_diagnostics';
+import {getLineColumn} from '../../failure';
+import {Match} from '../../match';
 import {Fix, Fixer} from '../../util/fixer';
 import {PatternEngineConfig} from '../../util/pattern_config';
-import {getLineColumn, shouldExamineNode} from '../ast_tools';
-import {giveConfidence} from '../confidence';
-import {explainDiagnosticsCollector} from '../explain_diagnostics';
-import {Match} from './match';
+import {shouldExamineNode} from '../ast_tools';
 
 /**
  * A patternEngine is the logic that handles a specific PatternKind.

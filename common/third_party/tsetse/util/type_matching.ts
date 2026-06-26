@@ -18,7 +18,7 @@
  */
 
 import * as ts from 'typescript';
-import {TypeMatchConfidence} from './pattern_engines/match';
+import {TypeMatchConfidence} from '../match';
 
 /**
  * Type matching logic for property matchers that relies on the type checker to

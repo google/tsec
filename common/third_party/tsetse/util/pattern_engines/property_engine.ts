@@ -18,11 +18,11 @@ import {Checker} from '../../checker';
 import {
   explainDiagnosticsCollector,
   isExplainDiagnosticsEnabled,
-} from '../explain_diagnostics';
+} from '../../explain_diagnostics';
 import {PropertyMatcherDescriptor} from '../pattern_config';
 import {PropertyMatcher} from '../property_matcher';
 
-import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
+import {Match, NameMatchConfidence, TypeMatchConfidence} from '../../match';
 import {PatternEngine} from './pattern_engine';
 
 /** Match an AST node with a property matcher. */

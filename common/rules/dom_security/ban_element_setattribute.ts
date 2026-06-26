@@ -14,17 +14,17 @@
 
 import {Allowlist} from '../../third_party/tsetse/allowlist';
 import {Checker} from '../../third_party/tsetse/checker';
+import {giveConfidence} from '../../third_party/tsetse/confidence';
 import {ErrorCode} from '../../third_party/tsetse/error_code';
-import {AbstractRule} from '../../third_party/tsetse/rule';
-import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
-import {giveConfidence} from '../../third_party/tsetse/util/confidence';
-import {isLiteral} from '../../third_party/tsetse/util/is_literal';
-import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
 import {
   Match,
   NameMatchConfidence,
   TypeMatchConfidence,
-} from '../../third_party/tsetse/util/pattern_engines/match';
+} from '../../third_party/tsetse/match';
+import {AbstractRule} from '../../third_party/tsetse/rule';
+import {shouldExamineNode} from '../../third_party/tsetse/util/ast_tools';
+import {isLiteral} from '../../third_party/tsetse/util/is_literal';
+import {PropertyMatcherDescriptor} from '../../third_party/tsetse/util/pattern_config';
 import {PropertyMatcher} from '../../third_party/tsetse/util/property_matcher';
 import * as ts from 'typescript';
 

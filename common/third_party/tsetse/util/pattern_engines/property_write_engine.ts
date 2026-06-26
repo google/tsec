@@ -20,7 +20,7 @@ import {isExpressionOfAllowedTrustedType} from '../is_trusted_type';
 import {PropertyMatcher} from '../property_matcher';
 import {TrustedTypesConfig} from '../trusted_types_configuration';
 
-import {Match} from './match';
+import {Match} from '../../match';
 import {matchProperty, PropertyEngine} from './property_engine';
 
 /** Test if an AST node is a matched property write. */

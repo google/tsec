@@ -19,7 +19,7 @@ import {AbsoluteMatcher, Scope} from '../absolute_matcher';
 import {isExpressionOfAllowedTrustedType} from '../is_trusted_type';
 import {TrustedTypesConfig} from '../trusted_types_configuration';
 
-import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
+import {Match, NameMatchConfidence, TypeMatchConfidence} from '../../match';
 import {PatternEngine} from './pattern_engine';
 
 function isCalledWithAllowedTrustedType(

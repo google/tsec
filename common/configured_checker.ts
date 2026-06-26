@@ -14,7 +14,7 @@
 
 import {ENABLED_RULES} from './rule_groups';
 import {Checker} from './third_party/tsetse/checker';
-import {Confidence} from './third_party/tsetse/util/confidence';
+import {Confidence} from './third_party/tsetse/confidence';
 import * as ts from 'typescript';
 
 import {

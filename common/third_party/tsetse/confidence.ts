@@ -22,11 +22,7 @@
  */
 
 import * as ts from 'typescript';
-import {
-  Match,
-  NameMatchConfidence,
-  TypeMatchConfidence,
-} from './pattern_engines/match';
+import {Match, NameMatchConfidence, TypeMatchConfidence} from './match';
 
 /**
  * Higher values indicate more confidence in the failure. Numerical values are

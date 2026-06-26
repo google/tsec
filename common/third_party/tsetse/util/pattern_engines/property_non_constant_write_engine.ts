@@ -19,7 +19,7 @@ import {debugLog} from '../ast_tools';
 import {isLiteral} from '../is_literal';
 import {PropertyMatcher} from '../property_matcher';
 
-import {Match} from './match';
+import {Match} from '../../match';
 import {matchPropertyWrite, PropertyWriteEngine} from './property_write_engine';
 
 function matchPropertyNonConstantWrite(

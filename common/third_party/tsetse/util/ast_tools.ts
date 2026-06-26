@@ -201,17 +201,3 @@ export function logASTWalkError(verbose: boolean, n: ts.Node, e: Error): void {
   );
 }
 
-/**
- * Returns the line and column from a given start position in a source file.
- */
-export function getLineColumn(
-  startPosition: number,
-  sourceFile: ts.SourceFile,
-): {line: number; column: number} {
-  if (!sourceFile) {
-    return {line: -1, column: -1};
-  }
-  const {line, character} =
-    sourceFile.getLineAndCharacterOfPosition(startPosition);
-  return {line: line + 1, column: character + 1};
-}
