@@ -100,7 +100,7 @@ export class Checker {
    *     silenced.
    */
   constructor(
-    program: ts.Program,
+    private readonly program: ts.Program,
     private readonly host: ts.ModuleResolutionHost,
     private readonly confidenceThreshold: Confidence = Confidence.HIGH_CONFIDENCE_EXTENDS,
   ) {
@@ -113,6 +113,21 @@ export class Checker {
 `,
       );
     }
+  }
+
+  getNgTypecheckFile(sourceFile: ts.SourceFile): ts.SourceFile | undefined {
+    if (!sourceFile.fileName.endsWith('.ts')) {
+      return undefined;
+    }
+    const expectedPath = sourceFile.fileName.replace(
+      /\.ts$/,
+      '.ngtypecheck.ts',
+    );
+    return this.program.getSourceFile(expectedPath);
+  }
+
+  readFile(fileName: string): string | undefined {
+    return this.host.readFile(fileName);
   }
 
   /**
@@ -257,6 +272,33 @@ export class Checker {
           : undefined,
         confidence,
         suppressableWithTsIgnore,
+      },
+    );
+    this.failures.push(failure);
+  }
+
+  addFailureWithSourceFile(
+    sourceFile: ts.SourceFile,
+    start: number,
+    end: number,
+    failureText: string,
+    source: string | undefined,
+    allowlist: Allowlist | undefined,
+    fixes?: Fix[],
+  ) {
+    const isFailureAllowlisted = allowlist?.isAllowlisted(sourceFile.fileName);
+    const failure = new Failure(
+      sourceFile,
+      start,
+      end,
+      failureText,
+      this.currentCode,
+      source,
+      {
+        suggestedFixes: fixes ?? [],
+        silenceInformation: isFailureAllowlisted
+          ? [{reason: 'EXEMPTED'}]
+          : undefined,
       },
     );
     this.failures.push(failure);
