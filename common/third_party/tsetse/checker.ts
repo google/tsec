@@ -126,6 +126,12 @@ export class Checker {
     return this.program.getSourceFile(expectedPath);
   }
 
+  getPostAngularPluginSourceFile(
+    sourceFile: ts.SourceFile,
+  ): ts.SourceFile | undefined {
+    return this.program.getSourceFile(sourceFile.fileName);
+  }
+
   readFile(fileName: string): string | undefined {
     return this.host.readFile(fileName);
   }
