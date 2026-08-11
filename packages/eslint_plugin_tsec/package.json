@@ -9,7 +9,7 @@
     "clean": "yarn rimraf ./lib"
   },
   "dependencies": {
-    "glob": "^11.0.3",
+    "glob": "^11.1.0",
     "@typescript-eslint/utils": "^5.20.0"
   },
   "devDependencies": {
