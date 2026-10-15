@@ -30,3 +30,14 @@ function grabMyRef(ref: Function) {
 }
 let renamedRef = grabMyRef(elem.setAttribute);
 renamedRef.call(elem, 'src', '');
+
+// Generic type parameter and polymorphic `this` receivers are also matched.
+function setGeneric<T extends Element>(el: T, name: string, value: string) {
+  el.setAttribute(name, value);
+}
+
+class CustomEl extends HTMLElement {
+  set(name: string, value: string) {
+    this.setAttribute(name, value);
+  }
+}
