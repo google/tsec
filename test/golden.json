@@ -3,55 +3,55 @@
     {
       "ruleName": "ban-base-href-assignments",
       "start": {
-        "line": 1,
+        "line": 6,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 6,
         "character": 33
       }
     },
     {
       "ruleName": "ban-base-href-assignments",
       "start": {
-        "line": 3,
+        "line": 13,
         "character": 0
       },
       "end": {
-        "line": 3,
+        "line": 13,
         "character": 33
       }
     },
     {
       "ruleName": "ban-base-href-assignments",
       "start": {
-        "line": 6,
+        "line": 21,
         "character": 0
       },
       "end": {
-        "line": 6,
+        "line": 21,
         "character": 37
       }
     },
     {
       "ruleName": "ban-base-href-assignments",
       "start": {
-        "line": 9,
+        "line": 29,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 29,
         "character": 35
       }
     },
     {
       "ruleName": "ban-base-href-assignments",
       "start": {
-        "line": 11,
+        "line": 36,
         "character": 0
       },
       "end": {
-        "line": 11,
+        "line": 36,
         "character": 36
       }
     }
@@ -60,11 +60,11 @@
     {
       "ruleName": "ban-document-execcommand",
       "start": {
-        "line": 3,
+        "line": 7,
         "character": 0
       },
       "end": {
-        "line": 3,
+        "line": 7,
         "character": 15
       }
     }
@@ -73,55 +73,55 @@
     {
       "ruleName": "ban-document-write-calls",
       "start": {
-        "line": 1,
+        "line": 9,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 9,
         "character": 14
       }
     },
     {
       "ruleName": "ban-document-write-calls",
       "start": {
-        "line": 4,
+        "line": 15,
         "character": 14
       },
       "end": {
-        "line": 4,
+        "line": 15,
         "character": 28
       }
     },
     {
       "ruleName": "ban-document-write-calls",
       "start": {
-        "line": 17,
+        "line": 35,
         "character": 0
       },
       "end": {
-        "line": 17,
+        "line": 35,
         "character": 24
       }
     },
     {
       "ruleName": "ban-document-write-calls",
       "start": {
-        "line": 19,
+        "line": 44,
         "character": 0
       },
       "end": {
-        "line": 19,
+        "line": 44,
         "character": 17
       }
     },
     {
       "ruleName": "ban-document-write-calls",
       "start": {
-        "line": 21,
+        "line": 53,
         "character": 0
       },
       "end": {
-        "line": 21,
+        "line": 53,
         "character": 17
       }
     }
@@ -130,55 +130,55 @@
     {
       "ruleName": "ban-document-writeln-calls",
       "start": {
-        "line": 1,
+        "line": 5,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 5,
         "character": 16
       }
     },
     {
       "ruleName": "ban-document-writeln-calls",
       "start": {
-        "line": 4,
+        "line": 12,
         "character": 16
       },
       "end": {
-        "line": 4,
+        "line": 12,
         "character": 32
       }
     },
     {
       "ruleName": "ban-document-writeln-calls",
       "start": {
-        "line": 12,
+        "line": 24,
         "character": 0
       },
       "end": {
-        "line": 12,
+        "line": 24,
         "character": 24
       }
     },
     {
       "ruleName": "ban-document-writeln-calls",
       "start": {
-        "line": 14,
+        "line": 30,
         "character": 0
       },
       "end": {
-        "line": 14,
+        "line": 30,
         "character": 19
       }
     },
     {
       "ruleName": "ban-document-writeln-calls",
       "start": {
-        "line": 16,
+        "line": 36,
         "character": 0
       },
       "end": {
-        "line": 16,
+        "line": 36,
         "character": 19
       }
     }
@@ -187,33 +187,33 @@
     {
       "ruleName": "ban-domparser-parsefromstring",
       "start": {
-        "line": 5,
+        "line": 10,
         "character": 13
       },
       "end": {
-        "line": 5,
+        "line": 10,
         "character": 35
       }
     },
     {
       "ruleName": "ban-domparser-parsefromstring",
       "start": {
-        "line": 7,
+        "line": 17,
         "character": 13
       },
       "end": {
-        "line": 7,
+        "line": 17,
         "character": 47
       }
     },
     {
       "ruleName": "ban-domparser-parsefromstring",
       "start": {
-        "line": 9,
+        "line": 24,
         "character": 17
       },
       "end": {
-        "line": 9,
+        "line": 24,
         "character": 39
       }
     }
@@ -222,66 +222,66 @@
     {
       "ruleName": "ban-element-innerhtml-assignments",
       "start": {
-        "line": 1,
+        "line": 14,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 14,
         "character": 47
       }
     },
     {
       "ruleName": "ban-element-innerhtml-assignments",
       "start": {
-        "line": 6,
+        "line": 29,
         "character": 0
       },
       "end": {
-        "line": 6,
+        "line": 29,
         "character": 36
       }
     },
     {
       "ruleName": "ban-element-innerhtml-assignments",
       "start": {
-        "line": 14,
+        "line": 50,
         "character": 0
       },
       "end": {
-        "line": 14,
+        "line": 50,
         "character": 34
       }
     },
     {
       "ruleName": "ban-element-innerhtml-assignments",
       "start": {
-        "line": 16,
+        "line": 65,
         "character": 0
       },
       "end": {
-        "line": 16,
+        "line": 65,
         "character": 36
       }
     },
     {
       "ruleName": "ban-element-innerhtml-assignments",
       "start": {
-        "line": 18,
+        "line": 80,
         "character": 0
       },
       "end": {
-        "line": 18,
+        "line": 80,
         "character": 46
       }
     },
     {
       "ruleName": "ban-element-innerhtml-assignments",
       "start": {
-        "line": 20,
+        "line": 96,
         "character": 0
       },
       "end": {
-        "line": 20,
+        "line": 96,
         "character": 45
       }
     }
@@ -290,55 +290,55 @@
     {
       "ruleName": "ban-element-insertadjacenthtml",
       "start": {
-        "line": 3,
+        "line": 12,
         "character": 0
       },
       "end": {
-        "line": 3,
+        "line": 12,
         "character": 26
       }
     },
     {
       "ruleName": "ban-element-insertadjacenthtml",
       "start": {
-        "line": 6,
+        "line": 19,
         "character": 27
       },
       "end": {
-        "line": 6,
+        "line": 19,
         "character": 53
       }
     },
     {
       "ruleName": "ban-element-insertadjacenthtml",
       "start": {
-        "line": 11,
+        "line": 33,
         "character": 0
       },
       "end": {
-        "line": 11,
+        "line": 33,
         "character": 12
       }
     },
     {
       "ruleName": "ban-element-insertadjacenthtml",
       "start": {
-        "line": 13,
+        "line": 44,
         "character": 0
       },
       "end": {
-        "line": 13,
+        "line": 44,
         "character": 29
       }
     },
     {
       "ruleName": "ban-element-insertadjacenthtml",
       "start": {
-        "line": 15,
+        "line": 55,
         "character": 0
       },
       "end": {
-        "line": 15,
+        "line": 55,
         "character": 29
       }
     }
@@ -347,55 +347,55 @@
     {
       "ruleName": "ban-element-outerhtml-assignments",
       "start": {
-        "line": 1,
+        "line": 13,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 13,
         "character": 47
       }
     },
     {
       "ruleName": "ban-element-outerhtml-assignments",
       "start": {
-        "line": 6,
+        "line": 30,
         "character": 0
       },
       "end": {
-        "line": 6,
+        "line": 30,
         "character": 36
       }
     },
     {
       "ruleName": "ban-element-outerhtml-assignments",
       "start": {
-        "line": 14,
+        "line": 50,
         "character": 0
       },
       "end": {
-        "line": 14,
+        "line": 50,
         "character": 34
       }
     },
     {
       "ruleName": "ban-element-outerhtml-assignments",
       "start": {
-        "line": 16,
+        "line": 64,
         "character": 0
       },
       "end": {
-        "line": 16,
+        "line": 64,
         "character": 36
       }
     },
     {
       "ruleName": "ban-element-outerhtml-assignments",
       "start": {
-        "line": 18,
+        "line": 78,
         "character": 0
       },
       "end": {
-        "line": 18,
+        "line": 78,
         "character": 46
       }
     }
@@ -404,121 +404,121 @@
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 3,
+        "line": 8,
         "character": 0
       },
       "end": {
-        "line": 3,
+        "line": 8,
         "character": 17
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 4,
+        "line": 14,
         "character": 0
       },
       "end": {
-        "line": 4,
+        "line": 14,
         "character": 17
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 5,
+        "line": 20,
         "character": 0
       },
       "end": {
-        "line": 5,
+        "line": 20,
         "character": 19
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 6,
+        "line": 26,
         "character": 0
       },
       "end": {
-        "line": 6,
+        "line": 26,
         "character": 21
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 7,
+        "line": 32,
         "character": 0
       },
       "end": {
-        "line": 7,
+        "line": 32,
         "character": 23
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 16,
+        "line": 46,
         "character": 0
       },
       "end": {
-        "line": 16,
+        "line": 46,
         "character": 17
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 19,
+        "line": 54,
         "character": 14
       },
       "end": {
-        "line": 19,
+        "line": 54,
         "character": 31
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 23,
+        "line": 63,
         "character": 10
       },
       "end": {
-        "line": 23,
+        "line": 63,
         "character": 27
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 30,
+        "line": 75,
         "character": 27
       },
       "end": {
-        "line": 30,
+        "line": 75,
         "character": 44
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 35,
+        "line": 85,
         "character": 2
       },
       "end": {
-        "line": 35,
+        "line": 85,
         "character": 17
       }
     },
     {
       "ruleName": "ban-element-setattribute",
       "start": {
-        "line": 40,
+        "line": 95,
         "character": 4
       },
       "end": {
-        "line": 40,
+        "line": 95,
         "character": 21
       }
     }
@@ -527,99 +527,99 @@
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 1,
+        "line": 11,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 11,
         "character": 4
       }
     },
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 2,
+        "line": 22,
         "character": 0
       },
       "end": {
-        "line": 2,
+        "line": 22,
         "character": 11
       }
     },
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 5,
+        "line": 32,
         "character": 10
       },
       "end": {
-        "line": 5,
+        "line": 32,
         "character": 14
       }
     },
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 9,
+        "line": 42,
         "character": 17
       },
       "end": {
-        "line": 9,
+        "line": 42,
         "character": 21
       }
     },
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 12,
+        "line": 51,
         "character": 4
       },
       "end": {
-        "line": 12,
+        "line": 51,
         "character": 8
       }
     },
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 13,
+        "line": 62,
         "character": 0
       },
       "end": {
-        "line": 13,
+        "line": 62,
         "character": 11
       }
     },
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 14,
+        "line": 73,
         "character": 0
       },
       "end": {
-        "line": 14,
+        "line": 73,
         "character": 15
       }
     },
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 16,
+        "line": 85,
         "character": 0
       },
       "end": {
-        "line": 16,
+        "line": 85,
         "character": 14
       }
     },
     {
       "ruleName": "ban-eval-calls",
       "start": {
-        "line": 19,
+        "line": 98,
         "character": 0
       },
       "end": {
-        "line": 19,
+        "line": 98,
         "character": 8
       }
     }
@@ -628,66 +628,66 @@
     {
       "ruleName": "ban-function-calls",
       "start": {
-        "line": 2,
+        "line": 6,
         "character": 0
       },
       "end": {
-        "line": 2,
+        "line": 6,
         "character": 30
       }
     },
     {
       "ruleName": "ban-function-calls",
       "start": {
-        "line": 12,
+        "line": 20,
         "character": 0
       },
       "end": {
-        "line": 12,
+        "line": 20,
         "character": 25
       }
     },
     {
       "ruleName": "ban-function-calls",
       "start": {
-        "line": 13,
+        "line": 25,
         "character": 0
       },
       "end": {
-        "line": 13,
+        "line": 25,
         "character": 32
       }
     },
     {
       "ruleName": "ban-function-calls",
       "start": {
-        "line": 14,
+        "line": 30,
         "character": 0
       },
       "end": {
-        "line": 14,
+        "line": 30,
         "character": 58
       }
     },
     {
       "ruleName": "ban-function-calls",
       "start": {
-        "line": 16,
+        "line": 36,
         "character": 0
       },
       "end": {
-        "line": 16,
+        "line": 36,
         "character": 35
       }
     },
     {
       "ruleName": "ban-function-calls",
       "start": {
-        "line": 19,
+        "line": 43,
         "character": 0
       },
       "end": {
-        "line": 19,
+        "line": 43,
         "character": 29
       }
     }
@@ -696,66 +696,66 @@
     {
       "ruleName": "ban-iframe-srcdoc-assignments",
       "start": {
-        "line": 3,
+        "line": 14,
         "character": 0
       },
       "end": {
-        "line": 3,
+        "line": 14,
         "character": 21
       }
     },
     {
       "ruleName": "ban-iframe-srcdoc-assignments",
       "start": {
-        "line": 6,
+        "line": 28,
         "character": 0
       },
       "end": {
-        "line": 6,
+        "line": 28,
         "character": 23
       }
     },
     {
       "ruleName": "ban-iframe-srcdoc-assignments",
       "start": {
-        "line": 7,
+        "line": 41,
         "character": 0
       },
       "end": {
-        "line": 7,
+        "line": 41,
         "character": 38
       }
     },
     {
       "ruleName": "ban-iframe-srcdoc-assignments",
       "start": {
-        "line": 8,
+        "line": 54,
         "character": 0
       },
       "end": {
-        "line": 8,
+        "line": 54,
         "character": 39
       }
     },
     {
       "ruleName": "ban-iframe-srcdoc-assignments",
       "start": {
-        "line": 9,
+        "line": 66,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 66,
         "character": 26
       }
     },
     {
       "ruleName": "ban-iframe-srcdoc-assignments",
       "start": {
-        "line": 10,
+        "line": 79,
         "character": 0
       },
       "end": {
-        "line": 10,
+        "line": 79,
         "character": 36
       }
     }
@@ -764,44 +764,44 @@
     {
       "ruleName": "ban-object-data-assignments",
       "start": {
-        "line": 5,
+        "line": 12,
         "character": 0
       },
       "end": {
-        "line": 5,
+        "line": 12,
         "character": 15
       }
     },
     {
       "ruleName": "ban-object-data-assignments",
       "start": {
-        "line": 6,
+        "line": 22,
         "character": 0
       },
       "end": {
-        "line": 6,
+        "line": 22,
         "character": 20
       }
     },
     {
       "ruleName": "ban-object-data-assignments",
       "start": {
-        "line": 7,
+        "line": 33,
         "character": 0
       },
       "end": {
-        "line": 7,
+        "line": 33,
         "character": 23
       }
     },
     {
       "ruleName": "ban-object-data-assignments",
       "start": {
-        "line": 8,
+        "line": 41,
         "character": 0
       },
       "end": {
-        "line": 8,
+        "line": 41,
         "character": 18
       }
     }
@@ -810,11 +810,11 @@
     {
       "ruleName": "ban-range-createcontextualfragment",
       "start": {
-        "line": 2,
+        "line": 9,
         "character": 0
       },
       "end": {
-        "line": 2,
+        "line": 9,
         "character": 30
       }
     }
@@ -823,22 +823,22 @@
     {
       "ruleName": "ban-script-appendchild-calls",
       "start": {
-        "line": 2,
+        "line": 7,
         "character": 0
       },
       "end": {
-        "line": 2,
+        "line": 7,
         "character": 18
       }
     },
     {
       "ruleName": "ban-script-appendchild-calls",
       "start": {
-        "line": 5,
+        "line": 15,
         "character": 11
       },
       "end": {
-        "line": 5,
+        "line": 15,
         "character": 29
       }
     }
@@ -847,66 +847,66 @@
     {
       "ruleName": "ban-script-content-assignments",
       "start": {
-        "line": 1,
+        "line": 10,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 10,
         "character": 34
       }
     },
     {
       "ruleName": "ban-script-content-assignments",
       "start": {
-        "line": 2,
+        "line": 20,
         "character": 0
       },
       "end": {
-        "line": 2,
+        "line": 20,
         "character": 41
       }
     },
     {
       "ruleName": "ban-script-content-assignments",
       "start": {
-        "line": 4,
+        "line": 31,
         "character": 0
       },
       "end": {
-        "line": 4,
+        "line": 31,
         "character": 37
       }
     },
     {
       "ruleName": "ban-script-content-assignments",
       "start": {
-        "line": 5,
+        "line": 41,
         "character": 0
       },
       "end": {
-        "line": 5,
+        "line": 41,
         "character": 44
       }
     },
     {
       "ruleName": "ban-script-content-assignments",
       "start": {
-        "line": 8,
+        "line": 54,
         "character": 0
       },
       "end": {
-        "line": 8,
+        "line": 54,
         "character": 21
       }
     },
     {
       "ruleName": "ban-script-content-assignments",
       "start": {
-        "line": 9,
+        "line": 65,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 65,
         "character": 28
       }
     }
@@ -915,88 +915,88 @@
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 8,
+        "line": 15,
         "character": 0
       },
       "end": {
-        "line": 8,
+        "line": 15,
         "character": 14
       }
     },
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 9,
+        "line": 25,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 25,
         "character": 19
       }
     },
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 10,
+        "line": 36,
         "character": 0
       },
       "end": {
-        "line": 10,
+        "line": 36,
         "character": 28
       }
     },
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 22,
+        "line": 58,
         "character": 0
       },
       "end": {
-        "line": 22,
+        "line": 58,
         "character": 22
       }
     },
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 23,
+        "line": 69,
         "character": 0
       },
       "end": {
-        "line": 23,
+        "line": 69,
         "character": 22
       }
     },
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 24,
+        "line": 80,
         "character": 0
       },
       "end": {
-        "line": 24,
+        "line": 80,
         "character": 35
       }
     },
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 25,
+        "line": 91,
         "character": 17
       },
       "end": {
-        "line": 25,
+        "line": 91,
         "character": 39
       }
     },
     {
       "ruleName": "ban-script-src-assignments",
       "start": {
-        "line": 29,
+        "line": 104,
         "character": 0
       },
       "end": {
-        "line": 29,
+        "line": 104,
         "character": 22
       }
     }
@@ -1005,33 +1005,33 @@
     {
       "ruleName": "ban-serviceworkercontainer-register",
       "start": {
-        "line": 3,
+        "line": 12,
         "character": 0
       },
       "end": {
-        "line": 3,
+        "line": 12,
         "character": 18
       }
     },
     {
       "ruleName": "ban-serviceworkercontainer-register",
       "start": {
-        "line": 6,
+        "line": 19,
         "character": 12
       },
       "end": {
-        "line": 6,
+        "line": 19,
         "character": 30
       }
     },
     {
       "ruleName": "ban-serviceworkercontainer-register",
       "start": {
-        "line": 12,
+        "line": 35,
         "character": 0
       },
       "end": {
-        "line": 12,
+        "line": 35,
         "character": 14
       }
     }
@@ -1040,77 +1040,77 @@
     {
       "ruleName": "ban-shared-worker-calls",
       "start": {
-        "line": 7,
+        "line": 17,
         "character": 19
       },
       "end": {
-        "line": 7,
+        "line": 17,
         "character": 31
       }
     },
     {
       "ruleName": "ban-shared-worker-calls",
       "start": {
-        "line": 8,
+        "line": 26,
         "character": 30
       },
       "end": {
-        "line": 8,
+        "line": 26,
         "character": 42
       }
     },
     {
       "ruleName": "ban-shared-worker-calls",
       "start": {
-        "line": 11,
+        "line": 39,
         "character": 31
       },
       "end": {
-        "line": 11,
+        "line": 39,
         "character": 43
       }
     },
     {
       "ruleName": "ban-shared-worker-calls",
       "start": {
-        "line": 13,
+        "line": 49,
         "character": 30
       },
       "end": {
-        "line": 13,
+        "line": 49,
         "character": 42
       }
     },
     {
       "ruleName": "ban-shared-worker-calls",
       "start": {
-        "line": 16,
+        "line": 60,
         "character": 25
       },
       "end": {
-        "line": 16,
+        "line": 60,
         "character": 44
       }
     },
     {
       "ruleName": "ban-shared-worker-calls",
       "start": {
-        "line": 17,
+        "line": 69,
         "character": 26
       },
       "end": {
-        "line": 17,
+        "line": 69,
         "character": 48
       }
     },
     {
       "ruleName": "ban-shared-worker-calls",
       "start": {
-        "line": 19,
+        "line": 78,
         "character": 26
       },
       "end": {
-        "line": 19,
+        "line": 78,
         "character": 48
       }
     }
@@ -1119,22 +1119,22 @@
     {
       "ruleName": "ban-trustedtypes-createpolicy",
       "start": {
-        "line": 1,
+        "line": 5,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 5,
         "character": 33
       }
     },
     {
       "ruleName": "ban-trustedtypes-createpolicy",
       "start": {
-        "line": 5,
+        "line": 13,
         "character": 11
       },
       "end": {
-        "line": 9,
+        "line": 17,
         "character": 28
       }
     }
@@ -1143,66 +1143,66 @@
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {
-        "line": 2,
+        "line": 7,
         "character": 0
       },
       "end": {
-        "line": 2,
+        "line": 7,
         "character": 11
       }
     },
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {
-        "line": 3,
+        "line": 13,
         "character": 0
       },
       "end": {
-        "line": 3,
+        "line": 13,
         "character": 10
       }
     },
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {
-        "line": 5,
+        "line": 20,
         "character": 0
       },
       "end": {
-        "line": 5,
+        "line": 20,
         "character": 18
       }
     },
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {
-        "line": 6,
+        "line": 26,
         "character": 0
       },
       "end": {
-        "line": 6,
+        "line": 26,
         "character": 17
       }
     },
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {
-        "line": 8,
+        "line": 33,
         "character": 0
       },
       "end": {
-        "line": 8,
+        "line": 33,
         "character": 25
       }
     },
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {
-        "line": 9,
+        "line": 39,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 39,
         "character": 24
       }
     },
@@ -1210,22 +1210,22 @@
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {
-        "line": 25,
+        "line": 60,
         "character": 0
       },
       "end": {
-        "line": 25,
+        "line": 60,
         "character": 20
       }
     },
     {
       "ruleName": "ban-window-stringfunctiondef",
       "start": {
-        "line": 26,
+        "line": 66,
         "character": 0
       },
       "end": {
-        "line": 26,
+        "line": 66,
         "character": 20
       }
     }
@@ -1234,77 +1234,77 @@
     {
       "ruleName": "ban-worker-calls",
       "start": {
-        "line": 7,
+        "line": 17,
         "character": 19
       },
       "end": {
-        "line": 7,
+        "line": 17,
         "character": 25
       }
     },
     {
       "ruleName": "ban-worker-calls",
       "start": {
-        "line": 8,
+        "line": 26,
         "character": 30
       },
       "end": {
-        "line": 8,
+        "line": 26,
         "character": 36
       }
     },
     {
       "ruleName": "ban-worker-calls",
       "start": {
-        "line": 11,
+        "line": 38,
         "character": 31
       },
       "end": {
-        "line": 11,
+        "line": 38,
         "character": 37
       }
     },
     {
       "ruleName": "ban-worker-calls",
       "start": {
-        "line": 13,
+        "line": 48,
         "character": 30
       },
       "end": {
-        "line": 13,
+        "line": 48,
         "character": 36
       }
     },
     {
       "ruleName": "ban-worker-calls",
       "start": {
-        "line": 16,
+        "line": 59,
         "character": 25
       },
       "end": {
-        "line": 16,
+        "line": 59,
         "character": 38
       }
     },
     {
       "ruleName": "ban-worker-calls",
       "start": {
-        "line": 17,
+        "line": 68,
         "character": 26
       },
       "end": {
-        "line": 17,
+        "line": 68,
         "character": 42
       }
     },
     {
       "ruleName": "ban-worker-calls",
       "start": {
-        "line": 19,
+        "line": 77,
         "character": 26
       },
       "end": {
-        "line": 19,
+        "line": 77,
         "character": 42
       }
     }
@@ -1313,22 +1313,22 @@
     {
       "ruleName": "ban-worker-importscripts",
       "start": {
-        "line": 0,
+        "line": 8,
         "character": 0
       },
       "end": {
-        "line": 0,
+        "line": 8,
         "character": 13
       }
     },
     {
       "ruleName": "ban-worker-importscripts",
       "start": {
-        "line": 1,
+        "line": 18,
         "character": 0
       },
       "end": {
-        "line": 1,
+        "line": 18,
         "character": 18
       }
     }
@@ -1337,44 +1337,44 @@
     {
       "ruleName": "ban-legacy-conversions",
       "start": {
-        "line": 9,
+        "line": 15,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 15,
         "character": 16
       }
     },
     {
       "ruleName": "ban-legacy-conversions",
       "start": {
-        "line": 11,
+        "line": 29,
         "character": 0
       },
       "end": {
-        "line": 11,
+        "line": 29,
         "character": 18
       }
     },
     {
       "ruleName": "ban-legacy-conversions",
       "start": {
-        "line": 13,
+        "line": 43,
         "character": 0
       },
       "end": {
-        "line": 13,
+        "line": 43,
         "character": 23
       }
     },
     {
       "ruleName": "ban-legacy-conversions",
       "start": {
-        "line": 15,
+        "line": 57,
         "character": 0
       },
       "end": {
-        "line": 15,
+        "line": 57,
         "character": 25
       }
     }
@@ -1383,44 +1383,44 @@
     {
       "ruleName": "ban-reviewed-conversions",
       "start": {
-        "line": 9,
+        "line": 15,
         "character": 0
       },
       "end": {
-        "line": 9,
+        "line": 15,
         "character": 16
       }
     },
     {
       "ruleName": "ban-reviewed-conversions",
       "start": {
-        "line": 11,
+        "line": 29,
         "character": 0
       },
       "end": {
-        "line": 11,
+        "line": 29,
         "character": 18
       }
     },
     {
       "ruleName": "ban-reviewed-conversions",
       "start": {
-        "line": 13,
+        "line": 37,
         "character": 0
       },
       "end": {
-        "line": 13,
+        "line": 37,
         "character": 25
       }
     },
     {
       "ruleName": "ban-reviewed-conversions",
       "start": {
-        "line": 15,
+        "line": 51,
         "character": 0
       },
       "end": {
-        "line": 15,
+        "line": 51,
         "character": 27
       }
     }
