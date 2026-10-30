@@ -51,9 +51,6 @@ import {
  * ignore matches on HTMLLinkElement#textContent usages.
  */
 export class PropertyMatcher {
-  private bannedTypeCache: ts.Type | undefined = undefined;
-  private ignoreTypesCache: ts.Type[] | undefined = undefined;
-
   static fromSpec(
     value: PatternDescriptor,
     options: {useTypedPropertyMatching?: boolean; ignoreTypes?: string[]} = {},
@@ -121,15 +118,10 @@ export class PropertyMatcher {
     if (!this.useTypedPropertyMatching) {
       return legacyResolveTypeMatches(inspectedType, this.bannedType, tc);
     }
-    const matcherType = (this.bannedTypeCache ??= resolveTypeFromName(
-      tc,
-      this.bannedType,
-    ));
-    if (this.ignoreTypesCache === undefined) {
-      this.resolveIgnoreTypes(tc);
-    }
+    const matcherType = resolveTypeFromName(tc, this.bannedType);
     if (
-      this.ignoreTypesCache!.some((ignoreType) =>
+      this.ignoreTypes.length > 0 &&
+      this.resolveIgnoreTypes(tc).some((ignoreType) =>
         tc.isTypeAssignableTo(inspectedType, ignoreType),
       )
     ) {
@@ -157,11 +149,10 @@ export class PropertyMatcher {
     }
   }
 
-  private resolveIgnoreTypes(tc: ts.TypeChecker): void {
-    // Cache the ignore types. Ignore types that are not resolved. This is to
-    // avoid failing the compilation when an ignore type is not available in the
-    // program.
-    this.ignoreTypesCache = this.ignoreTypes
+  private resolveIgnoreTypes(tc: ts.TypeChecker): ts.Type[] {
+    // Ignore types that are not resolved. This is to avoid failing the compilation
+    // when an ignore type is not available in the program.
+    return this.ignoreTypes
       .map((t) => {
         try {
           return resolveTypeFromName(tc, t);
