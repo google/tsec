@@ -44,6 +44,8 @@ interface Handler<T extends ts.Node> {
   code: number;
 }
 
+const SOURCE_FILE_EXTENSION_RE = /(\.d)?\.[cm]?[tj]sx?$/;
+
 /**
  * Tsetse rules use on() and addFailureAtNode() for rule implementations.
  * Rules can get a ts.TypeChecker from checker.typeChecker so typed rules are
@@ -477,6 +479,27 @@ export class Checker {
       this.options,
       this.host,
     );
+  }
+
+  /**
+   * Returns whether any source file path in the program (with or without its
+   * TypeScript/JavaScript file extension) matches `pattern`.
+   */
+  hasSourceFileMatching(pattern: RegExp): boolean {
+    const matcher =
+      pattern.global || pattern.sticky
+        ? new RegExp(pattern.source, pattern.flags.replace(/[gy]/g, ''))
+        : pattern;
+    for (const sourceFile of this.program.getSourceFiles()) {
+      const fileName = sourceFile.fileName;
+      if (
+        matcher.test(fileName) ||
+        matcher.test(fileName.replace(SOURCE_FILE_EXTENSION_RE, ''))
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
