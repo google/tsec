@@ -39,6 +39,6 @@
   "peerDependencies": {
     "@bazel/bazelisk": ">=1.7.5",
     "@bazel/concatjs": ">=5.3.0",
-    "typescript": ">=3.9.2"
+    "typescript": ">=3.9.2 <7.0.0"
   }
 }
