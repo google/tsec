@@ -112,20 +112,27 @@ export function checkForBannedJsDocTag(
   checker: Checker,
   node: ts.HasJSDoc,
   allowlist?: Allowlist,
-) {
-  const allTags: ts.JSDocTag[] = [];
-  for (const child of node.getChildren()) {
-    if (!ts.isJSDoc(child) || !child.tags) continue;
-    allTags.push(...child.tags);
-  }
-  const internalTag = allTags.find(
-    (tag) => tag.tagName.getText() === bannedTag,
-  );
-  if (!internalTag) return;
+): void {
+  // Reach into TypeScript's @internal `node.jsDoc` property rather than calling
+  // `node.getChildren()` (which tokenizes leading trivia and materializes
+  // child arrays on every visited node) or `ts.getJSDocTags()` (which walks
+  // parent nodes and can omit extraneous tags; see
+  // https://github.com/microsoft/TypeScript/issues/42895).
+  // tslint:disable-next-line:no-any circumventing @internal TS AST property
+  const jsDocs: readonly ts.JSDoc[] | undefined = (node as any).jsDoc;
+  if (!jsDocs) return;
 
-  const fix = replaceNode(internalTag, '');
+  let matchingTag: ts.JSDocTag | undefined;
+  for (const jsDoc of jsDocs) {
+    if (!jsDoc.tags) continue;
+    matchingTag = jsDoc.tags.find((tag) => tag.tagName.text === bannedTag);
+    if (matchingTag) break;
+  }
+  if (!matchingTag) return;
+
+  const fix = replaceNode(matchingTag, '');
   checker.addFailureAtNode(
-    internalTag,
+    matchingTag,
     `do not use @${bannedTag}`,
     ruleName,
     allowlist,
